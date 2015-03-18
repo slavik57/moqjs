@@ -1,13 +1,17 @@
-﻿@section title{
+﻿@using System.Web.Optimization;
+
+@section title{
     mockjs - Tests
 }
 
 @section styles{
-    <link rel="stylesheet" href="/Vendor/qunit/qunit-1.17.1.css">
+    @Styles.Render("~/VendorCSS")
 }
 
 @section scripts{
-    <script src="/Vendor/qunit/qunit-1.17.1.js"></script>
+    @Scripts.Render("~/VendorJS")
+    @Scripts.Render("~/MockJS")
+    @Scripts.Render("~/TestsJS")
 }
 
 <div id="qunit"></div>
