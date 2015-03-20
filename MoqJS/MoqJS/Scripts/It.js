@@ -33,6 +33,16 @@ var moqJS;
         return ItIsAny;
     })(ItIsBase);
 
+    var Is = (function () {
+        function Is(predicate) {
+            this.predicate = predicate;
+        }
+        Is.prototype.match = function (argument) {
+            return this.predicate(argument);
+        };
+        return Is;
+    })();
+
     var It = (function () {
         function It() {
         }
@@ -41,8 +51,7 @@ var moqJS;
         };
 
         It.is = function (predicate) {
-            // TODO: implement...
-            return null;
+            return new Is(predicate);
         };
         return It;
     })();

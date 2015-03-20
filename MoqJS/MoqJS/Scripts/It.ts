@@ -23,14 +23,22 @@ module moqJS {
         }
     }
 
+    class Is<T> {
+        constructor(public predicate: (argument: T) => boolean) {
+        }
+
+        match(argument: any): boolean {
+            return this.predicate(argument);
+        }
+    }
+
     export class It {
         public static isAny(type: Function): any {
             return new ItIsAny(type);
         }
 
         public static is<T>(predicate: (argument: T) => boolean): any {
-            // TODO: implement...
-            return null;
+            return new Is(predicate);
         }
     }
 }

@@ -343,5 +343,55 @@ var Tests;
         // Assert
         assert.strictEqual(result, true, 'should match the type');
     });
+
+    QUnit.test('is - should call the function passed with the argument', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        var itIs = It.is(function (_arg) {
+            // Assert
+            assert.strictEqual(_arg, arg, 'Should pass the argument');
+            return true;
+        });
+
+        // Act
+        itIs.match(arg);
+    });
+
+    QUnit.test('is - function returns true should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        var itIs = It.is(function (_arg) {
+            return true;
+        });
+
+        // Act
+        var result = itIs.match(arg);
+
+        // Assert
+        assert.strictEqual(result, true, 'when passed function returns true should return true');
+    });
+
+    QUnit.test('is - function returns false should return false', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        var itIs = It.is(function (_arg) {
+            return false;
+        });
+
+        // Act
+        var result = itIs.match(arg);
+
+        // Assert
+        assert.strictEqual(result, false, 'when passed function returns false should return false');
+    });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=ItTest.js.map
