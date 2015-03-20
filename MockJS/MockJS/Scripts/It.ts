@@ -21,8 +21,13 @@ module mockJS {
     }
 
     export class It {
-        public static isAny(type: Function): IItIs {
+        public static isAny(type: Function): any {
             return new ItIsAny(type);
+        }
+
+        public static is<T>(predicate: (argument: T) => boolean): any {
+            // TODO...
+            return null;
         }
     }
 }
