@@ -1,6 +1,9 @@
 ﻿'use strict';
 var Tests;
 (function (Tests) {
+    var ItIsBase = mockJS.ItIsBase;
+    var It = mockJS.It;
+
     var Times = mockJS.Times;
     var Mock = mockJS.Mock;
 
@@ -1743,6 +1746,206 @@ var Tests;
 
         // Assert
         assert.strictEqual(result, true, 'should return true if times match');
+    });
+
+    QUnit.test('verify - one argument - ItIsBase returns false should return false', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var itIs = new ItIsBase();
+        itIs.match = function () {
+            return false;
+        };
+
+        context.testObject.oneArgumentsFunction(1);
+
+        // Act
+        var result = context.mock.verify(function (_) {
+            return _.oneArgumentsFunction(itIs);
+        });
+
+        // Assert
+        assert.strictEqual(result, false, 'should return false if ItIs returns false');
+    });
+
+    QUnit.test('verify - one argument - ItIsBase returns false should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var itIs = new ItIsBase();
+        itIs.match = function () {
+            return true;
+        };
+
+        context.testObject.oneArgumentsFunction(1);
+
+        // Act
+        var result = context.mock.verify(function (_) {
+            return _.oneArgumentsFunction(itIs);
+        });
+
+        // Assert
+        assert.strictEqual(result, true, 'should return true if ItIs returns true');
+    });
+
+    QUnit.test('verify - many arguments - ItIsBase returns false should return false', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var itIs = new ItIsBase();
+        itIs.match = function () {
+            return false;
+        };
+
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+
+        // Act
+        var result = context.mock.verify(function (_) {
+            return _.manyArgumentsFunction(itIs, itIs, itIs);
+        });
+
+        // Assert
+        assert.strictEqual(result, false, 'should return false if ItIs returns false');
+    });
+
+    QUnit.test('verify - many arguments - ItIsBase returns true should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var itIs = new ItIsBase();
+        itIs.match = function () {
+            return true;
+        };
+
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+
+        // Act
+        var result = context.mock.verify(function (_) {
+            return _.manyArgumentsFunction(itIs, itIs, itIs);
+        });
+
+        // Assert
+        assert.strictEqual(result, true, 'should return true if ItIs returns true');
+    });
+
+    QUnit.test('verify - many arguments - ItIsBase returns true and false should return false', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var trueItIs = new ItIsBase();
+        trueItIs.match = function () {
+            return true;
+        };
+
+        var falseItIs = new ItIsBase();
+        falseItIs.match = function () {
+            return false;
+        };
+
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+
+        // Act
+        var result = context.mock.verify(function (_) {
+            return _.manyArgumentsFunction(trueItIs, trueItIs, falseItIs);
+        });
+
+        // Assert
+        assert.strictEqual(result, false, 'should return false if some ItIs returns false');
+    });
+
+    QUnit.test('verify - many arguments - ItIsBase returns true and other arguments dont match should return false', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var trueItIs = new ItIsBase();
+        trueItIs.match = function () {
+            return true;
+        };
+
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+
+        // Act
+        var result = context.mock.verify(function (_) {
+            return _.manyArgumentsFunction(trueItIs, trueItIs, 2);
+        });
+
+        // Assert
+        assert.strictEqual(result, false, 'should return false if some arguments dont match');
+    });
+
+    QUnit.test('verify - many arguments - called many times ItIsBase returns true should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var trueItIs = new ItIsBase();
+        trueItIs.match = function () {
+            return true;
+        };
+
+        context.testObject.manyArgumentsFunction(1, 1, 2);
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+        context.testObject.manyArgumentsFunction(1, 1, 2);
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+
+        // Act
+        var result = context.mock.verify(function (_) {
+            return _.manyArgumentsFunction(trueItIs, trueItIs, 2);
+        }, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should return true if ItIs returns true and the times match');
+    });
+
+    QUnit.test('verify - many arguments - called many times ItIsBase returns true once should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var trueItIs = new ItIsBase();
+        var numberOfTimesReturnedTrue = 0;
+        trueItIs.match = function () {
+            numberOfTimesReturnedTrue++;
+            return numberOfTimesReturnedTrue <= 1;
+        };
+
+        context.testObject.manyArgumentsFunction(1, 1, 2);
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+        context.testObject.manyArgumentsFunction(1, 1, 2);
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+        context.testObject.manyArgumentsFunction(1, 1, 1);
+
+        // Act
+        var result = context.mock.verify(function (_) {
+            return _.manyArgumentsFunction(1, trueItIs, 2);
+        }, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should return true if ItIs returns true and the times match');
+    });
+
+    QUnit.test('verify - many arguments - called with numbers and strings should return only the strings', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var numberItIs = It.isAny(Number);
+        var stringItIs = It.isAny(String);
+
+        context.testObject.manyArgumentsFunction(11, 1, 1);
+        context.testObject.manyArgumentsFunction(12, 1, 2);
+        context.testObject.manyArgumentsFunction(13, '1', 3);
+        context.testObject.manyArgumentsFunction(14, 1, 4);
+        context.testObject.manyArgumentsFunction(15, '112', 5);
+        context.testObject.manyArgumentsFunction(16, 1, 6);
+
+        // Act
+        var result = context.mock.verify(function (_) {
+            return _.manyArgumentsFunction(numberItIs, stringItIs, numberItIs);
+        }, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should return true for 2 string calls');
     });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=MockTest.js.map
