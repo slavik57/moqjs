@@ -11,7 +11,7 @@ var moqJS;
         }
         FunctionProxy.prototype.callFunction = function (args) {
             if (!this.functionProxyConfigurations.isVerifying) {
-                this._callFunctionWithoutVerification(args);
+                return this._callFunctionWithoutVerification(args);
             } else {
                 this._verifyFunction(args);
             }
@@ -21,7 +21,9 @@ var moqJS;
             this._numberOfTimesCalled++;
             this._actualArguments.push(args);
 
-            this.functionToWrap.apply(this.thisObject, args);
+            if (this.functionProxyConfigurations.callBase) {
+                return this.functionToWrap.apply(this.thisObject, args);
+            }
         };
 
         FunctionProxy.prototype._verifyFunction = function (expectedArguments) {

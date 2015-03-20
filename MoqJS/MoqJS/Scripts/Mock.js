@@ -10,9 +10,22 @@ var moqJS;
         function Mock(object) {
             this.object = object;
             this._FunctionProxyConfigurations = new moqJS.FunctionProxyConfigurations();
+            this._FunctionProxyConfigurations.callBase = true;
 
             this._setFunctionProxies();
         }
+        Object.defineProperty(Mock.prototype, "callBase", {
+            get: function () {
+                return this._FunctionProxyConfigurations.callBase;
+            },
+            set: function (value) {
+                this._FunctionProxyConfigurations.callBase = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+
         Mock.prototype.verify = function (functionCall, times) {
             this._FunctionProxyConfigurations.isVerifying = true;
             this._FunctionProxyConfigurations.numberOfMatches = 0;
@@ -45,9 +58,6 @@ var moqJS;
                 proxies.push(functionProxy);
 
                 this._setFunctionProxy(proxies, proxies.length - 1, propertyName);
-                //this.object[propertyName] = (...args: any[]) => {
-                //    functionProxy.callFunction(args);
-                //}
             }
         };
 

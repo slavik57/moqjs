@@ -13,19 +13,21 @@ module moqJS {
             this._actualArguments = [];
         }
 
-        public callFunction(args: any[]) {
+        public callFunction(args: any[]): any {
             if (!this.functionProxyConfigurations.isVerifying) {
-                this._callFunctionWithoutVerification(args);
+                return this._callFunctionWithoutVerification(args);
             } else {
                 this._verifyFunction(args);
             }
         }
 
-        private _callFunctionWithoutVerification(args: any[]) {
+        private _callFunctionWithoutVerification(args: any[]): any {
             this._numberOfTimesCalled++;
             this._actualArguments.push(args);
 
-            this.functionToWrap.apply(this.thisObject, args);
+            if (this.functionProxyConfigurations.callBase) {
+                return this.functionToWrap.apply(this.thisObject, args);
+            }
         }
 
         private _verifyFunction(expectedArguments: any[]) {

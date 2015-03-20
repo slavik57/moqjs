@@ -1641,4 +1641,73 @@ module Tests {
         // Assert
         assert.strictEqual(result, true, 'should return true for 2 string calls');
     });
+
+    QUnit.test('callBase - set to true after constructor should call the original function', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var testObject = new TestObject();
+        var mock = new Mock(testObject);
+        mock.callBase = true;
+
+        testObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(true, 'original function should be called');
+        }
+
+        // Act
+        testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('callBase - set to false after constructor should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var testObject = new TestObject();
+        var mock = new Mock(testObject);
+        mock.callBase = false;
+
+        testObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'original function should not be called');
+        }
+
+        // Act
+        testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('callBase - set to true should return the original function value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var testObject = new TestObject();
+        var mock = new Mock(testObject);
+        mock.callBase = true;
+
+        // Act
+        var result = testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result, 1, 'should return the original value');
+    });
+
+    QUnit.test('callBase - set to false should not return the original function value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var testObject = new TestObject();
+        var mock = new Mock(testObject);
+        mock.callBase = false;
+
+        // Act
+        var result = testObject.returning1Function();
+
+        // Assert
+        assert.notStrictEqual(result, 1, 'should not return the original value');
+    });
+
+    QUnit.test('callBase - set to false should return undefined', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var testObject = new TestObject();
+        var mock = new Mock(testObject);
+        mock.callBase = false;
+
+        // Act
+        var result = testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result, undefined, 'should return undefined');
+    });
 }

@@ -21,6 +21,10 @@ var Tests;
                 this.onManyArgumentsFunctionCalled(arg1, arg2, arg3);
             }
         };
+
+        TestObject.prototype.returning1Function = function () {
+            return 1;
+        };
         return TestObject;
     })();
     Tests.TestObject = TestObject;

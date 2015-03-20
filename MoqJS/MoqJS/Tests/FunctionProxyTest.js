@@ -18,6 +18,8 @@ var Tests;
                 context.oneArgsFunctionProxy = new FunctionProxy(context.thisObject.oneArgumentsFunction, context.thisObject, context.functionProxyConfigurations);
 
                 context.manyArgsFunctionProxy = new FunctionProxy(context.thisObject.manyArgumentsFunction, context.thisObject, context.functionProxyConfigurations);
+
+                context.returning1FunctionProxy = new FunctionProxy(context.thisObject.returning1Function, context.thisObject, context.functionProxyConfigurations);
             };
             this.afterEach = function () {
             };
@@ -119,6 +121,17 @@ var Tests;
 
         // Act
         context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
+    });
+
+    QUnit.test('callFunction - returning1Function - should return the original function result', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        var result = context.returning1FunctionProxy.callFunction([]);
+
+        // Assert
+        assert.strictEqual(result, 1, 'should return the original value');
     });
 
     QUnit.test('callFunction - verify mode no arguments -  was not called should not find a match', function (assert) {
@@ -814,6 +827,62 @@ var Tests;
 
         // Assert
         assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
+    });
+
+    QUnit.test('callbase - set to true, should call the original function', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.functionProxyConfigurations.callBase = true;
+
+        context.thisObject.onNoArgumentsFunctionCalled = function () {
+            // Assert
+            assert.ok(true, 'should call original function');
+        };
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([]);
+    });
+
+    QUnit.test('callbase - set to false, should not call the original function', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.functionProxyConfigurations.callBase = false;
+
+        context.thisObject.onNoArgumentsFunctionCalled = function () {
+            // Assert
+            assert.ok(false, 'should call original function');
+        };
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([]);
+    });
+
+    QUnit.test('callbase - set to false, should not return the original function result', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.functionProxyConfigurations.callBase = false;
+
+        // Act
+        var result = context.returning1FunctionProxy.callFunction([]);
+
+        // Assert
+        assert.notStrictEqual(result, 1, 'should not return the original value');
+    });
+
+    QUnit.test('callbase - set to false, should not return undefined', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.functionProxyConfigurations.callBase = false;
+
+        // Act
+        var result = context.returning1FunctionProxy.callFunction([]);
+
+        // Assert
+        assert.strictEqual(result, undefined, 'should return undefined');
     });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=FunctionProxyTest.js.map

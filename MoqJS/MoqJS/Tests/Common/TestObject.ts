@@ -23,5 +23,9 @@ module Tests {
                 this.onManyArgumentsFunctionCalled(arg1, arg2, arg3);
             }
         }
+
+        public returning1Function(): number {
+            return 1;
+        }
     }
 }

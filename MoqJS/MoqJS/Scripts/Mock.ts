@@ -11,8 +11,17 @@ module moqJS {
 
         constructor(public object: T) {
             this._FunctionProxyConfigurations = new FunctionProxyConfigurations();
+            this._FunctionProxyConfigurations.callBase = true;
 
             this._setFunctionProxies();
+        }
+
+        public get callBase() {
+            return this._FunctionProxyConfigurations.callBase;
+        }
+
+        public set callBase(value: boolean) {
+            this._FunctionProxyConfigurations.callBase = value;
         }
 
         public verify(functionCall: (object: T) => any, times?: ITimes): boolean {
@@ -47,9 +56,6 @@ module moqJS {
                 proxies.push(functionProxy);
 
                 this._setFunctionProxy(proxies, proxies.length - 1, propertyName);
-                //this.object[propertyName] = (...args: any[]) => {
-                //    functionProxy.callFunction(args);
-                //}
             }
         }
 

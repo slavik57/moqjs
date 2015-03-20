@@ -13,6 +13,7 @@ module Tests {
         public noArgsFunctionProxy: FunctionProxy;
         public oneArgsFunctionProxy: FunctionProxy;
         public manyArgsFunctionProxy: FunctionProxy;
+        public returning1FunctionProxy: FunctionProxy;
 
         public beforeEach = function () {
             var context: FunctionProxyLifecycleObject = this;
@@ -29,6 +30,10 @@ module Tests {
                 context.functionProxyConfigurations);
 
             context.manyArgsFunctionProxy = new FunctionProxy(context.thisObject.manyArgumentsFunction,
+                context.thisObject,
+                context.functionProxyConfigurations);
+
+            context.returning1FunctionProxy = new FunctionProxy(context.thisObject.returning1Function,
                 context.thisObject,
                 context.functionProxyConfigurations);
         };
@@ -131,6 +136,17 @@ module Tests {
 
         // Act
         context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
+    });
+
+    QUnit.test('callFunction - returning1Function - should return the original function result', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        // Act
+        var result = context.returning1FunctionProxy.callFunction([]);
+
+        // Assert
+        assert.strictEqual(result, 1, 'should return the original value');
     });
 
     QUnit.test('callFunction - verify mode no arguments -  was not called should not find a match', function (assert: QUnitAssert) {
@@ -460,7 +476,6 @@ module Tests {
         // Assert
         assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
-
 
     QUnit.test('callFunction - verify mode one argument - was called with IItIs which returns true 3 times, should find a match', function (assert: QUnitAssert) {
         QUnit.expect(1);
@@ -827,5 +842,61 @@ module Tests {
 
         // Assert
         assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
+    });
+
+    QUnit.test('callbase - set to true, should call the original function', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        context.functionProxyConfigurations.callBase = true;
+
+        context.thisObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(true, 'should call original function');
+        };
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([]);
+    });
+
+    QUnit.test('callbase - set to false, should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        context.functionProxyConfigurations.callBase = false;
+
+        context.thisObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should call original function');
+        };
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([]);
+    });
+
+    QUnit.test('callbase - set to false, should not return the original function result', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        context.functionProxyConfigurations.callBase = false;
+
+        // Act
+        var result = context.returning1FunctionProxy.callFunction([]);
+
+        // Assert
+        assert.notStrictEqual(result, 1, 'should not return the original value');
+    });
+
+    QUnit.test('callbase - set to false, should not return undefined', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        context.functionProxyConfigurations.callBase = false;
+
+        // Act
+        var result = context.returning1FunctionProxy.callFunction([]);
+
+        // Assert
+        assert.strictEqual(result, undefined, 'should return undefined');
     });
 }

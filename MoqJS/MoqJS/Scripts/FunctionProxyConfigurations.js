@@ -5,6 +5,7 @@ var moqJS;
         function FunctionProxyConfigurations() {
             this.isVerifying = false;
             this.numberOfMatches = 0;
+            this.callBase = true;
         }
         return FunctionProxyConfigurations;
     })();
