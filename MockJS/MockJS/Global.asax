@@ -1,1 +1,1 @@
-﻿<%@ Application Codebehind="Global.asax.cs" Inherits="MockJS.Global" Language="C#" %>
+﻿<%@ Application Codebehind="Global.asax.cs" Inherits="MoqJS.Global" Language="C#" %>

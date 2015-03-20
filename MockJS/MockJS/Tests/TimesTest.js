@@ -1,7 +1,7 @@
 ﻿'use strict';
 var Tests;
 (function (Tests) {
-    var Times = mockJS.Times;
+    var Times = moqJS.Times;
 
     var TimesLyfecycleObject = (function () {
         function TimesLyfecycleObject() {

@@ -1,11 +1,11 @@
 ﻿'use strict';
 
 module Tests {
-    import ItIsBase = mockJS.ItIsBase;
-    import It = mockJS.It;
-    import ITimes = mockJS.ITimes;
-    import Times = mockJS.Times;
-    import Mock = mockJS.Mock;
+    import ItIsBase = moqJS.ItIsBase;
+    import It = moqJS.It;
+    import ITimes = moqJS.ITimes;
+    import Times = moqJS.Times;
+    import Mock = moqJS.Mock;
 
     class MockLifecycleObject implements LifecycleObject {
         public testObject: TestObject;

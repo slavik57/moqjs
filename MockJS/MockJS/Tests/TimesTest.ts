@@ -1,8 +1,8 @@
 ﻿'use strict';
 
 module Tests {
-    import ITimes = mockJS.ITimes;
-    import Times = mockJS.Times;
+    import ITimes = moqJS.ITimes;
+    import Times = moqJS.Times;
 
     class TimesLyfecycleObject implements LifecycleObject {
         public beforeEach = function () {

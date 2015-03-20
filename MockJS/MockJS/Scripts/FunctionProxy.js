@@ -1,6 +1,6 @@
 ﻿'use strict';
-var mockJS;
-(function (mockJS) {
+var moqJS;
+(function (moqJS) {
     var FunctionProxy = (function () {
         function FunctionProxy(functionToWrap, thisObject, functionProxyConfigurations) {
             this.functionToWrap = functionToWrap;
@@ -53,7 +53,7 @@ var mockJS;
         };
 
         FunctionProxy.prototype._isSameArgument = function (actual, expected) {
-            var itIsItIsBase = mockJS.It.isAny(mockJS.ItIsBase);
+            var itIsItIsBase = moqJS.It.isAny(moqJS.ItIsBase);
 
             if (!itIsItIsBase.match(expected)) {
                 return actual === expected;
@@ -65,6 +65,6 @@ var mockJS;
         };
         return FunctionProxy;
     })();
-    mockJS.FunctionProxy = FunctionProxy;
-})(mockJS || (mockJS = {}));
+    moqJS.FunctionProxy = FunctionProxy;
+})(moqJS || (moqJS = {}));
 //# sourceMappingURL=FunctionProxy.js.map

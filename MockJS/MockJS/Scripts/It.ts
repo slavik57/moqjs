@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-module mockJS {
+module moqJS {
     export class ItIsBase {
         match(argument: any): boolean {
             return false;
@@ -29,7 +29,7 @@ module mockJS {
         }
 
         public static is<T>(predicate: (argument: T) => boolean): any {
-            // TODO...
+            // TODO: implement...
             return null;
         }
     }

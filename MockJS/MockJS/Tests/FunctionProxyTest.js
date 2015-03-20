@@ -1,9 +1,9 @@
 ﻿'use strict';
 var Tests;
 (function (Tests) {
-    var ItIsBase = mockJS.ItIsBase;
-    var FunctionProxyConfigurations = mockJS.FunctionProxyConfigurations;
-    var FunctionProxy = mockJS.FunctionProxy;
+    var ItIsBase = moqJS.ItIsBase;
+    var FunctionProxyConfigurations = moqJS.FunctionProxyConfigurations;
+    var FunctionProxy = moqJS.FunctionProxy;
 
     var FunctionProxyLifecycleObject = (function () {
         function FunctionProxyLifecycleObject() {

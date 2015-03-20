@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-module mockJS {
+module moqJS {
     export class FunctionProxyConfigurations {
         public isVerifying: boolean;
 

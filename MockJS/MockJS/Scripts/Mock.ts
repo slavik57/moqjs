@@ -1,6 +1,11 @@
 ﻿'use strict';
 
-module mockJS {
+module moqJS {
+    // TODO: Implement:
+    //  callbase
+    //  setup
+    //  setup get
+    //  setup set
     export class Mock<T> {
         private _FunctionProxyConfigurations: FunctionProxyConfigurations;
 

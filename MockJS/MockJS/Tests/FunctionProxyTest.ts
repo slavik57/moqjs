@@ -1,9 +1,9 @@
 ﻿'use strict';
 
 module Tests {
-    import ItIsBase = mockJS.ItIsBase;
-    import FunctionProxyConfigurations = mockJS.FunctionProxyConfigurations;
-    import FunctionProxy = mockJS.FunctionProxy;
+    import ItIsBase = moqJS.ItIsBase;
+    import FunctionProxyConfigurations = moqJS.FunctionProxyConfigurations;
+    import FunctionProxy = moqJS.FunctionProxy;
 
     class FunctionProxyLifecycleObject implements LifecycleObject {
 

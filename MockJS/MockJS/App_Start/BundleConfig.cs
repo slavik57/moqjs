@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Optimization;
 
-namespace MockJS
+namespace MoqJS
 {
     public class BundleConfig
     {
@@ -25,7 +25,7 @@ namespace MockJS
             bundles.Add(new ScriptBundle("~/VendorJS")
                         .IncludeDirectory("~/Vendor/qunit", "*.js", true));
 
-            bundles.Add(new ScriptBundle("~/MockJS")
+            bundles.Add(new ScriptBundle("~/MoqJS")
                         .IncludeDirectory("~/Scripts", "*.js"));
 
             bundles.Add(new ScriptBundle("~/TestsJS")

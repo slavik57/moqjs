@@ -1,6 +1,6 @@
 ﻿'use strict';
-var mockJS;
-(function (mockJS) {
+var moqJS;
+(function (moqJS) {
     var FunctionProxyConfigurations = (function () {
         function FunctionProxyConfigurations() {
             this.isVerifying = false;
@@ -8,6 +8,6 @@ var mockJS;
         }
         return FunctionProxyConfigurations;
     })();
-    mockJS.FunctionProxyConfigurations = FunctionProxyConfigurations;
-})(mockJS || (mockJS = {}));
+    moqJS.FunctionProxyConfigurations = FunctionProxyConfigurations;
+})(moqJS || (moqJS = {}));
 //# sourceMappingURL=FunctionProxyConfigurations.js.map

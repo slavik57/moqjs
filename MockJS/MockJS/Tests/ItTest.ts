@@ -1,8 +1,8 @@
 ﻿'use strict';
 
 module Tests {
-    import ItIsBase = mockJS.ItIsBase;
-    import It = mockJS.It;
+    import ItIsBase = moqJS.ItIsBase;
+    import It = moqJS.It;
 
     class Parent {
     }

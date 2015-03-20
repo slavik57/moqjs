@@ -1,10 +1,15 @@
 ﻿'use strict';
-var mockJS;
-(function (mockJS) {
+var moqJS;
+(function (moqJS) {
+    // TODO: Implement:
+    //  callbase
+    //  setup
+    //  setup get
+    //  setup set
     var Mock = (function () {
         function Mock(object) {
             this.object = object;
-            this._FunctionProxyConfigurations = new mockJS.FunctionProxyConfigurations();
+            this._FunctionProxyConfigurations = new moqJS.FunctionProxyConfigurations();
 
             this._setFunctionProxies();
         }
@@ -36,7 +41,7 @@ var mockJS;
                     continue;
                 }
 
-                var functionProxy = new mockJS.FunctionProxy(propertyValue, this.object, this._FunctionProxyConfigurations);
+                var functionProxy = new moqJS.FunctionProxy(propertyValue, this.object, this._FunctionProxyConfigurations);
                 proxies.push(functionProxy);
 
                 this._setFunctionProxy(proxies, proxies.length - 1, propertyName);
@@ -57,6 +62,6 @@ var mockJS;
         };
         return Mock;
     })();
-    mockJS.Mock = Mock;
-})(mockJS || (mockJS = {}));
+    moqJS.Mock = Mock;
+})(moqJS || (moqJS = {}));
 //# sourceMappingURL=Mock.js.map

@@ -1,11 +1,11 @@
 ﻿'use strict';
 var Tests;
 (function (Tests) {
-    var ItIsBase = mockJS.ItIsBase;
-    var It = mockJS.It;
+    var ItIsBase = moqJS.ItIsBase;
+    var It = moqJS.It;
 
-    var Times = mockJS.Times;
-    var Mock = mockJS.Mock;
+    var Times = moqJS.Times;
+    var Mock = moqJS.Mock;
 
     var MockLifecycleObject = (function () {
         function MockLifecycleObject() {

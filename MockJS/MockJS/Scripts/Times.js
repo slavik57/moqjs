@@ -5,8 +5,8 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var mockJS;
-(function (mockJS) {
+var moqJS;
+(function (moqJS) {
     var TimesBase = (function () {
         function TimesBase(expected) {
             this.expected = expected;
@@ -119,6 +119,6 @@ var mockJS;
         };
         return Times;
     })();
-    mockJS.Times = Times;
-})(mockJS || (mockJS = {}));
+    moqJS.Times = Times;
+})(moqJS || (moqJS = {}));
 //# sourceMappingURL=Times.js.map

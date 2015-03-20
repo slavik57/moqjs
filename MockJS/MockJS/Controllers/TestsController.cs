@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace MockJS.Controllers
+namespace MoqJS.Controllers
 {
     public class TestsController : Controller
     {

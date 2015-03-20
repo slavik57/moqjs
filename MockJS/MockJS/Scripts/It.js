@@ -5,8 +5,8 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var mockJS;
-(function (mockJS) {
+var moqJS;
+(function (moqJS) {
     var ItIsBase = (function () {
         function ItIsBase() {
         }
@@ -15,7 +15,7 @@ var mockJS;
         };
         return ItIsBase;
     })();
-    mockJS.ItIsBase = ItIsBase;
+    moqJS.ItIsBase = ItIsBase;
 
     var ItIsAny = (function (_super) {
         __extends(ItIsAny, _super);
@@ -41,11 +41,11 @@ var mockJS;
         };
 
         It.is = function (predicate) {
-            // TODO...
+            // TODO: implement...
             return null;
         };
         return It;
     })();
-    mockJS.It = It;
-})(mockJS || (mockJS = {}));
+    moqJS.It = It;
+})(moqJS || (moqJS = {}));
 //# sourceMappingURL=It.js.map

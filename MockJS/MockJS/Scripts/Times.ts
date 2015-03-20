@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-module mockJS {
+module moqJS {
     export interface ITimes {
         match(actual: number): boolean;
     }

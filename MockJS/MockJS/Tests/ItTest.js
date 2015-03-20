@@ -7,7 +7,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var Tests;
 (function (Tests) {
-    var It = mockJS.It;
+    var It = moqJS.It;
 
     var Parent = (function () {
         function Parent() {

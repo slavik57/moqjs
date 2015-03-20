@@ -9,7 +9,7 @@ using System.Web.SessionState;
 using System.Web.Http;
 using System.Web.Optimization;
 
-namespace MockJS
+namespace MoqJS
 {
     public class Global : HttpApplication
     {

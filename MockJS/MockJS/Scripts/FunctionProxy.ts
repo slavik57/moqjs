@@ -1,6 +1,6 @@
 ﻿'use strict';
 
-module mockJS {
+module moqJS {
     export class FunctionProxy {
         private _numberOfTimesCalled: number;
         private _actualArguments: Array<any[]>;
