@@ -158,10 +158,12 @@
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\FunctionProxy.ts" />
     <TypeScriptCompile Include="Scripts\FunctionProxyConfigurations.ts" />
+    <TypeScriptCompile Include="Scripts\It.ts" />
     <TypeScriptCompile Include="Scripts\Mock.ts" />
     <TypeScriptCompile Include="Scripts\Times.ts" />
     <TypeScriptCompile Include="Tests\Common\TestObject.ts" />
     <TypeScriptCompile Include="Tests\FunctionProxyTest.ts" />
+    <TypeScriptCompile Include="Tests\ItTest.ts" />
     <TypeScriptCompile Include="Tests\MockTest.ts" />
     <TypeScriptCompile Include="Tests\TimesTest.ts" />
     <TypeScriptCompile Include="Vendor\qunit\qunit.d.ts" />
