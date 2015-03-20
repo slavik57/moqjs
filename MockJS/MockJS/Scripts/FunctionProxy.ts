@@ -40,7 +40,7 @@ module mockJS {
         }
 
         private _doArgumentsMatch(args: any[], argumentsOfCall: any[]) {
-            if (args.length != argumentsOfCall.length) {
+            if (args.length !== argumentsOfCall.length) {
                 return false;
             }
 
@@ -49,12 +49,12 @@ module mockJS {
             }
 
             for (var i = 0; i < args.length; i++) {
-                if (args[i] === argumentsOfCall[i]) {
-                    return true;
+                if (args[i] !== argumentsOfCall[i]) {
+                    return false;
                 }
             }
 
-            return false;
+            return true;
         }
     }
 }

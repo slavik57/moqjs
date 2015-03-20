@@ -265,5 +265,368 @@ var Tests;
         // Assert
         assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
     });
+
+    QUnit.test('callFunction - verify mode one argument -  was not called should not find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        var arg = {};
+
+        // Act
+        context.oneArgsFunctionProxy.callFunction([arg]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+    });
+
+    QUnit.test('callFunction - verify mode one argument - was called should find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.noArgsFunctionProxy.callFunction([arg]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([arg]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode one argument - was called twice should find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.noArgsFunctionProxy.callFunction([arg]);
+        context.noArgsFunctionProxy.callFunction([arg]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([arg]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode one argument - was called twice should find a match for first arg', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.noArgsFunctionProxy.callFunction([arg1]);
+        context.noArgsFunctionProxy.callFunction([arg2]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([arg1]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode one argument - was called twice should find a match for second arg', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.noArgsFunctionProxy.callFunction([arg1]);
+        context.noArgsFunctionProxy.callFunction([arg2]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([arg2]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode one argument - was called twice should not find a match for another arg', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.noArgsFunctionProxy.callFunction([arg1]);
+        context.noArgsFunctionProxy.callFunction([arg2]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([arg3]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+    });
+
+    QUnit.test('callFunction - verify mode one argument - was called without arguments should not find a match with arg', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.noArgsFunctionProxy.callFunction([]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([arg]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+    });
+
+    QUnit.test('callFunction - verify mode one argument - was called without arguments should find a match without arguments', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.noArgsFunctionProxy.callFunction([]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was not called should not find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called should find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called twice should find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
+        context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called twice with different sets should find a match for first set', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet1);
+        context.manyArgsFunctionProxy.callFunction(argSet2);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction(argSet1);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called twice with different sets should find a match for second set', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet1);
+        context.manyArgsFunctionProxy.callFunction(argSet2);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction(argSet2);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called twice with different sets should not find a match for different set', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+        var argSet3 = [{}, {}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet1);
+        context.manyArgsFunctionProxy.callFunction(argSet2);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction(argSet3);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments - was called twice with different sets should not find a match for set with one different parameter', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+        var argSet3 = [argSet1[0], argSet1[1], argSet2[2]];
+
+        context.manyArgsFunctionProxy.callFunction(argSet1);
+        context.manyArgsFunctionProxy.callFunction(argSet2);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction(argSet3);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called with less parameters should find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var argSet = [{}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction(argSet);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called with more parameters should find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var argSet = [{}, {}, {}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction(argSet);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called with more parameters should not find a match with less parameters', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var argSet = [{}, {}, {}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction([argSet[0], argSet[1], argSet[2]]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+    });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=FunctionProxyTest.js.map

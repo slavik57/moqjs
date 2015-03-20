@@ -36,7 +36,7 @@ var mockJS;
         };
 
         FunctionProxy.prototype._doArgumentsMatch = function (args, argumentsOfCall) {
-            if (args.length != argumentsOfCall.length) {
+            if (args.length !== argumentsOfCall.length) {
                 return false;
             }
 
@@ -45,12 +45,12 @@ var mockJS;
             }
 
             for (var i = 0; i < args.length; i++) {
-                if (args[i] === argumentsOfCall[i]) {
-                    return true;
+                if (args[i] !== argumentsOfCall[i]) {
+                    return false;
                 }
             }
 
-            return false;
+            return true;
         };
         return FunctionProxy;
     })();
