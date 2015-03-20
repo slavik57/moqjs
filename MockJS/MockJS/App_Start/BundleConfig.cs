@@ -26,9 +26,7 @@ namespace MockJS
                         .IncludeDirectory("~/Vendor/qunit", "*.js", true));
 
             bundles.Add(new ScriptBundle("~/MockJS")
-                        .Include("~/Scripts/FunctionProxyConfigurations.js")
-                        .Include("~/Scripts/FunctionProxy.js")
-                        .Include("~/Scripts/Mock.js"));
+                        .IncludeDirectory("~/Scripts", "*.js"));
 
             bundles.Add(new ScriptBundle("~/TestsJS")
                         .IncludeDirectory("~/Tests", "*.js", true));
