@@ -3,14 +3,14 @@
 module mockJS {
     export class FunctionProxy {
         private _numberOfTimesCalled: number;
-        private _argumentsOfCalls: Array<any[]>;
+        private _actualArguments: Array<any[]>;
 
         constructor(public functionToWrap: Function,
             public thisObject: any,
             public functionProxyConfigurations: FunctionProxyConfigurations) {
 
             this._numberOfTimesCalled = 0;
-            this._argumentsOfCalls = [];
+            this._actualArguments = [];
         }
 
         public callFunction(args: any[]) {
@@ -23,37 +23,49 @@ module mockJS {
 
         private _callFunctionWithoutVerification(args: any[]) {
             this._numberOfTimesCalled++;
-            this._argumentsOfCalls.push(args);
+            this._actualArguments.push(args);
 
             this.functionToWrap.apply(this.thisObject, args);
         }
 
-        private _verifyFunction(args: any[]) {
-            for (var i = 0; i < this._argumentsOfCalls.length; i++) {
-                var argumentOfCall = this._argumentsOfCalls[i];
+        private _verifyFunction(expectedArguments: any[]) {
+            for (var i = 0; i < this._actualArguments.length; i++) {
+                var actualArguments = this._actualArguments[i];
 
-                if (this._doArgumentsMatch(args, argumentOfCall)) {
+                if (this._doArgumentsMatch(expectedArguments, actualArguments)) {
                     this.functionProxyConfigurations.numberOfMatches++;
                 }
             }
         }
 
-        private _doArgumentsMatch(args: any[], argumentsOfCall: any[]) {
-            if (args.length !== argumentsOfCall.length) {
+        private _doArgumentsMatch(expectedArguments: any[], actualArguments: any[]) {
+            if (expectedArguments.length !== actualArguments.length) {
                 return false;
             }
 
-            if (args.length === 0) {
+            if (expectedArguments.length === 0) {
                 return true;
             }
 
-            for (var i = 0; i < args.length; i++) {
-                if (args[i] !== argumentsOfCall[i]) {
+            for (var i = 0; i < expectedArguments.length; i++) {
+                if (!this._isSameArgument(actualArguments[i], expectedArguments[i])) {
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private _isSameArgument(actual: any, expected: any) {
+            var itIsItIsBase: ItIsBase = It.isAny(ItIsBase);
+
+            if (!itIsItIsBase.match(expected)) {
+                return actual === expected;
+            }
+
+            var expectedItIsBase: ItIsBase = expected;
+
+            return expectedItIsBase.match(actual);
         }
     }
 }

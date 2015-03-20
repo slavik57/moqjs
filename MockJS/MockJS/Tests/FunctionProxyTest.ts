@@ -1,6 +1,7 @@
 ﻿'use strict';
 
 module Tests {
+    import ItIsBase = mockJS.ItIsBase;
     import FunctionProxyConfigurations = mockJS.FunctionProxyConfigurations;
     import FunctionProxy = mockJS.FunctionProxy;
 
@@ -146,7 +147,7 @@ module Tests {
         // Assert
         assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
-    
+
     QUnit.test('callFunction - verify mode no arguments - was called should find a match', function (assert: QUnitAssert) {
         QUnit.expect(1);
 
@@ -290,6 +291,54 @@ module Tests {
         assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
+    QUnit.test('callFunction - verify mode one argument - was called with IItIs which returns false, should not find a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        var arg = {};
+
+        context.noArgsFunctionProxy.callFunction([arg]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        var itIs = new ItIsBase();
+        itIs.match = () => {
+            return false;
+        };
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([itIs]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
+    });
+
+    QUnit.test('callFunction - verify mode one argument - was called with IItIs which returns true, should f-nd a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        var arg = {};
+
+        context.noArgsFunctionProxy.callFunction([arg]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        var itIs = new ItIsBase();
+        itIs.match = () => {
+            return true;
+        };
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([itIs]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
+    });
+
     QUnit.test('callFunction - verify mode one argument - was called twice should find a match', function (assert: QUnitAssert) {
         QUnit.expect(1);
 
@@ -410,6 +459,37 @@ module Tests {
 
         // Assert
         assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
+    });
+
+
+    QUnit.test('callFunction - verify mode one argument - was called with IItIs which returns true 3 times, should find a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        var arg = {};
+
+        context.noArgsFunctionProxy.callFunction([arg]);
+        context.noArgsFunctionProxy.callFunction([arg]);
+        context.noArgsFunctionProxy.callFunction([arg]);
+        context.noArgsFunctionProxy.callFunction([arg]);
+        context.noArgsFunctionProxy.callFunction([arg]);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        var numberOfTimesReturnedTrue = 0;
+        var itIs = new ItIsBase();
+        itIs.match = () => {
+            numberOfTimesReturnedTrue++;
+            return numberOfTimesReturnedTrue <= 3;
+        };
+
+        // Act
+        context.noArgsFunctionProxy.callFunction([itIs]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 3, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments -  was not called should not find a match', function (assert: QUnitAssert) {
@@ -612,6 +692,138 @@ module Tests {
 
         // Act
         context.manyArgsFunctionProxy.callFunction([argSet[0], argSet[1], argSet[2]]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called with ItIs that returns false should not find a match with less parameters', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        var argSet = [{}, {}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        var itIs = new ItIsBase();
+        itIs.match = () => {
+            return false;
+        };
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction([argSet[0], argSet[1], itIs]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called with ItIs that returns true should find a match with less parameters', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        var argSet = [{}, {}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        var itIs = new ItIsBase()
+        itIs.match = () => {
+            return true;
+        };
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction([argSet[0], argSet[1], itIs]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called with ItIs that returns true 3 times should find a match with less parameters', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        var argSet = [{}, {}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet);
+        context.manyArgsFunctionProxy.callFunction(argSet);
+        context.manyArgsFunctionProxy.callFunction(argSet);
+        context.manyArgsFunctionProxy.callFunction(argSet);
+        context.manyArgsFunctionProxy.callFunction(argSet);
+        context.manyArgsFunctionProxy.callFunction(argSet);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        var numberOfTimesReturnedTrue = 0;
+        var itIs = new ItIsBase()
+        itIs.match = () => {
+            numberOfTimesReturnedTrue++;
+            return numberOfTimesReturnedTrue <= 3;
+        };
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction([argSet[0], argSet[1], itIs]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 3, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called with 3 ItIs that returns true should find a match with less parameters', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        var argSet = [{}, {}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        var itIs = new ItIsBase()
+        itIs.match = () => {
+            return true;
+        };
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction([itIs, itIs, itIs]);
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
+    });
+
+    QUnit.test('callFunction - verify mode many arguments -  was called with 2 ItIs that returns true and one that returns false should find a match with less parameters', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        var argSet = [{}, {}, {}];
+
+        context.manyArgsFunctionProxy.callFunction(argSet);
+
+        context.functionProxyConfigurations.isVerifying = true;
+
+        var trueItIs = new ItIsBase()
+        trueItIs.match = () => {
+            return true;
+        };
+
+        var falseItIs = new ItIsBase()
+        falseItIs.match = () => {
+            return false;
+        };
+
+        // Act
+        context.manyArgsFunctionProxy.callFunction([trueItIs, falseItIs, trueItIs]);
 
         // Assert
         assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');

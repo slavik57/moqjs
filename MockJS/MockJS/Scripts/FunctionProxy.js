@@ -7,7 +7,7 @@ var mockJS;
             this.thisObject = thisObject;
             this.functionProxyConfigurations = functionProxyConfigurations;
             this._numberOfTimesCalled = 0;
-            this._argumentsOfCalls = [];
+            this._actualArguments = [];
         }
         FunctionProxy.prototype.callFunction = function (args) {
             if (!this.functionProxyConfigurations.isVerifying) {
@@ -19,37 +19,49 @@ var mockJS;
 
         FunctionProxy.prototype._callFunctionWithoutVerification = function (args) {
             this._numberOfTimesCalled++;
-            this._argumentsOfCalls.push(args);
+            this._actualArguments.push(args);
 
             this.functionToWrap.apply(this.thisObject, args);
         };
 
-        FunctionProxy.prototype._verifyFunction = function (args) {
-            for (var i = 0; i < this._argumentsOfCalls.length; i++) {
-                var argumentOfCall = this._argumentsOfCalls[i];
+        FunctionProxy.prototype._verifyFunction = function (expectedArguments) {
+            for (var i = 0; i < this._actualArguments.length; i++) {
+                var actualArguments = this._actualArguments[i];
 
-                if (this._doArgumentsMatch(args, argumentOfCall)) {
+                if (this._doArgumentsMatch(expectedArguments, actualArguments)) {
                     this.functionProxyConfigurations.numberOfMatches++;
                 }
             }
         };
 
-        FunctionProxy.prototype._doArgumentsMatch = function (args, argumentsOfCall) {
-            if (args.length !== argumentsOfCall.length) {
+        FunctionProxy.prototype._doArgumentsMatch = function (expectedArguments, actualArguments) {
+            if (expectedArguments.length !== actualArguments.length) {
                 return false;
             }
 
-            if (args.length === 0) {
+            if (expectedArguments.length === 0) {
                 return true;
             }
 
-            for (var i = 0; i < args.length; i++) {
-                if (args[i] !== argumentsOfCall[i]) {
+            for (var i = 0; i < expectedArguments.length; i++) {
+                if (!this._isSameArgument(actualArguments[i], expectedArguments[i])) {
                     return false;
                 }
             }
 
             return true;
+        };
+
+        FunctionProxy.prototype._isSameArgument = function (actual, expected) {
+            var itIsItIsBase = mockJS.It.isAny(mockJS.ItIsBase);
+
+            if (!itIsItIsBase.match(expected)) {
+                return actual === expected;
+            }
+
+            var expectedItIsBase = expected;
+
+            return expectedItIsBase.match(actual);
         };
         return FunctionProxy;
     })();

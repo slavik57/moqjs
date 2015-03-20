@@ -1,7 +1,7 @@
 ﻿'use strict';
 
 module Tests {
-    import IItIs = mockJS.IItIs;
+    import ItIsBase = mockJS.ItIsBase;
     import It = mockJS.It;
 
     class Parent {
@@ -26,7 +26,7 @@ module Tests {
         var expectedType: Function = Number;
         var actual = 1;
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -40,7 +40,7 @@ module Tests {
         var expectedType: Function = Number;
         var actual = '';
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -54,7 +54,7 @@ module Tests {
         var expectedType: Function = String;
         var actual = 1;
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -68,7 +68,7 @@ module Tests {
         var expectedType: Function = String;
         var actual = '';
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -82,7 +82,7 @@ module Tests {
         var expectedType: Function = String;
         var actual = 'some text';
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -96,7 +96,7 @@ module Tests {
         var expectedType: Function = String;
         var actual = null;
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -110,7 +110,7 @@ module Tests {
         var expectedType: Function = String;
         var actual = undefined;
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -124,7 +124,7 @@ module Tests {
         var expectedType: Function = Number;
         var actual = null;
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -138,7 +138,7 @@ module Tests {
         var expectedType: Function = Number;
         var actual = undefined;
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -152,7 +152,7 @@ module Tests {
         var expectedType: Function = Parent;
         var actual = new Son();
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -166,7 +166,7 @@ module Tests {
         var expectedType: Function = Parent;
         var actual = new Parent();
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -180,7 +180,7 @@ module Tests {
         var expectedType: Function = Son;
         var actual = new Parent();
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -194,7 +194,7 @@ module Tests {
         var expectedType: Function = Son;
         var actual = new Son();
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -208,7 +208,7 @@ module Tests {
         var expectedType: Function = Son;
         var actual = null;
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -222,7 +222,7 @@ module Tests {
         var expectedType: Function = Son;
         var actual = undefined;
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -236,7 +236,7 @@ module Tests {
         var expectedType: Function = Number;
         var actual = [];
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -250,7 +250,7 @@ module Tests {
         var expectedType: Function = Number;
         var actual = new Array();
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -264,7 +264,7 @@ module Tests {
         var expectedType: Function = Array;
         var actual = 1;
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -278,7 +278,7 @@ module Tests {
         var expectedType: Function = Array;
         var actual = [];
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -292,7 +292,7 @@ module Tests {
         var expectedType: Function = Array;
         var actual = new Array();
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -306,7 +306,7 @@ module Tests {
         var expectedType: Function = Array;
         var actual = [1, '', {}];
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);
@@ -320,7 +320,7 @@ module Tests {
         var expectedType: Function = Array;
         var actual = new Array(1, '', {});
 
-        var isAny: IItIs = It.isAny(expectedType);
+        var isAny: ItIsBase = It.isAny(expectedType);
 
         // Act
         var result = isAny.match(actual);

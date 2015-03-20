@@ -1,12 +1,15 @@
 ﻿'use strict';
 
 module mockJS {
-    export interface IItIs {
-        match(argument: any): boolean;
+    export class ItIsBase {
+        match(argument: any): boolean {
+            return false;
+        }
     }
 
-    class ItIsAny implements IItIs {
+    class ItIsAny extends ItIsBase {
         constructor(public expectedType: Function) {
+            super();
         }
 
         match(argument: any): boolean {
