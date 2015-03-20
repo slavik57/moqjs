@@ -10,21 +10,27 @@ module mockJS {
             this._setFunctionProxies();
         }
 
-        public Verify(functionCall: (object: T) => any): boolean {
+        public verify(functionCall: (object: T) => any, expectedNumberOfMathches?: number): boolean {
             this._FunctionProxyConfigurations.isVerifying = true;
-            this._FunctionProxyConfigurations.hasMatch = false;
+            this._FunctionProxyConfigurations.numberOfMatches = 0;
 
             functionCall(this.object);
 
-            var hasMatch = this._FunctionProxyConfigurations.hasMatch;
+            var numberOfMatches: number = this._FunctionProxyConfigurations.numberOfMatches;
 
             this._FunctionProxyConfigurations.isVerifying = false;
-            this._FunctionProxyConfigurations.hasMatch = false;
+            this._FunctionProxyConfigurations.numberOfMatches = 0;
 
-            return hasMatch;
+            if (isNaN(expectedNumberOfMathches)) {
+                return numberOfMatches > 0;
+            }
+
+            return numberOfMatches === expectedNumberOfMathches;
         }
 
         private _setFunctionProxies() {
+            var proxies: FunctionProxy[] = [];
+
             for (var propertyName in this.object) {
                 var propertyValue = this.object[propertyName];
 
@@ -33,8 +39,17 @@ module mockJS {
                 }
 
                 var functionProxy = new FunctionProxy(propertyValue, this.object, this._FunctionProxyConfigurations);
-                this.object[propertyName] = (...args: any[]) => functionProxy.callFunction(args);
+                proxies.push(functionProxy);
+
+                this._setFunctionProxy(proxies, proxies.length - 1, propertyName);
+                //this.object[propertyName] = (...args: any[]) => {
+                //    functionProxy.callFunction(args);
+                //}
             }
+        }
+
+        private _setFunctionProxy(proxies: FunctionProxy[], proxyNumber: number, functionName: string) {
+            this.object[functionName] = (...args: any[]) => proxies[proxyNumber].callFunction(args);
         }
     }
 }

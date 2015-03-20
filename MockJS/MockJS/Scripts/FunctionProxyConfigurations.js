@@ -4,7 +4,7 @@ var mockJS;
     var FunctionProxyConfigurations = (function () {
         function FunctionProxyConfigurations() {
             this.isVerifying = false;
-            this.hasMatch = false;
+            this.numberOfMatches = 0;
         }
         return FunctionProxyConfigurations;
     })();

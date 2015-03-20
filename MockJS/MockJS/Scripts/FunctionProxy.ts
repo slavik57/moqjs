@@ -33,8 +33,7 @@ module mockJS {
                 var argumentOfCall = this._argumentsOfCalls[i];
 
                 if (this._doArgumentsMatch(args, argumentOfCall)) {
-                    this.functionProxyConfigurations.hasMatch = true;
-                    return;
+                    this.functionProxyConfigurations.numberOfMatches++;
                 }
             }
         }

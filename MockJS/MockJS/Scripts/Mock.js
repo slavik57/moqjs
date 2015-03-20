@@ -8,21 +8,27 @@ var mockJS;
 
             this._setFunctionProxies();
         }
-        Mock.prototype.Verify = function (functionCall) {
+        Mock.prototype.verify = function (functionCall, expectedNumberOfMathches) {
             this._FunctionProxyConfigurations.isVerifying = true;
-            this._FunctionProxyConfigurations.hasMatch = false;
+            this._FunctionProxyConfigurations.numberOfMatches = 0;
 
             functionCall(this.object);
 
-            var hasMatch = this._FunctionProxyConfigurations.hasMatch;
+            var numberOfMatches = this._FunctionProxyConfigurations.numberOfMatches;
 
             this._FunctionProxyConfigurations.isVerifying = false;
-            this._FunctionProxyConfigurations.hasMatch = false;
+            this._FunctionProxyConfigurations.numberOfMatches = 0;
 
-            return hasMatch;
+            if (isNaN(expectedNumberOfMathches)) {
+                return numberOfMatches > 0;
+            }
+
+            return numberOfMatches === expectedNumberOfMathches;
         };
 
         Mock.prototype._setFunctionProxies = function () {
+            var proxies = [];
+
             for (var propertyName in this.object) {
                 var propertyValue = this.object[propertyName];
 
@@ -31,14 +37,23 @@ var mockJS;
                 }
 
                 var functionProxy = new mockJS.FunctionProxy(propertyValue, this.object, this._FunctionProxyConfigurations);
-                this.object[propertyName] = function () {
-                    var args = [];
-                    for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                        args[_i] = arguments[_i + 0];
-                    }
-                    return functionProxy.callFunction(args);
-                };
+                proxies.push(functionProxy);
+
+                this._setFunctionProxy(proxies, proxies.length - 1, propertyName);
+                //this.object[propertyName] = (...args: any[]) => {
+                //    functionProxy.callFunction(args);
+                //}
             }
+        };
+
+        Mock.prototype._setFunctionProxy = function (proxies, proxyNumber, functionName) {
+            this.object[functionName] = function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
+                }
+                return proxies[proxyNumber].callFunction(args);
+            };
         };
         return Mock;
     })();

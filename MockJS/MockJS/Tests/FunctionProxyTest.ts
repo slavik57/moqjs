@@ -4,30 +4,6 @@ module Tests {
     import FunctionProxyConfigurations = mockJS.FunctionProxyConfigurations;
     import FunctionProxy = mockJS.FunctionProxy;
 
-    class TestObject {
-        public onNoArgumentsFunctionCalled: () => void;
-        public onOneArgumentsFunctionCalled: (arg1: any) => void;
-        public onManyArgumentsFunctionCalled: (arg1: any, arg2: any, arg3: any) => void;
-
-        public noArgumentsFunction() {
-            if (this.onNoArgumentsFunctionCalled) {
-                this.onNoArgumentsFunctionCalled();
-            }
-        }
-
-        public oneArgumentsFunction(arg1: any) {
-            if (this.onOneArgumentsFunctionCalled) {
-                this.onOneArgumentsFunctionCalled(arg1);
-            }
-        }
-
-        public manyArgumentsFunction(arg1: any, arg2: any, arg3: any) {
-            if (this.onManyArgumentsFunctionCalled) {
-                this.onManyArgumentsFunctionCalled(arg1, arg2, arg3);
-            }
-        }
-    }
-
     class FunctionProxyLifecycleObject implements LifecycleObject {
 
         public thisObject: TestObject;
@@ -43,7 +19,6 @@ module Tests {
             context.thisObject = new TestObject();
             context.functionProxyConfigurations = new FunctionProxyConfigurations();
 
-            // Act
             context.noArgsFunctionProxy = new FunctionProxy(context.thisObject.noArgumentsFunction,
                 context.thisObject,
                 context.functionProxyConfigurations);
@@ -56,6 +31,7 @@ module Tests {
                 context.thisObject,
                 context.functionProxyConfigurations);
         };
+
         public afterEach = function () {
         };
     }
@@ -168,7 +144,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
     
     QUnit.test('callFunction - verify mode no arguments - was called should find a match', function (assert: QUnitAssert) {
@@ -185,7 +161,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode no arguments - was called twice should find a match', function (assert: QUnitAssert) {
@@ -203,7 +179,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 2, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode no arguments - was called with arguments should not find a match', function (assert: QUnitAssert) {
@@ -220,7 +196,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
 
     QUnit.test('callFunction - verify mode no arguments - was called with arguments and without arguments should find a match', function (assert: QUnitAssert) {
@@ -238,7 +214,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode no arguments - was called with arguments verify with same arguments should find a match', function (assert: QUnitAssert) {
@@ -256,7 +232,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([arg]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode no arguments - was called with arguments verify with different arguments should not find a match', function (assert: QUnitAssert) {
@@ -275,7 +251,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([arg2]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
 
     QUnit.test('callFunction - verify mode one argument -  was not called should not find a match', function (assert: QUnitAssert) {
@@ -292,7 +268,7 @@ module Tests {
         context.oneArgsFunctionProxy.callFunction([arg]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
 
     QUnit.test('callFunction - verify mode one argument - was called should find a match', function (assert: QUnitAssert) {
@@ -311,7 +287,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([arg]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode one argument - was called twice should find a match', function (assert: QUnitAssert) {
@@ -331,7 +307,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([arg]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 2, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode one argument - was called twice should find a match for first arg', function (assert: QUnitAssert) {
@@ -352,7 +328,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([arg1]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode one argument - was called twice should find a match for second arg', function (assert: QUnitAssert) {
@@ -373,7 +349,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([arg2]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode one argument - was called twice should not find a match for another arg', function (assert: QUnitAssert) {
@@ -395,7 +371,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([arg3]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
 
     QUnit.test('callFunction - verify mode one argument - was called without arguments should not find a match with arg', function (assert: QUnitAssert) {
@@ -414,7 +390,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([arg]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
 
     QUnit.test('callFunction - verify mode one argument - was called without arguments should find a match without arguments', function (assert: QUnitAssert) {
@@ -433,7 +409,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments -  was not called should not find a match', function (assert: QUnitAssert) {
@@ -452,7 +428,7 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments -  was called should find a match', function (assert: QUnitAssert) {
@@ -473,7 +449,7 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments -  was called twice should find a match', function (assert: QUnitAssert) {
@@ -495,7 +471,7 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 2, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments -  was called twice with different sets should find a match for first set', function (assert: QUnitAssert) {
@@ -516,7 +492,7 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction(argSet1);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments -  was called twice with different sets should find a match for second set', function (assert: QUnitAssert) {
@@ -537,7 +513,7 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction(argSet2);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments -  was called twice with different sets should not find a match for different set', function (assert: QUnitAssert) {
@@ -559,7 +535,7 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction(argSet3);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments - was called twice with different sets should not find a match for set with one different parameter', function (assert: QUnitAssert) {
@@ -581,7 +557,7 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction(argSet3);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments -  was called with less parameters should find a match', function (assert: QUnitAssert) {
@@ -600,7 +576,7 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction(argSet);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments -  was called with more parameters should find a match', function (assert: QUnitAssert) {
@@ -619,7 +595,7 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction(argSet);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, true, 'should find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 1, 'should find a match');
     });
 
     QUnit.test('callFunction - verify mode many arguments -  was called with more parameters should not find a match with less parameters', function (assert: QUnitAssert) {
@@ -638,6 +614,6 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction([argSet[0], argSet[1], argSet[2]]);
 
         // Assert
-        assert.strictEqual(context.functionProxyConfigurations.hasMatch, false, 'should not find a match');
+        assert.strictEqual(context.functionProxyConfigurations.numberOfMatches, 0, 'should not find a match');
     });
 }
