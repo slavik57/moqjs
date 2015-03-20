@@ -1,0 +1,18 @@
+﻿@using System.Web.Optimization;
+
+@section title{
+    moqJS - Tests
+}
+
+@section styles{
+    @Styles.Render("~/VendorCSS")
+}
+
+@section scripts{
+    @Scripts.Render("~/VendorJS")
+    @Scripts.Render("~/MoqJS")
+    @Scripts.Render("~/TestsJS")
+}
+
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
