@@ -10,7 +10,7 @@ module mockJS {
             this._setFunctionProxies();
         }
 
-        public verify(functionCall: (object: T) => any, expectedNumberOfMathches?: number): boolean {
+        public verify(functionCall: (object: T) => any, times?: ITimes): boolean {
             this._FunctionProxyConfigurations.isVerifying = true;
             this._FunctionProxyConfigurations.numberOfMatches = 0;
 
@@ -21,11 +21,11 @@ module mockJS {
             this._FunctionProxyConfigurations.isVerifying = false;
             this._FunctionProxyConfigurations.numberOfMatches = 0;
 
-            if (isNaN(expectedNumberOfMathches)) {
+            if (!times) {
                 return numberOfMatches > 0;
             }
 
-            return numberOfMatches === expectedNumberOfMathches;
+            return times.match(numberOfMatches);
         }
 
         private _setFunctionProxies() {

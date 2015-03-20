@@ -8,7 +8,7 @@ var mockJS;
 
             this._setFunctionProxies();
         }
-        Mock.prototype.verify = function (functionCall, expectedNumberOfMathches) {
+        Mock.prototype.verify = function (functionCall, times) {
             this._FunctionProxyConfigurations.isVerifying = true;
             this._FunctionProxyConfigurations.numberOfMatches = 0;
 
@@ -19,11 +19,11 @@ var mockJS;
             this._FunctionProxyConfigurations.isVerifying = false;
             this._FunctionProxyConfigurations.numberOfMatches = 0;
 
-            if (isNaN(expectedNumberOfMathches)) {
+            if (!times) {
                 return numberOfMatches > 0;
             }
 
-            return numberOfMatches === expectedNumberOfMathches;
+            return times.match(numberOfMatches);
         };
 
         Mock.prototype._setFunctionProxies = function () {
