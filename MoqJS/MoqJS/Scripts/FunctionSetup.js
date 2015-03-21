@@ -1,6 +1,7 @@
 ﻿'use strict';
 var moqJS;
 (function (moqJS) {
+    // TODO: support chaining => returns().callback().throws().....
     var FunctionSetup = (function () {
         function FunctionSetup(functionCall, object, functionProxyConfigurations) {
             this.functionCall = functionCall;

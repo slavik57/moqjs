@@ -7,6 +7,7 @@ module moqJS {
         throws(error: any);
     }
 
+    // TODO: support chaining => returns().callback().throws().....
     export class FunctionSetup<T> implements IFunctionSetup {
         constructor(public functionCall: (object: T) => any, public object: T, public functionProxyConfigurations: FunctionProxyConfigurations) {
         }
