@@ -2,14 +2,18 @@
 
 module moqJS {
     export class FunctionProxyConfigurations {
-        public isVerifying: boolean;
-        public numberOfMatches: number;
+        // Configurations
         public callBase: boolean;
 
+        // Communication
+        public isVerifying: boolean;
+        public numberOfMatches: number;
+
         constructor() {
+            this.callBase = true;
+
             this.isVerifying = false;
             this.numberOfMatches = 0;
-            this.callBase = true;
         }
     }
 }

@@ -5,7 +5,7 @@ module moqJS {
         private _numberOfTimesCalled: number;
         private _actualArguments: Array<any[]>;
 
-        constructor(public functionToWrap: Function,
+        constructor(public originalFunction: Function,
             public thisObject: any,
             public functionProxyConfigurations: FunctionProxyConfigurations) {
 
@@ -26,7 +26,7 @@ module moqJS {
             this._actualArguments.push(args);
 
             if (this.functionProxyConfigurations.callBase) {
-                return this.functionToWrap.apply(this.thisObject, args);
+                return this.originalFunction.apply(this.thisObject, args);
             }
         }
 

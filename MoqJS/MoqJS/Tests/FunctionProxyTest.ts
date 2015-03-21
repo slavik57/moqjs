@@ -57,7 +57,7 @@ module Tests {
 
         // Assert
         assert.strictEqual(proxy.thisObject, thisObject);
-        assert.strictEqual(proxy.functionToWrap, functionToWrap);
+        assert.strictEqual(proxy.originalFunction, functionToWrap);
         assert.strictEqual(proxy.functionProxyConfigurations, functionProxyConfigurations);
     });
 

@@ -158,6 +158,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\FunctionProxy.ts" />
     <TypeScriptCompile Include="Scripts\FunctionProxyConfigurations.ts" />
+    <TypeScriptCompile Include="Scripts\FunctionSetup.ts" />
     <TypeScriptCompile Include="Scripts\It.ts" />
     <TypeScriptCompile Include="Scripts\Mock.ts" />
     <TypeScriptCompile Include="Scripts\Times.ts" />

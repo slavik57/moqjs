@@ -2,7 +2,6 @@
 var moqJS;
 (function (moqJS) {
     // TODO: Implement:
-    //  callbase
     //  setup
     //  setup get
     //  setup set
@@ -25,6 +24,11 @@ var moqJS;
             configurable: true
         });
 
+
+        // TODO: Tests
+        Mock.prototype.setup = function (functionCall) {
+            return new moqJS.FunctionSetup(functionCall, this._FunctionProxyConfigurations);
+        };
 
         Mock.prototype.verify = function (functionCall, times) {
             this._FunctionProxyConfigurations.isVerifying = true;

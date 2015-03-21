@@ -2,8 +2,8 @@
 var moqJS;
 (function (moqJS) {
     var FunctionProxy = (function () {
-        function FunctionProxy(functionToWrap, thisObject, functionProxyConfigurations) {
-            this.functionToWrap = functionToWrap;
+        function FunctionProxy(originalFunction, thisObject, functionProxyConfigurations) {
+            this.originalFunction = originalFunction;
             this.thisObject = thisObject;
             this.functionProxyConfigurations = functionProxyConfigurations;
             this._numberOfTimesCalled = 0;
@@ -22,7 +22,7 @@ var moqJS;
             this._actualArguments.push(args);
 
             if (this.functionProxyConfigurations.callBase) {
-                return this.functionToWrap.apply(this.thisObject, args);
+                return this.originalFunction.apply(this.thisObject, args);
             }
         };
 

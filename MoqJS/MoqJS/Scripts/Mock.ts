@@ -2,7 +2,6 @@
 
 module moqJS {
     // TODO: Implement:
-    //  callbase
     //  setup
     //  setup get
     //  setup set
@@ -22,6 +21,11 @@ module moqJS {
 
         public set callBase(value: boolean) {
             this._FunctionProxyConfigurations.callBase = value;
+        }
+
+        // TODO: Tests
+        public setup(functionCall: (object: T) => any): IFunctionSetup<T> {
+            return new FunctionSetup(functionCall, this._FunctionProxyConfigurations);
         }
 
         public verify(functionCall: (object: T) => any, times?: ITimes): boolean {
