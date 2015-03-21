@@ -9,6 +9,7 @@ var moqJS;
             this.functionProxyConfigurations = functionProxyConfigurations;
         }
         // TODO: add returnsInOrder and lazyReturnsInOrder....
+        //  given list of return values return every call the next value... when finished return undefined
         FunctionSetup.prototype.lazyReturns = function (returnFunction) {
             var _this = this;
             var overrideMode = new moqJS.OverrideFunctionCallMode(function () {

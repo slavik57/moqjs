@@ -13,6 +13,7 @@ module moqJS {
         }
 
         // TODO: add returnsInOrder and lazyReturnsInOrder....
+        //  given list of return values return every call the next value... when finished return undefined
 
         public lazyReturns(returnFunction: (...args: any[]) => any) {
             var overrideMode = new OverrideFunctionCallMode((...args: any[]) => {
