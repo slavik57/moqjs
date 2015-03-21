@@ -7,6 +7,10 @@ var moqJS;
             this.object = object;
             this.functionProxyConfigurations = functionProxyConfigurations;
         }
+        FunctionSetup.prototype.lazyReturns = function (returnFunction) {
+            // TODO: implement
+        };
+
         FunctionSetup.prototype.returns = function (value) {
             this.functionProxyConfigurations.functionOverride = function () {
                 return value;

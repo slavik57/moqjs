@@ -11,6 +11,10 @@ module moqJS {
         constructor(public functionCall: (object: T) => any, public object: T, public functionProxyConfigurations: FunctionProxyConfigurations) {
         }
 
+        public lazyReturns(returnFunction: (...args: any[]) => any) {
+            // TODO: implement
+        }
+
         public returns(value: any) {
             this.functionProxyConfigurations.functionOverride = () => {
                 return value;
@@ -21,7 +25,7 @@ module moqJS {
             this.functionProxyConfigurations.functionOverride = null;
         }
 
-        public callback(callback: (...args: any[]) => any) {
+        public callback(callback: (...args: any[]) => void) {
             this.functionProxyConfigurations.functionOverride = (...args: any[]) => {
                 callback.apply(this.object, args);
             }
