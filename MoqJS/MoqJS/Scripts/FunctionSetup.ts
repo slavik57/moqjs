@@ -14,11 +14,12 @@ module moqJS {
 
         // TODO: add returnsInOrder and lazyReturnsInOrder....
         //  given list of return values return every call the next value... when finished return undefined
+        // TODO: add lazyThrows
 
         public lazyReturns(returnFunction: (...args: any[]) => any) {
-            var overrideMode = new OverrideFunctionCallMode((...args: any[]) => {
+            var overrideMode = new ReturnsOverrideFunctionCallMode((...args: any[]) => {
                 return returnFunction.apply(this.object, args);
-            }, FunctionOverrideType.LazyReturns);
+            });
 
             this.functionProxyConfigurations.functionCallMode = overrideMode;
 
@@ -28,9 +29,9 @@ module moqJS {
         }
 
         public returns(value: any) {
-            var overrideMode = new OverrideFunctionCallMode(() => {
+            var overrideMode = new ReturnsOverrideFunctionCallMode(() => {
                 return value;
-            }, FunctionOverrideType.Returns);
+            });
 
             this.functionProxyConfigurations.functionCallMode = overrideMode;
 
@@ -40,9 +41,9 @@ module moqJS {
         }
 
         public callback(callback: (...args: any[]) => void) {
-            var overrideMode = new OverrideFunctionCallMode((...args: any[]) => {
+            var overrideMode = new CallbackOverrideFunctionCallMode((...args: any[]) => {
                 callback.apply(this.object, args);
-            }, FunctionOverrideType.Callback);
+            });
 
             this.functionProxyConfigurations.functionCallMode = overrideMode;
 
@@ -52,9 +53,9 @@ module moqJS {
         }
 
         public throws(error: any) {
-            var overrideMode = new OverrideFunctionCallMode(() => {
-                throw error;
-            }, FunctionOverrideType.Throws);
+            var overrideMode = new ThrowsOverrideFunctionCallMode(() => {
+                return error;
+            });
 
             this.functionProxyConfigurations.functionCallMode = overrideMode;
 

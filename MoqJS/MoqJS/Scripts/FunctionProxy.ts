@@ -1,9 +1,22 @@
 ﻿'use strict';
 
 module moqJS {
+    class ArgumentsWithOverrides {
+        constructor(public exptectedArguments: any[], public override: OverrideFunctionCallMode) {
+        }
+    }
+
+    enum FunctionExecutionResult {
+        ThrowError,
+        ReturnValue,
+        DoNothing
+    }
+
     export class FunctionProxy {
         private _numberOfTimesCalled: number;
         private _actualArguments: Array<any[]>;
+
+        private _argumentsWithOverridesList: ArgumentsWithOverrides[];
 
         constructor(public originalFunction: Function,
             public thisObject: any,
@@ -11,13 +24,14 @@ module moqJS {
 
             this._numberOfTimesCalled = 0;
             this._actualArguments = [];
+            this._argumentsWithOverridesList = [];
         }
 
         public callFunction(args: any[]): any {
             if (this.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode) {
                 return this._callFunctionWithoutVerification(args);
             } else if (this.functionProxyConfigurations.functionCallMode instanceof OverrideFunctionCallMode) {
-                // TODO: add overrides for the specific arguments
+                this._addOverride(args, <OverrideFunctionCallMode>this.functionProxyConfigurations.functionCallMode);
             } else if (this.functionProxyConfigurations.functionCallMode instanceof VerifyFunctionCallMode) {
                 this._verifyFunction(args, <VerifyFunctionCallMode>this.functionProxyConfigurations.functionCallMode);
             } else {
@@ -25,18 +39,66 @@ module moqJS {
             }
         }
 
-        private _callFunctionWithoutVerification(args: any[]): any {
-            // TODO: if has overrides for the arguments execute each override one by one
-            // - execute the overrides one by one in order they came, save return values and throw errors.
-            // - return overrides previous return and throw
-            // - throw overrides previous return and throw
-            // - if has throw in the end throw, if has return then return...
-
+        private _callFunctionWithoutVerification(actualArguments: any[]): any {
             this._numberOfTimesCalled++;
-            this._actualArguments.push(args);
+            this._actualArguments.push(actualArguments);
+
+            var matchingOverrides: OverrideFunctionCallMode[] = this._getMatchingOverrides(actualArguments);
+            if (matchingOverrides.length > 0) {
+                return this._executeOverrides(matchingOverrides, actualArguments);
+            }
 
             if (this.functionProxyConfigurations.callBase) {
-                return this.originalFunction.apply(this.thisObject, args);
+                return this.originalFunction.apply(this.thisObject, actualArguments);
+            }
+        }
+
+        private _getMatchingOverrides(actualArguments: any[]): OverrideFunctionCallMode[]{
+            var result: OverrideFunctionCallMode[] = [];
+
+            for (var i = 0; i < this._argumentsWithOverridesList.length; i++) {
+                var argumentsWithOverrides = this._argumentsWithOverridesList[i];
+
+                if (this._doArgumentsMatch(argumentsWithOverrides.exptectedArguments, actualArguments)) {
+                    result.push(argumentsWithOverrides.override);
+                }
+            }
+
+            return result;
+        }
+
+        private _executeOverrides(overrides: OverrideFunctionCallMode[], args: any[]) {
+            var functionExecutionResult = FunctionExecutionResult.DoNothing;
+
+            var lastError;
+            var lastResult;
+
+            for (var i = 0; i < overrides.length; i++) {
+                var override = overrides[i];
+
+                if (override instanceof ThrowsOverrideFunctionCallMode) {
+                    functionExecutionResult = FunctionExecutionResult.ThrowError;
+                    lastError = override.override.apply(this.thisObject, args);
+                    continue;
+                }
+
+                if (override instanceof ReturnsOverrideFunctionCallMode) {
+                    functionExecutionResult = FunctionExecutionResult.ReturnValue;
+                    lastResult = override.override.apply(this.thisObject, args);
+                    continue;
+                }
+
+                if (override instanceof CallbackOverrideFunctionCallMode) {
+                    override.override.apply(this.thisObject, args);
+                    continue;
+                }
+            }
+
+            switch (functionExecutionResult) {
+                case FunctionExecutionResult.ReturnValue:
+                    return lastResult;
+                case FunctionExecutionResult.ThrowError:
+                    throw lastError;
             }
         }
 
@@ -78,6 +140,13 @@ module moqJS {
             var expectedItIsBase: ItIsBase = expected;
 
             return expectedItIsBase.match(actual);
+        }
+
+        private _addOverride(expectedArguments: any[], overrideMode: OverrideFunctionCallMode) {
+            var argumentsWithOverrides =
+                new ArgumentsWithOverrides(expectedArguments, overrideMode);
+
+            this._argumentsWithOverridesList.push(argumentsWithOverrides);
         }
     }
 }

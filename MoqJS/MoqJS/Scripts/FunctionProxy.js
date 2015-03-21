@@ -1,6 +1,21 @@
 ﻿'use strict';
 var moqJS;
 (function (moqJS) {
+    var ArgumentsWithOverrides = (function () {
+        function ArgumentsWithOverrides(exptectedArguments, override) {
+            this.exptectedArguments = exptectedArguments;
+            this.override = override;
+        }
+        return ArgumentsWithOverrides;
+    })();
+
+    var FunctionExecutionResult;
+    (function (FunctionExecutionResult) {
+        FunctionExecutionResult[FunctionExecutionResult["ThrowError"] = 0] = "ThrowError";
+        FunctionExecutionResult[FunctionExecutionResult["ReturnValue"] = 1] = "ReturnValue";
+        FunctionExecutionResult[FunctionExecutionResult["DoNothing"] = 2] = "DoNothing";
+    })(FunctionExecutionResult || (FunctionExecutionResult = {}));
+
     var FunctionProxy = (function () {
         function FunctionProxy(originalFunction, thisObject, functionProxyConfigurations) {
             this.originalFunction = originalFunction;
@@ -8,12 +23,13 @@ var moqJS;
             this.functionProxyConfigurations = functionProxyConfigurations;
             this._numberOfTimesCalled = 0;
             this._actualArguments = [];
+            this._argumentsWithOverridesList = [];
         }
         FunctionProxy.prototype.callFunction = function (args) {
             if (this.functionProxyConfigurations.functionCallMode instanceof moqJS.InvokeFunctionCallMode) {
                 return this._callFunctionWithoutVerification(args);
             } else if (this.functionProxyConfigurations.functionCallMode instanceof moqJS.OverrideFunctionCallMode) {
-                // TODO: add overrides for the specific arguments
+                this._addOverride(args, this.functionProxyConfigurations.functionCallMode);
             } else if (this.functionProxyConfigurations.functionCallMode instanceof moqJS.VerifyFunctionCallMode) {
                 this._verifyFunction(args, this.functionProxyConfigurations.functionCallMode);
             } else {
@@ -21,17 +37,66 @@ var moqJS;
             }
         };
 
-        FunctionProxy.prototype._callFunctionWithoutVerification = function (args) {
-            // TODO: if has overrides for the arguments execute each override one by one
-            // - execute the overrides one by one in order they came, save return values and throw errors.
-            // - return overrides previous return and throw
-            // - throw overrides previous return and throw
-            // - if has throw in the end throw, if has return then return...
+        FunctionProxy.prototype._callFunctionWithoutVerification = function (actualArguments) {
             this._numberOfTimesCalled++;
-            this._actualArguments.push(args);
+            this._actualArguments.push(actualArguments);
+
+            var matchingOverrides = this._getMatchingOverrides(actualArguments);
+            if (matchingOverrides.length > 0) {
+                return this._executeOverrides(matchingOverrides, actualArguments);
+            }
 
             if (this.functionProxyConfigurations.callBase) {
-                return this.originalFunction.apply(this.thisObject, args);
+                return this.originalFunction.apply(this.thisObject, actualArguments);
+            }
+        };
+
+        FunctionProxy.prototype._getMatchingOverrides = function (actualArguments) {
+            var result = [];
+
+            for (var i = 0; i < this._argumentsWithOverridesList.length; i++) {
+                var argumentsWithOverrides = this._argumentsWithOverridesList[i];
+
+                if (this._doArgumentsMatch(argumentsWithOverrides.exptectedArguments, actualArguments)) {
+                    result.push(argumentsWithOverrides.override);
+                }
+            }
+
+            return result;
+        };
+
+        FunctionProxy.prototype._executeOverrides = function (overrides, args) {
+            var functionExecutionResult = 2 /* DoNothing */;
+
+            var lastError;
+            var lastResult;
+
+            for (var i = 0; i < overrides.length; i++) {
+                var override = overrides[i];
+
+                if (override instanceof moqJS.ThrowsOverrideFunctionCallMode) {
+                    functionExecutionResult = 0 /* ThrowError */;
+                    lastError = override.override.apply(this.thisObject, args);
+                    continue;
+                }
+
+                if (override instanceof moqJS.ReturnsOverrideFunctionCallMode) {
+                    functionExecutionResult = 1 /* ReturnValue */;
+                    lastResult = override.override.apply(this.thisObject, args);
+                    continue;
+                }
+
+                if (override instanceof moqJS.CallbackOverrideFunctionCallMode) {
+                    override.override.apply(this.thisObject, args);
+                    continue;
+                }
+            }
+
+            switch (functionExecutionResult) {
+                case 1 /* ReturnValue */:
+                    return lastResult;
+                case 0 /* ThrowError */:
+                    throw lastError;
             }
         };
 
@@ -73,6 +138,12 @@ var moqJS;
             var expectedItIsBase = expected;
 
             return expectedItIsBase.match(actual);
+        };
+
+        FunctionProxy.prototype._addOverride = function (expectedArguments, overrideMode) {
+            var argumentsWithOverrides = new ArgumentsWithOverrides(expectedArguments, overrideMode);
+
+            this._argumentsWithOverridesList.push(argumentsWithOverrides);
         };
         return FunctionProxy;
     })();

@@ -378,4 +378,4 @@ module Tests {
         // Assert
         assert.strictEqual(result, false, 'when passed function returns false should return false');
     });
-} 
+}

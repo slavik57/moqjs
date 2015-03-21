@@ -1,12 +1,14 @@
 ﻿'use strict';
 var Tests;
 (function (Tests) {
-    var FunctionOverrideType = moqJS.FunctionOverrideType;
     var FunctionSetup = moqJS.FunctionSetup;
     var FunctionProxyConfigurations = moqJS.FunctionProxyConfigurations;
 
     var OverrideFunctionCallMode = moqJS.OverrideFunctionCallMode;
     var InvokeFunctionCallMode = moqJS.InvokeFunctionCallMode;
+    var CallbackOverrideFunctionCallMode = moqJS.CallbackOverrideFunctionCallMode;
+    var ReturnsOverrideFunctionCallMode = moqJS.ReturnsOverrideFunctionCallMode;
+    var ThrowsOverrideFunctionCallMode = moqJS.ThrowsOverrideFunctionCallMode;
 
     var FunctionSetupLyfecycleObject = (function () {
         function FunctionSetupLyfecycleObject() {
@@ -87,11 +89,10 @@ var Tests;
         var newReturnValue = {};
 
         context.testObject.onReturnung1FunctionCalled = function () {
-            var overrideMode = context.functionProxyConfigurations.functionCallMode;
-            var overrideType = overrideMode.overrideType;
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
 
             // Assert
-            assert.strictEqual(overrideType, 0 /* Returns */, 'override type should be returns');
+            assert.ok(functionCallMode instanceof ReturnsOverrideFunctionCallMode, 'functionCallMode should be returns');
         };
 
         // Act
@@ -105,9 +106,9 @@ var Tests;
         var newReturnValue = {};
 
         context.testObject.onReturnung1FunctionCalled = function () {
-            var overrideMode = context.functionProxyConfigurations.functionCallMode;
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
 
-            var result = overrideMode.override();
+            var result = functionCallMode.override();
 
             // Assert
             assert.strictEqual(result, newReturnValue, 'should return the setup value');
@@ -124,8 +125,8 @@ var Tests;
         var newReturnValue = {};
 
         context.testObject.onOneArgumentsFunctionCalled = function (_arg) {
-            var overrideMode = context.functionProxyConfigurations.functionCallMode;
-            var result = overrideMode.override();
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+            var result = functionCallMode.override();
 
             // Assert
             assert.strictEqual(result, newReturnValue, 'should return the setup value');
@@ -210,7 +211,7 @@ var Tests;
         context.returning1FunctionSetup.lazyReturns(returnFunction);
     });
 
-    QUnit.test('lazyReturns - should call when the override type is LazyReturns', 1, function (assert) {
+    QUnit.test('lazyReturns - should call when the override type is returns', 1, function (assert) {
         // Arrange
         var context = this;
 
@@ -221,11 +222,10 @@ var Tests;
         };
 
         context.testObject.onReturnung1FunctionCalled = function () {
-            var overrideMode = context.functionProxyConfigurations.functionCallMode;
-            var overrideType = overrideMode.overrideType;
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
 
             // Assert
-            assert.strictEqual(overrideType, 1 /* LazyReturns */, 'override type should be LazyReturns');
+            assert.ok(functionCallMode instanceof ReturnsOverrideFunctionCallMode, 'functionCallMode should be returns');
         };
 
         // Act
@@ -243,8 +243,8 @@ var Tests;
         };
 
         context.testObject.onReturnung1FunctionCalled = function () {
-            var overrideMode = context.functionProxyConfigurations.functionCallMode;
-            var result = overrideMode.override();
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+            var result = functionCallMode.override();
 
             // Assert
             assert.strictEqual(result, returnValue, 'should return the setup value');
@@ -264,8 +264,8 @@ var Tests;
         };
 
         context.testObject.onOneArgumentsFunctionCalled = function (_arg) {
-            var overrideMode = context.functionProxyConfigurations.functionCallMode;
-            var result = overrideMode.override();
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+            var result = functionCallMode.override();
 
             // Assert
             assert.strictEqual(result, newReturnValue, 'should return the setup value');
@@ -361,11 +361,10 @@ var Tests;
         };
 
         context.testObject.onReturnung1FunctionCalled = function () {
-            var overrideMode = context.functionProxyConfigurations.functionCallMode;
-            var overrideType = overrideMode.overrideType;
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
 
             // Assert
-            assert.strictEqual(overrideType, 3 /* Callback */, 'override type should be Callback');
+            assert.ok(functionCallMode instanceof CallbackOverrideFunctionCallMode, 'functionCallMode should be callback');
         };
 
         // Act
@@ -382,8 +381,8 @@ var Tests;
         };
 
         context.testObject.onReturnung1FunctionCalled = function () {
-            var overrideMode = context.functionProxyConfigurations.functionCallMode;
-            overrideMode.override();
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+            functionCallMode.override();
         };
 
         // Act
@@ -401,8 +400,8 @@ var Tests;
         };
 
         context.testObject.onOneArgumentsFunctionCalled = function (_arg) {
-            var overrideMode = context.functionProxyConfigurations.functionCallMode;
-            overrideMode.override(_arg);
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+            functionCallMode.override(_arg);
         };
 
         // Act
@@ -491,29 +490,27 @@ var Tests;
 
         context.testObject.onReturnung1FunctionCalled = function () {
             var functionCallMode = context.functionProxyConfigurations.functionCallMode;
-            var overrideType = functionCallMode.overrideType;
 
             // Assert
-            assert.strictEqual(overrideType, 2 /* Throws */, 'override type should be Throws');
+            assert.ok(functionCallMode instanceof ThrowsOverrideFunctionCallMode, 'functionCallMode should be throws');
         };
 
         // Act
         context.returning1FunctionSetup.throws(error);
     });
 
-    QUnit.test('throws - should call when the override contains function that throws the error', 1, function (assert) {
+    QUnit.test('throws - should call when the override contains function that returns the error', 1, function (assert) {
         // Arrange
         var context = this;
 
         var error = {};
 
         context.testObject.onReturnung1FunctionCalled = function () {
-            try  {
-                var functionCallMode = context.functionProxyConfigurations.functionCallMode;
-                functionCallMode.override();
-            } catch (_error) {
-                assert.strictEqual(_error, error, 'should throw the error');
-            }
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+            var actualError = functionCallMode.override();
+
+            // Assert
+            assert.strictEqual(actualError, error, 'should throw the error');
         };
 
         // Act
@@ -527,12 +524,10 @@ var Tests;
         var error = {};
 
         context.testObject.onOneArgumentsFunctionCalled = function (_arg) {
-            try  {
-                var functionCallMode = context.functionProxyConfigurations.functionCallMode;
-                functionCallMode.override();
-            } catch (_error) {
-                assert.strictEqual(_error, error, 'should throw the error');
-            }
+            // Assert
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+            var actualError = functionCallMode.override();
+            assert.strictEqual(actualError, error, 'should throw the error');
         };
 
         // Act
