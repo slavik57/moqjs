@@ -5,6 +5,7 @@ module Tests {
     import FunctionProxyConfigurations = moqJS.FunctionProxyConfigurations;
     import FunctionProxy = moqJS.FunctionProxy;
     import VerifyFunctionCallMode = moqJS.VerifyFunctionCallMode;
+    import IFunctionCallMode = moqJS.IFunctionCallMode;
 
     class FunctionProxyLifecycleObject implements LifecycleObject {
 
@@ -72,7 +73,25 @@ module Tests {
         assert.strictEqual(proxy.functionProxyConfigurations, functionProxyConfigurations);
     });
 
-    QUnit.test('callFunction - no arguments should call only the original function', function (assert: QUnitAssert) {
+    QUnit.test('callFunction - unknown mode - should throw error', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+
+        var unknownFunctionCallMode: IFunctionCallMode = {};
+
+        context.functionProxyConfigurations.functionCallMode = unknownFunctionCallMode;
+
+        try {
+            // Act
+            context.noArgsFunctionProxy.callFunction([]);
+        } catch (error) {
+            assert.ok(true, 'should throw error on unknown functionCallMode');
+        }
+    });
+
+    QUnit.test('callFunction - invoke mode - no arguments should call only the original function', function (assert: QUnitAssert) {
         QUnit.expect(1);
 
         // Arrange
@@ -95,7 +114,7 @@ module Tests {
         context.noArgsFunctionProxy.callFunction([]);
     });
 
-    QUnit.test('callFunction - one arguments should call only the original function', function (assert: QUnitAssert) {
+    QUnit.test('callFunction - invoke mode - one arguments should call only the original function', function (assert: QUnitAssert) {
         QUnit.expect(1);
 
         // Arrange
@@ -120,7 +139,7 @@ module Tests {
         context.oneArgsFunctionProxy.callFunction([arg]);
     });
 
-    QUnit.test('callFunction - many arguments should call only the original function', function (assert: QUnitAssert) {
+    QUnit.test('callFunction - invoke mode - many arguments should call only the original function', function (assert: QUnitAssert) {
         QUnit.expect(3);
 
         // Arrange
@@ -149,7 +168,7 @@ module Tests {
         context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
     });
 
-    QUnit.test('callFunction - returning1Function - should return the original function result', 1, function (assert: QUnitAssert) {
+    QUnit.test('callFunction - invoke mode - returning1Function - should return the original function result', 1, function (assert: QUnitAssert) {
         // Arrange
         var context: FunctionProxyLifecycleObject = this;
 

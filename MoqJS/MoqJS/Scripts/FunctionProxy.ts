@@ -20,6 +20,8 @@ module moqJS {
                 // TODO: add overrides for the specific arguments
             } else if (this.functionProxyConfigurations.functionCallMode instanceof VerifyFunctionCallMode) {
                 this._verifyFunction(args, <VerifyFunctionCallMode>this.functionProxyConfigurations.functionCallMode);
+            } else {
+                throw 'not supported functionCallMode';
             }
         }
 

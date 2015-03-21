@@ -56,7 +56,25 @@ var Tests;
         assert.strictEqual(proxy.functionProxyConfigurations, functionProxyConfigurations);
     });
 
-    QUnit.test('callFunction - no arguments should call only the original function', function (assert) {
+    QUnit.test('callFunction - unknown mode - should throw error', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var unknownFunctionCallMode = {};
+
+        context.functionProxyConfigurations.functionCallMode = unknownFunctionCallMode;
+
+        try  {
+            // Act
+            context.noArgsFunctionProxy.callFunction([]);
+        } catch (error) {
+            assert.ok(true, 'should throw error on unknown functionCallMode');
+        }
+    });
+
+    QUnit.test('callFunction - invoke mode - no arguments should call only the original function', function (assert) {
         QUnit.expect(1);
 
         // Arrange
@@ -79,7 +97,7 @@ var Tests;
         context.noArgsFunctionProxy.callFunction([]);
     });
 
-    QUnit.test('callFunction - one arguments should call only the original function', function (assert) {
+    QUnit.test('callFunction - invoke mode - one arguments should call only the original function', function (assert) {
         QUnit.expect(1);
 
         // Arrange
@@ -104,7 +122,7 @@ var Tests;
         context.oneArgsFunctionProxy.callFunction([arg]);
     });
 
-    QUnit.test('callFunction - many arguments should call only the original function', function (assert) {
+    QUnit.test('callFunction - invoke mode - many arguments should call only the original function', function (assert) {
         QUnit.expect(3);
 
         // Arrange
@@ -133,7 +151,7 @@ var Tests;
         context.manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
     });
 
-    QUnit.test('callFunction - returning1Function - should return the original function result', 1, function (assert) {
+    QUnit.test('callFunction - invoke mode - returning1Function - should return the original function result', 1, function (assert) {
         // Arrange
         var context = this;
 
