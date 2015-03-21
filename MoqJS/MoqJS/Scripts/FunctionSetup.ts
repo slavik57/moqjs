@@ -12,51 +12,51 @@ module moqJS {
         }
 
         public lazyReturns(returnFunction: (...args: any[]) => any) {
-            var functionOverride = new FunctionOverride((...args: any[]) => {
+            var overrideMode = new OverrideFunctionCallMode((...args: any[]) => {
                 return returnFunction.apply(this.object, args);
             }, FunctionOverrideType.LazyReturns);
 
-            this.functionProxyConfigurations.functionOverride = functionOverride;
+            this.functionProxyConfigurations.functionCallMode = overrideMode;
 
             this.functionCall(this.object);
 
-            this.functionProxyConfigurations.functionOverride = null;
+            this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
         }
 
         public returns(value: any) {
-            var functionOverride = new FunctionOverride(() => {
+            var overrideMode = new OverrideFunctionCallMode(() => {
                 return value;
             }, FunctionOverrideType.Returns);
 
-            this.functionProxyConfigurations.functionOverride = functionOverride;
+            this.functionProxyConfigurations.functionCallMode = overrideMode;
 
             this.functionCall(this.object);
 
-            this.functionProxyConfigurations.functionOverride = null;
+            this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
         }
 
         public callback(callback: (...args: any[]) => void) {
-            var functionOverride = new FunctionOverride((...args: any[]) => {
+            var overrideMode = new OverrideFunctionCallMode((...args: any[]) => {
                 callback.apply(this.object, args);
             }, FunctionOverrideType.Callback);
 
-            this.functionProxyConfigurations.functionOverride = functionOverride;
+            this.functionProxyConfigurations.functionCallMode = overrideMode;
 
             this.functionCall(this.object);
 
-            this.functionProxyConfigurations.functionOverride = null;
+            this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
         }
 
         public throws(error: any) {
-            var functionOverride = new FunctionOverride(() => {
+            var overrideMode = new OverrideFunctionCallMode(() => {
                 throw error;
             }, FunctionOverrideType.Throws);
 
-            this.functionProxyConfigurations.functionOverride = functionOverride;
+            this.functionProxyConfigurations.functionCallMode = overrideMode;
 
             this.functionCall(this.object);
 
-            this.functionProxyConfigurations.functionOverride = null;
+            this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
         }
     }
 }

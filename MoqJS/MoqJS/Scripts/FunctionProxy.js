@@ -10,12 +10,12 @@ var moqJS;
             this._actualArguments = [];
         }
         FunctionProxy.prototype.callFunction = function (args) {
-            if (!this.functionProxyConfigurations.isVerifying) {
+            if (this.functionProxyConfigurations.functionCallMode instanceof moqJS.InvokeFunctionCallMode) {
                 return this._callFunctionWithoutVerification(args);
-            } else if (this.functionProxyConfigurations.functionOverride) {
+            } else if (this.functionProxyConfigurations.functionCallMode instanceof moqJS.OverrideFunctionCallMode) {
                 // TODO: add overrides for the specific arguments
-            } else {
-                this._verifyFunction(args);
+            } else if (this.functionProxyConfigurations.functionCallMode instanceof moqJS.VerifyFunctionCallMode) {
+                this._verifyFunction(args, this.functionProxyConfigurations.functionCallMode);
             }
         };
 
@@ -29,12 +29,12 @@ var moqJS;
             }
         };
 
-        FunctionProxy.prototype._verifyFunction = function (expectedArguments) {
+        FunctionProxy.prototype._verifyFunction = function (expectedArguments, verifyFunctionCallMode) {
             for (var i = 0; i < this._actualArguments.length; i++) {
                 var actualArguments = this._actualArguments[i];
 
                 if (this._doArgumentsMatch(expectedArguments, actualArguments)) {
-                    this.functionProxyConfigurations.numberOfMatches++;
+                    verifyFunctionCallMode.numberOfMatches++;
                 }
             }
         };

@@ -14,12 +14,12 @@ module moqJS {
         }
 
         public callFunction(args: any[]): any {
-            if (!this.functionProxyConfigurations.isVerifying) {
+            if (this.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode) {
                 return this._callFunctionWithoutVerification(args);
-            } else if (this.functionProxyConfigurations.functionOverride) {
+            } else if (this.functionProxyConfigurations.functionCallMode instanceof OverrideFunctionCallMode) {
                 // TODO: add overrides for the specific arguments
-            } else {
-                this._verifyFunction(args);
+            } else if (this.functionProxyConfigurations.functionCallMode instanceof VerifyFunctionCallMode) {
+                this._verifyFunction(args, <VerifyFunctionCallMode>this.functionProxyConfigurations.functionCallMode);
             }
         }
 
@@ -34,12 +34,12 @@ module moqJS {
             }
         }
 
-        private _verifyFunction(expectedArguments: any[]) {
+        private _verifyFunction(expectedArguments: any[], verifyFunctionCallMode: VerifyFunctionCallMode) {
             for (var i = 0; i < this._actualArguments.length; i++) {
                 var actualArguments = this._actualArguments[i];
 
                 if (this._doArgumentsMatch(expectedArguments, actualArguments)) {
-                    this.functionProxyConfigurations.numberOfMatches++;
+                    verifyFunctionCallMode.numberOfMatches++;
                 }
             }
         }

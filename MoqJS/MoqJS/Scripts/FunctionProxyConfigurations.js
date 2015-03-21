@@ -4,9 +4,7 @@ var moqJS;
     var FunctionProxyConfigurations = (function () {
         function FunctionProxyConfigurations() {
             this.callBase = true;
-
-            this.isVerifying = false;
-            this.numberOfMatches = 0;
+            this.functionCallMode = new moqJS.InvokeFunctionCallMode();
         }
         return FunctionProxyConfigurations;
     })();

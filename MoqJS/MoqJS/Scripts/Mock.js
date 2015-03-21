@@ -35,16 +35,14 @@ var moqJS;
         };
 
         Mock.prototype.verify = function (functionCall, times) {
-            this._FunctionProxyConfigurations.isVerifying = true;
-            this._FunctionProxyConfigurations.numberOfMatches = 0;
+            var verifyMode = new moqJS.VerifyFunctionCallMode();
+            this._FunctionProxyConfigurations.functionCallMode = verifyMode;
 
             functionCall(this.object);
 
-            var numberOfMatches = this._FunctionProxyConfigurations.numberOfMatches;
+            this._FunctionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
 
-            this._FunctionProxyConfigurations.isVerifying = false;
-            this._FunctionProxyConfigurations.numberOfMatches = 0;
-
+            var numberOfMatches = verifyMode.numberOfMatches;
             if (!times) {
                 return numberOfMatches > 0;
             }

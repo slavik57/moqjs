@@ -33,16 +33,15 @@ module moqJS {
         }
 
         public verify(functionCall: (object: T) => any, times?: ITimes): boolean {
-            this._FunctionProxyConfigurations.isVerifying = true;
-            this._FunctionProxyConfigurations.numberOfMatches = 0;
+            var verifyMode = new VerifyFunctionCallMode();
+            this._FunctionProxyConfigurations.functionCallMode = verifyMode;
 
             functionCall(this.object);
 
-            var numberOfMatches: number = this._FunctionProxyConfigurations.numberOfMatches;
 
-            this._FunctionProxyConfigurations.isVerifying = false;
-            this._FunctionProxyConfigurations.numberOfMatches = 0;
+            this._FunctionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
 
+            var numberOfMatches: number = verifyMode.numberOfMatches;
             if (!times) {
                 return numberOfMatches > 0;
             }

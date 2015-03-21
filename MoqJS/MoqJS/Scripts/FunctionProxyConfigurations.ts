@@ -2,20 +2,13 @@
 
 module moqJS {
     export class FunctionProxyConfigurations {
-        // Configurations
         public callBase: boolean;
 
-        // Communication
-        public isVerifying: boolean;
-        public numberOfMatches: number;
-
-        public functionOverride: FunctionOverride;
+        public functionCallMode: IFunctionCallMode;
 
         constructor() {
             this.callBase = true;
-
-            this.isVerifying = false;
-            this.numberOfMatches = 0;
+            this.functionCallMode = new InvokeFunctionCallMode();
         }
     }
 }

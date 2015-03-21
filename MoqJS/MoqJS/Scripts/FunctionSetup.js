@@ -9,7 +9,7 @@ var moqJS;
         }
         FunctionSetup.prototype.lazyReturns = function (returnFunction) {
             var _this = this;
-            var functionOverride = new moqJS.FunctionOverride(function () {
+            var overrideMode = new moqJS.OverrideFunctionCallMode(function () {
                 var args = [];
                 for (var _i = 0; _i < (arguments.length - 0); _i++) {
                     args[_i] = arguments[_i + 0];
@@ -17,28 +17,28 @@ var moqJS;
                 return returnFunction.apply(_this.object, args);
             }, 1 /* LazyReturns */);
 
-            this.functionProxyConfigurations.functionOverride = functionOverride;
+            this.functionProxyConfigurations.functionCallMode = overrideMode;
 
             this.functionCall(this.object);
 
-            this.functionProxyConfigurations.functionOverride = null;
+            this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
         };
 
         FunctionSetup.prototype.returns = function (value) {
-            var functionOverride = new moqJS.FunctionOverride(function () {
+            var overrideMode = new moqJS.OverrideFunctionCallMode(function () {
                 return value;
             }, 0 /* Returns */);
 
-            this.functionProxyConfigurations.functionOverride = functionOverride;
+            this.functionProxyConfigurations.functionCallMode = overrideMode;
 
             this.functionCall(this.object);
 
-            this.functionProxyConfigurations.functionOverride = null;
+            this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
         };
 
         FunctionSetup.prototype.callback = function (callback) {
             var _this = this;
-            var functionOverride = new moqJS.FunctionOverride(function () {
+            var overrideMode = new moqJS.OverrideFunctionCallMode(function () {
                 var args = [];
                 for (var _i = 0; _i < (arguments.length - 0); _i++) {
                     args[_i] = arguments[_i + 0];
@@ -46,23 +46,23 @@ var moqJS;
                 callback.apply(_this.object, args);
             }, 3 /* Callback */);
 
-            this.functionProxyConfigurations.functionOverride = functionOverride;
+            this.functionProxyConfigurations.functionCallMode = overrideMode;
 
             this.functionCall(this.object);
 
-            this.functionProxyConfigurations.functionOverride = null;
+            this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
         };
 
         FunctionSetup.prototype.throws = function (error) {
-            var functionOverride = new moqJS.FunctionOverride(function () {
+            var overrideMode = new moqJS.OverrideFunctionCallMode(function () {
                 throw error;
             }, 2 /* Throws */);
 
-            this.functionProxyConfigurations.functionOverride = functionOverride;
+            this.functionProxyConfigurations.functionCallMode = overrideMode;
 
             this.functionCall(this.object);
 
-            this.functionProxyConfigurations.functionOverride = null;
+            this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
         };
         return FunctionSetup;
     })();
