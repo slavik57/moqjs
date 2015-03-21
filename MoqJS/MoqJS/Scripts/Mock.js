@@ -3,9 +3,11 @@ var moqJS;
 (function (moqJS) {
     // TODO: Implement:
     //  setup
-    //  if has no setup should throw exception
+    //  if has no setup should throw exception = strict
     //  setup get
     //  setup set
+    // Get the mock by the object instace...
+    // from all the created mocks get the one that behaves like this:( mock => boolean )
     var Mock = (function () {
         function Mock(object) {
             this.object = object;
@@ -27,6 +29,7 @@ var moqJS;
 
 
         // TODO: Tests
+        // setup private using string
         Mock.prototype.setup = function (functionCall) {
             return new moqJS.FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         };

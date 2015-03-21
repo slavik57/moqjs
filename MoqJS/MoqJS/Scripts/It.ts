@@ -40,5 +40,7 @@ module moqJS {
         public static is<T>(predicate: (argument: T) => boolean): any {
             return new Is(predicate);
         }
+
+        // TODO: isInRange/isRegex
     }
 }
