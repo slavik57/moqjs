@@ -3,6 +3,7 @@
 module moqJS {
     // TODO: Implement:
     //  setup
+    //  if has no setup should throw exception
     //  setup get
     //  setup set
     export class Mock<T> {
