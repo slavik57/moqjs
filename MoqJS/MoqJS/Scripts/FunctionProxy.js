@@ -23,6 +23,10 @@ var moqJS;
 
         FunctionProxy.prototype._callFunctionWithoutVerification = function (args) {
             // TODO: if has overrides for the arguments execute each override one by one
+            // - execute the overrides one by one in order they came, save return values and throw errors.
+            // - return overrides previous return and throw
+            // - throw overrides previous return and throw
+            // - if has throw in the end throw, if has return then return...
             this._numberOfTimesCalled++;
             this._actualArguments.push(args);
 
