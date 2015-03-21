@@ -12,6 +12,8 @@ module moqJS {
         constructor(public functionCall: (object: T) => any, public object: T, public functionProxyConfigurations: FunctionProxyConfigurations) {
         }
 
+        // TODO: add returnsInOrder and lazyReturnsInOrder....
+
         public lazyReturns(returnFunction: (...args: any[]) => any) {
             var overrideMode = new OverrideFunctionCallMode((...args: any[]) => {
                 return returnFunction.apply(this.object, args);

@@ -8,6 +8,7 @@ var moqJS;
             this.object = object;
             this.functionProxyConfigurations = functionProxyConfigurations;
         }
+        // TODO: add returnsInOrder and lazyReturnsInOrder....
         FunctionSetup.prototype.lazyReturns = function (returnFunction) {
             var _this = this;
             var overrideMode = new moqJS.OverrideFunctionCallMode(function () {
