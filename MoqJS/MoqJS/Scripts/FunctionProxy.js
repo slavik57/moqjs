@@ -12,12 +12,15 @@ var moqJS;
         FunctionProxy.prototype.callFunction = function (args) {
             if (!this.functionProxyConfigurations.isVerifying) {
                 return this._callFunctionWithoutVerification(args);
+            } else if (this.functionProxyConfigurations.functionOverride) {
+                // TODO: add overrides
             } else {
                 this._verifyFunction(args);
             }
         };
 
         FunctionProxy.prototype._callFunctionWithoutVerification = function (args) {
+            // TODO: if has overrides execute each override one by one
             this._numberOfTimesCalled++;
             this._actualArguments.push(args);
 

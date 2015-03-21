@@ -16,12 +16,16 @@ module moqJS {
         public callFunction(args: any[]): any {
             if (!this.functionProxyConfigurations.isVerifying) {
                 return this._callFunctionWithoutVerification(args);
+            } else if (this.functionProxyConfigurations.functionOverride) {
+                // TODO: add overrides
             } else {
                 this._verifyFunction(args);
             }
         }
 
         private _callFunctionWithoutVerification(args: any[]): any {
+            // TODO: if has overrides execute each override one by one
+
             this._numberOfTimesCalled++;
             this._actualArguments.push(args);
 
