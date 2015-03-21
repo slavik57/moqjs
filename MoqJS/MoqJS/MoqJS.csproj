@@ -156,6 +156,7 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Scripts\FunctionOverride.ts" />
     <TypeScriptCompile Include="Scripts\FunctionProxy.ts" />
     <TypeScriptCompile Include="Scripts\FunctionProxyConfigurations.ts" />
     <TypeScriptCompile Include="Scripts\FunctionSetup.ts" />

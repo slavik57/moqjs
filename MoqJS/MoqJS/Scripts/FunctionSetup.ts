@@ -12,9 +12,11 @@ module moqJS {
         }
 
         public lazyReturns(returnFunction: (...args: any[]) => any) {
-            this.functionProxyConfigurations.functionOverride = (...args: any[]) => {
+            var functionOverride = new FunctionOverride((...args: any[]) => {
                 return returnFunction.apply(this.object, args);
-            }
+            }, FunctionOverrideType.LazyReturns);
+
+            this.functionProxyConfigurations.functionOverride = functionOverride;
 
             this.functionCall(this.object);
 
@@ -22,9 +24,11 @@ module moqJS {
         }
 
         public returns(value: any) {
-            this.functionProxyConfigurations.functionOverride = () => {
+            var functionOverride = new FunctionOverride(() => {
                 return value;
-            };
+            }, FunctionOverrideType.Returns);
+
+            this.functionProxyConfigurations.functionOverride = functionOverride;
 
             this.functionCall(this.object);
 
@@ -32,9 +36,11 @@ module moqJS {
         }
 
         public callback(callback: (...args: any[]) => void) {
-            this.functionProxyConfigurations.functionOverride = (...args: any[]) => {
+            var functionOverride = new FunctionOverride((...args: any[]) => {
                 callback.apply(this.object, args);
-            }
+            }, FunctionOverrideType.Callback);
+
+            this.functionProxyConfigurations.functionOverride = functionOverride;
 
             this.functionCall(this.object);
 
@@ -42,9 +48,11 @@ module moqJS {
         }
 
         public throws(error: any) {
-            this.functionProxyConfigurations.functionOverride = () => {
+            var functionOverride = new FunctionOverride(() => {
                 throw error;
-            };
+            }, FunctionOverrideType.Throws);
+
+            this.functionProxyConfigurations.functionOverride = functionOverride;
 
             this.functionCall(this.object);
 

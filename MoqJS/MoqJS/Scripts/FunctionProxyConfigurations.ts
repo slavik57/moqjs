@@ -9,7 +9,7 @@ module moqJS {
         public isVerifying: boolean;
         public numberOfMatches: number;
 
-        public functionOverride: (...args: any[]) => any;
+        public functionOverride: FunctionOverride;
 
         constructor() {
             this.callBase = true;
