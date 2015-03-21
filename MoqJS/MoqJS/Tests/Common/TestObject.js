@@ -23,6 +23,10 @@ var Tests;
         };
 
         TestObject.prototype.returning1Function = function () {
+            if (this.onReturnung1FunctionCalled) {
+                this.onReturnung1FunctionCalled();
+            }
+
             return 1;
         };
         return TestObject;

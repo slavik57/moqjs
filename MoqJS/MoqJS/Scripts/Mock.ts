@@ -25,8 +25,8 @@ module moqJS {
         }
 
         // TODO: Tests
-        public setup(functionCall: (object: T) => any): IFunctionSetup<T> {
-            return new FunctionSetup(functionCall, this._FunctionProxyConfigurations);
+        public setup(functionCall: (...args: any[]) => any): IFunctionSetup {
+            return new FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         }
 
         public verify(functionCall: (object: T) => any, times?: ITimes): boolean {

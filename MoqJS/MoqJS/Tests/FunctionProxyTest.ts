@@ -48,16 +48,16 @@ module Tests {
         QUnit.expect(3);
 
         // Arrange
-        var functionToWrap = new Function();
+        var originalFunction = new Function();
         var thisObject = {};
         var functionProxyConfigurations = new FunctionProxyConfigurations();
 
         // Act
-        var proxy = new FunctionProxy(functionToWrap, thisObject, functionProxyConfigurations);
+        var proxy = new FunctionProxy(originalFunction, thisObject, functionProxyConfigurations);
 
         // Assert
         assert.strictEqual(proxy.thisObject, thisObject);
-        assert.strictEqual(proxy.originalFunction, functionToWrap);
+        assert.strictEqual(proxy.originalFunction, originalFunction);
         assert.strictEqual(proxy.functionProxyConfigurations, functionProxyConfigurations);
     });
 

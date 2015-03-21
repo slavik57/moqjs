@@ -28,7 +28,7 @@ var moqJS;
 
         // TODO: Tests
         Mock.prototype.setup = function (functionCall) {
-            return new moqJS.FunctionSetup(functionCall, this._FunctionProxyConfigurations);
+            return new moqJS.FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         };
 
         Mock.prototype.verify = function (functionCall, times) {
