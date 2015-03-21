@@ -132,6 +132,106 @@ var Tests;
         assert.strictEqual(context.functionProxyConfigurations.functionOverride, null, 'functionOverride should be null');
     });
 
+    QUnit.test('lazyReturns - should call functionCall', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.testObject.onReturnung1FunctionCalled = function () {
+            // Assert
+            assert.ok(true, 'should be called');
+        };
+
+        // Act
+        context.returning1FunctionSetup.lazyReturns(function () {
+            return 4;
+        });
+    });
+
+    QUnit.test('lazyReturns - should call when the override contains function that returns the new value', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var returnValue = {};
+
+        var returnFunction = function () {
+            return returnValue;
+        };
+
+        context.testObject.onReturnung1FunctionCalled = function () {
+            // Assert
+            var result = context.functionProxyConfigurations.functionOverride();
+
+            assert.strictEqual(result, returnValue, 'should return the setup value');
+        };
+
+        // Act
+        context.returning1FunctionSetup.lazyReturns(returnFunction);
+    });
+
+    QUnit.test('lazyReturns - should call when the override contains function that returns the new value 2', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var newReturnValue = {};
+        var returnFunction = function () {
+            return newReturnValue;
+        };
+
+        context.testObject.onOneArgumentsFunctionCalled = function (_arg) {
+            // Assert
+            var result = context.functionProxyConfigurations.functionOverride();
+
+            assert.strictEqual(result, newReturnValue, 'should return the setup value');
+        };
+
+        // Act
+        context.oneArgumentFunctionSetup.lazyReturns(returnFunction);
+    });
+
+    QUnit.test('lazyReturns - should not call other function', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.testObject.onReturnung1FunctionCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call other function');
+        };
+
+        var returnFrunction = function () {
+        };
+
+        // Act
+        context.oneArgumentFunctionSetup.lazyReturns(returnFrunction);
+    });
+
+    QUnit.test('lazyReturns - should call functionCall with same parameter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.testObject.onOneArgumentsFunctionCalled = function (_arg) {
+            // Assert
+            assert.strictEqual(_arg, context.argument, 'should be called with same argument');
+        };
+
+        // Act
+        context.oneArgumentFunctionSetup.lazyReturns(function () {
+            return 4;
+        });
+    });
+
+    QUnit.test('lazyReturns - after returns functionOverride should be null', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.oneArgumentFunctionSetup.lazyReturns(function () {
+            return 4;
+        });
+
+        // Assert
+        assert.strictEqual(context.functionProxyConfigurations.functionOverride, null, 'functionOverride should be null');
+    });
+
     QUnit.test('callback - should call functionCall', 1, function (assert) {
         // Arrange
         var context = this;

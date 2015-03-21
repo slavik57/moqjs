@@ -12,7 +12,13 @@ module moqJS {
         }
 
         public lazyReturns(returnFunction: (...args: any[]) => any) {
-            // TODO: implement
+            this.functionProxyConfigurations.functionOverride = (...args: any[]) => {
+                return returnFunction.apply(this.object, args);
+            }
+
+            this.functionCall(this.object);
+
+            this.functionProxyConfigurations.functionOverride = null;
         }
 
         public returns(value: any) {

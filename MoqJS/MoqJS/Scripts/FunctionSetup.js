@@ -8,7 +8,18 @@ var moqJS;
             this.functionProxyConfigurations = functionProxyConfigurations;
         }
         FunctionSetup.prototype.lazyReturns = function (returnFunction) {
-            // TODO: implement
+            var _this = this;
+            this.functionProxyConfigurations.functionOverride = function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
+                }
+                return returnFunction.apply(_this.object, args);
+            };
+
+            this.functionCall(this.object);
+
+            this.functionProxyConfigurations.functionOverride = null;
         };
 
         FunctionSetup.prototype.returns = function (value) {
