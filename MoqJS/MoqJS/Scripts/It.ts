@@ -41,6 +41,6 @@ module moqJS {
             return new Is(predicate);
         }
 
-        // TODO: isInRange/isRegex
+        // TODO: isInRange/isRegex...
     }
 }
