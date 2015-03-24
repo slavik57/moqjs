@@ -26,9 +26,8 @@ module moqJS {
             this._FunctionProxyConfigurations.callBase = value;
         }
 
-        // TODO: Tests
         // setup private using string
-        public setup(functionCall: (...args: any[]) => any): IFunctionSetup {
+        public setup(functionCall: (object: T) => any): IFunctionSetup {
             return new FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         }
 

@@ -178,6 +178,17 @@ module Tests {
         assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
     });
 
+    QUnit.test('returns - should return the same function setup object', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        // Act
+        var functionSetup = context.oneArgumentFunctionSetup.returns(4);
+
+        // Assert
+        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should return the same setup');
+    });
+
     QUnit.test('lazyReturns - should call functionCall', 1, function (assert: QUnitAssert) {
         // Arrange
         var context: FunctionSetupLyfecycleObject = this;
@@ -315,6 +326,17 @@ module Tests {
         assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
     });
 
+    QUnit.test('lazyReturns - should return same function setup object', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        // Act
+        var functionSetup = context.oneArgumentFunctionSetup.lazyReturns(() => 4);
+
+        // Assert
+        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
+    });
+
     QUnit.test('callback - should call functionCall', 1, function (assert: QUnitAssert) {
         // Arrange
         var context: FunctionSetupLyfecycleObject = this;
@@ -429,6 +451,19 @@ module Tests {
 
         // Act
         context.oneArgumentFunctionSetup.callback(callback);
+    });
+
+    QUnit.test('callback - should return same function setup object', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        var callback = () => { };
+
+        // Act
+        var functionSetup = context.oneArgumentFunctionSetup.callback(callback);
+
+        // Assert
+        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
     });
 
     QUnit.test('callback - after callback functionCallMode should be InvokeFunctionCallMode', 1, function (assert: QUnitAssert) {
@@ -562,4 +597,16 @@ module Tests {
         // Assert
         assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
     });
+
+    QUnit.test('throws - should return same function setup object', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        // Act
+        var functionSetup = context.oneArgumentFunctionSetup.throws({});
+
+        // Assert
+        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
+    });
+
 }

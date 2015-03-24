@@ -1710,4 +1710,996 @@ module Tests {
         // Assert
         assert.strictEqual(result, undefined, 'should return undefined');
     });
+
+    QUnit.test('setup - callback - should not call callback if function is not called', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        // Act
+        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+    });
+
+    QUnit.test('setup - callback - should call callback when function is called', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - callback - should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => { });
+
+        context.testObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - callback - should pass the same parameters', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var arg = 1;
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback((_arg) => {
+            // Assert
+            assert.strictEqual(_arg, arg, 'should return same argument');
+        });
+
+        // Act
+        context.testObject.oneArgumentsFunction(arg);
+    });
+
+    QUnit.test('setup - callback - should pass the same parameters 2', 3, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var arg1 = 1;
+        var arg2 = 2;
+        var arg3 = 3;
+
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+            .callback((_arg1, _arg2, _arg3) => {
+                // Assert
+                assert.strictEqual(_arg1, arg1, 'should return same argument');
+                assert.strictEqual(_arg2, arg2, 'should return same argument');
+                assert.strictEqual(_arg3, arg3, 'should return same argument');
+            });
+
+        // Act
+        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
+    });
+
+    QUnit.test('setup - callback - should not call other original functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - callback - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - callback - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - callback - should not return the callback return value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.returning1Function()).callback(() => {
+            return {};
+        });
+
+        // Act
+        var result = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result, undefined, 'should return undefined');
+    });
+
+    QUnit.test('setup - callback - should call all the callbacks when function is called', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(() => {
+                // Assert
+                assert.ok(true, 'should call callback');
+            }).callback(() => {
+                // Assert
+                assert.ok(true, 'should call callback');
+            }).callback(() => {
+                // Assert
+                assert.ok(true, 'should call callback');
+            });
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - callback - should pass teh same parameters to all the callbacks when function is called', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var arg = 12;
+
+        var checkArgument = (_arg) => {
+            // Assert
+            assert.strictEqual(_arg, arg, 'should pass same argument');
+        };
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+            .callback(checkArgument)
+            .callback(checkArgument)
+            .callback(checkArgument)
+            .callback(checkArgument);
+
+        // Act
+        context.testObject.oneArgumentsFunction(arg);
+    });
+
+    QUnit.test('setup - callback - should pass teh same parameters to all the callbacks when function is called 2', 12, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var arg1 = 11;
+        var arg2 = 12;
+        var arg3 = 13;
+
+        var checkArgument = (_arg1, _arg2, _arg3) => {
+            // Assert
+            assert.strictEqual(_arg1, arg1, 'should pass same argument');
+            assert.strictEqual(_arg2, arg2, 'should pass same argument');
+            assert.strictEqual(_arg3, arg3, 'should pass same argument');
+        };
+
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+            .callback(checkArgument)
+            .callback(checkArgument)
+            .callback(checkArgument)
+            .callback(checkArgument);
+
+        // Act
+        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
+    });
+
+    QUnit.test('setup - callback - should not affect verify', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        // Act
+        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => { });
+
+        // Assert
+        assert.ok(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - returns - should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).returns(111);
+
+        context.testObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - returns - should not call other original functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).returns(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - returns - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).returns(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - returns - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).returns(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - returns - should return the value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+        context.mock.setup(_ => _.returning1Function()).returns(returnValue);
+
+        // Act
+        var result = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the configured value');
+    });
+
+    QUnit.test('setup - returns - should return the last returns value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+        context.mock.setup(_ => _.returning1Function()).returns(returnValue1);
+        context.mock.setup(_ => _.returning1Function()).returns(returnValue2);
+        context.mock.setup(_ => _.returning1Function()).returns(returnValue3);
+        context.mock.setup(_ => _.returning1Function()).returns(returnValue4);
+
+        // Act
+        var result = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
+    });
+
+    QUnit.test('setup - returns - should not affect verify', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        // Act
+        context.mock.setup(_ => _.noArgumentsFunction()).returns(4);
+
+        // Assert
+        assert.ok(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - lazyReturns - should not call returnFunction if function is not called', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        // Act
+        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
+            // Assert
+            assert.ok(false, 'should not call returnFunction');
+        });
+    });
+
+    QUnit.test('setup - lazyReturns - should call returnFunction when function is called', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
+            // Assert
+            assert.ok(true, 'should call returnFunction');
+        });
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - lazyReturns - should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+
+        context.testObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - lazyReturns - should pass the same parameters', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var arg = 1;
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns((_arg) => {
+            // Assert
+            assert.strictEqual(_arg, arg, 'should return same argument');
+        });
+
+        // Act
+        context.testObject.oneArgumentsFunction(arg);
+    });
+
+    QUnit.test('setup - lazyReturns - should pass the same parameters 2', 3, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var arg1 = 1;
+        var arg2 = 2;
+        var arg3 = 3;
+
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+            .lazyReturns((_arg1, _arg2, _arg3) => {
+                // Assert
+                assert.strictEqual(_arg1, arg1, 'should return same argument');
+                assert.strictEqual(_arg2, arg2, 'should return same argument');
+                assert.strictEqual(_arg3, arg3, 'should return same argument');
+            });
+
+        // Act
+        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
+    });
+
+    QUnit.test('setup - lazyReturns - should not call other original functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - lazyReturns - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - lazyReturns - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - lazyReturns - should return the returnFunction return value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+
+        context.mock.setup(_ => _.returning1Function()).lazyReturns(() => {
+            return returnValue;
+        });
+
+        // Act
+        var result = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return returnValue');
+    });
+
+    QUnit.test('setup - lazyReturns - should return the last returnFunction return value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+
+        context.mock.setup(_ => _.returning1Function())
+            .lazyReturns(() => { return returnValue1; })
+            .lazyReturns(() => { return returnValue2; })
+            .lazyReturns(() => { return returnValue3; })
+            .lazyReturns(() => { return returnValue4; });
+
+        // Act
+        var result = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
+    });
+
+    QUnit.test('setup - lazyReturns - should not affect verify', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        // Act
+        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => 4);
+
+        // Assert
+        assert.ok(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - throws - should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).throws(111);
+
+        context.testObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        try {
+            context.testObject.noArgumentsFunction();
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - throws - should not call other original functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).throws(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        try {
+            context.testObject.noArgumentsFunction();
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - throws - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).throws(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        try {
+            context.testObject.noArgumentsFunction();
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - throws - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.noArgumentsFunction()).throws(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        try {
+            context.testObject.noArgumentsFunction();
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - throws - should throw the error', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var thrownError = {};
+        context.mock.setup(_ => _.returning1Function()).throws(thrownError);
+
+        // Act
+        try {
+            context.testObject.returning1Function();
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setup - throws - should throw the last error', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var thrownError1 = {};
+        var thrownError2 = {};
+        var thrownError3 = {};
+        var thrownError4 = {};
+        context.mock.setup(_ => _.returning1Function())
+            .throws(thrownError1)
+            .throws(thrownError2)
+            .throws(thrownError3)
+            .throws(thrownError4);
+
+        // Act
+        try {
+            context.testObject.returning1Function();
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setup - throws - should not affect verify', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        // Act
+        context.mock.setup(_ => _.noArgumentsFunction()).throws('error');
+
+        // Assert
+        assert.ok(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - mix - should throw error if configured after return', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        context.mock.setup(_ => _.returning1Function())
+            .returns(returnValue)
+            .throws(thrownError);
+
+        // Act
+        try {
+            context.testObject.returning1Function();
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the error');
+        }
+    });
+
+    QUnit.test('setup - mix - should return value if configured after throw', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        context.mock.setup(_ => _.returning1Function())
+            .throws(thrownError)
+            .returns(returnValue);
+
+        // Act
+        var result = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the configured value');
+    });
+
+    QUnit.test('setup - mix - should call all the callbacks and the lazy returns but return last configured one', 5, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        context.mock.setup(_ => _.returning1Function())
+            .throws(thrownError)
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 1;
+            })
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 2;
+            })
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 3;
+            })
+            .callback(() => assert.ok(true, 'should call callback'))
+            .returns(returnValue);
+
+        // Act
+        var result = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the configured value');
+    });
+
+    QUnit.test('setup - mix - should call all the callbacks and the lazy returns but return last configured one 2', 5, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        context.mock.setup(_ => _.returning1Function())
+            .throws(thrownError)
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 1;
+            })
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 2;
+            })
+            .returns(3)
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return returnValue;
+            })
+            .callback(() => assert.ok(true, 'should call callback'));
+
+        // Act
+        var result = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the configured value');
+    });
+
+    QUnit.test('setup - mix - should call all the callbacks and the lazy returns but throw last configured error', 5, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        context.mock.setup(_ => _.returning1Function())
+            .throws('asdasd')
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 1;
+            })
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 2;
+            })
+            .returns(returnValue)
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 3;
+            })
+            .throws(thrownError)
+            .callback(() => assert.ok(true, 'should call callback'));
+
+        // Act
+        try {
+            context.testObject.returning1Function();
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setup - mix - should not affect the verify', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        // Act
+        context.mock.setup(_ => _.returning1Function())
+            .throws('asdasd')
+            .lazyReturns(() => 1)
+            .lazyReturns(() => 2)
+            .lazyReturns(() => 3)
+            .throws(thrownError)
+            .returns(returnValue)
+            .callback(() => { });
+
+        // Assert
+        assert.ok(context.mock.verify(_ => _.returning1Function(), Times.exact(0)), 'should be called once');
+    });
+
+    QUnit.test('setup - mix - should call only the matching set', 3, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+            .lazyReturns(() => {
+                assert.ok(false, 'lazyReturns should not be called for any number');
+            })
+            .returns('return value')
+            .callback(() => {
+                assert.ok(false, 'callback should not be called for any number');
+            });
+
+        context.mock.setup(_ => _.oneArgumentsFunction('aaa'))
+            .throws('error')
+            .lazyReturns(() => {
+                assert.ok(false, 'lazyReturns should not be called aaa');
+            })
+            .callback(() => {
+                assert.ok(false, 'callback should not be called for aaa');
+            });
+
+        context.mock.setup(_ => _.oneArgumentsFunction('bbb'))
+            .lazyReturns(() => {
+                assert.ok(true, 'should be called');
+            })
+            .callback(() => {
+                assert.ok(true, 'should be called');
+            })
+            .returns(returnValue);
+
+        // Act
+        var result = context.testObject.oneArgumentsFunction('bbb');
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the return value');
+    });
+
+    QUnit.test('setup - mix - if both setups match should call both', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+            .lazyReturns(() => {
+                assert.ok(true, 'should call');
+            })
+            .returns('return value')
+            .callback(() => {
+                assert.ok(true, 'should call');
+            });
+
+        context.mock.setup(_ => _.oneArgumentsFunction(1))
+            .lazyReturns(() => {
+                assert.ok(true, 'should call');
+            })
+            .returns('return value')
+            .callback(() => {
+                assert.ok(true, 'should call');
+            });
+
+        // Act
+        context.testObject.oneArgumentsFunction(1);
+    });
+
+    QUnit.test('setup - mix - if both setups match should return from the last', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+            .lazyReturns(() => 1)
+            .returns(() => 2);
+
+        context.mock.setup(_ => _.oneArgumentsFunction(1))
+            .lazyReturns(() => 3)
+            .returns(returnValue);
+
+        // Act
+        var result = context.testObject.oneArgumentsFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the returnValue');
+    });
+
+    QUnit.test('setup - mix - if both setups match should return from the last 2', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var returnValue = {};
+
+        context.mock.setup(_ => _.oneArgumentsFunction(1))
+            .lazyReturns(() => 1)
+            .returns(() => 2);
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+            .lazyReturns(() => 3)
+            .returns(returnValue);
+
+        // Act
+        var result = context.testObject.oneArgumentsFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the returnValue');
+    });
+
+    QUnit.test('setup - mix - if both setups match should throw from the last', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var thrownError = {};
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+            .lazyReturns(() => 1)
+            .throws('error')
+            .returns(() => 2);
+
+        context.mock.setup(_ => _.oneArgumentsFunction(1))
+            .lazyReturns(() => 3)
+            .throws(thrownError);
+
+        // Act
+        try {
+            context.testObject.oneArgumentsFunction(1);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the thrownError');
+        }
+    });
+
+    QUnit.test('setup - mix - if both setups match should throw from the last 2', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MockLifecycleObject = this;
+
+        var thrownError = {};
+
+        context.mock.setup(_ => _.oneArgumentsFunction(1))
+            .lazyReturns(() => 1)
+            .throws('error')
+            .returns(() => 2);
+
+        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+            .lazyReturns(() => 3)
+            .throws(thrownError);
+
+        // Act
+        try {
+            context.testObject.oneArgumentsFunction(1);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the thrownError');
+        }
+    });
 }

@@ -1,7 +1,6 @@
 ﻿'use strict';
 var moqJS;
 (function (moqJS) {
-    // TODO: support chaining => returns().callback().throws().....
     var FunctionSetup = (function () {
         function FunctionSetup(functionCall, object, functionProxyConfigurations) {
             this.functionCall = functionCall;
@@ -26,6 +25,8 @@ var moqJS;
             this.functionCall(this.object);
 
             this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
+
+            return this;
         };
 
         FunctionSetup.prototype.returns = function (value) {
@@ -38,6 +39,8 @@ var moqJS;
             this.functionCall(this.object);
 
             this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
+
+            return this;
         };
 
         FunctionSetup.prototype.callback = function (callback) {
@@ -55,6 +58,8 @@ var moqJS;
             this.functionCall(this.object);
 
             this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
+
+            return this;
         };
 
         FunctionSetup.prototype.throws = function (error) {
@@ -67,6 +72,8 @@ var moqJS;
             this.functionCall(this.object);
 
             this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
+
+            return this;
         };
         return FunctionSetup;
     })();

@@ -2,12 +2,12 @@
 
 module moqJS {
     export interface IFunctionSetup {
-        returns(value: any);
-        callback(callback: (...args: any[]) => any);
-        throws(error: any);
+        lazyReturns(returnFunction: (...args: any[]) => any): IFunctionSetup;
+        returns(value: any): IFunctionSetup;
+        callback(callback: (...args: any[]) => any): IFunctionSetup;
+        throws(error: any): IFunctionSetup;
     }
 
-    // TODO: support chaining => returns().callback().throws().....
     export class FunctionSetup<T> implements IFunctionSetup {
         constructor(public functionCall: (object: T) => any, public object: T, public functionProxyConfigurations: FunctionProxyConfigurations) {
         }
@@ -16,7 +16,7 @@ module moqJS {
         //  given list of return values return every call the next value... when finished return undefined
         // TODO: add lazyThrows
 
-        public lazyReturns(returnFunction: (...args: any[]) => any) {
+        public lazyReturns(returnFunction: (...args: any[]) => any): IFunctionSetup {
             var overrideMode = new ReturnsOverrideFunctionCallMode((...args: any[]) => {
                 return returnFunction.apply(this.object, args);
             });
@@ -26,9 +26,11 @@ module moqJS {
             this.functionCall(this.object);
 
             this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
+
+            return this;
         }
 
-        public returns(value: any) {
+        public returns(value: any): IFunctionSetup {
             var overrideMode = new ReturnsOverrideFunctionCallMode(() => {
                 return value;
             });
@@ -38,9 +40,11 @@ module moqJS {
             this.functionCall(this.object);
 
             this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
+
+            return this;
         }
 
-        public callback(callback: (...args: any[]) => void) {
+        public callback(callback: (...args: any[]) => void): IFunctionSetup {
             var overrideMode = new CallbackOverrideFunctionCallMode((...args: any[]) => {
                 callback.apply(this.object, args);
             });
@@ -50,9 +54,11 @@ module moqJS {
             this.functionCall(this.object);
 
             this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
+
+            return this;
         }
 
-        public throws(error: any) {
+        public throws(error: any): IFunctionSetup {
             var overrideMode = new ThrowsOverrideFunctionCallMode(() => {
                 return error;
             });
@@ -62,6 +68,8 @@ module moqJS {
             this.functionCall(this.object);
 
             this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
+
+            return this;
         }
     }
 }

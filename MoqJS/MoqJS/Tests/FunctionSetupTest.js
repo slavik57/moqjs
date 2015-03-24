@@ -175,6 +175,17 @@ var Tests;
         assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
     });
 
+    QUnit.test('returns - should return the same function setup object', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        var functionSetup = context.oneArgumentFunctionSetup.returns(4);
+
+        // Assert
+        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should return the same setup');
+    });
+
     QUnit.test('lazyReturns - should call functionCall', 1, function (assert) {
         // Arrange
         var context = this;
@@ -319,6 +330,19 @@ var Tests;
         assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
     });
 
+    QUnit.test('lazyReturns - should return same function setup object', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        var functionSetup = context.oneArgumentFunctionSetup.lazyReturns(function () {
+            return 4;
+        });
+
+        // Assert
+        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
+    });
+
     QUnit.test('callback - should call functionCall', 1, function (assert) {
         // Arrange
         var context = this;
@@ -438,6 +462,20 @@ var Tests;
 
         // Act
         context.oneArgumentFunctionSetup.callback(callback);
+    });
+
+    QUnit.test('callback - should return same function setup object', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var callback = function () {
+        };
+
+        // Act
+        var functionSetup = context.oneArgumentFunctionSetup.callback(callback);
+
+        // Assert
+        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
     });
 
     QUnit.test('callback - after callback functionCallMode should be InvokeFunctionCallMode', 1, function (assert) {
@@ -571,6 +609,17 @@ var Tests;
 
         // Assert
         assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
+    });
+
+    QUnit.test('throws - should return same function setup object', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        var functionSetup = context.oneArgumentFunctionSetup.throws({});
+
+        // Assert
+        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
     });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=FunctionSetupTest.js.map

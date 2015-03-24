@@ -28,7 +28,6 @@ var moqJS;
         });
 
 
-        // TODO: Tests
         // setup private using string
         Mock.prototype.setup = function (functionCall) {
             return new moqJS.FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
