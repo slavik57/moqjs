@@ -5,34 +5,34 @@ var Tests;
     var It = moqJS.It;
 
     var Times = moqJS.Times;
-    var Mock = moqJS.Mock;
+    var Mole = moqJS.Mole;
 
-    var MockLifecycleObject = (function () {
-        function MockLifecycleObject() {
+    var MoleLifecycleObject = (function () {
+        function MoleLifecycleObject() {
             this.beforeEach = function () {
                 var context = this;
 
                 context.testObject = new Tests.TestObject();
 
-                context.mock = new Mock(context.testObject);
+                context.mole = new Mole(context.testObject);
             };
             this.afterEach = function () {
             };
         }
-        return MockLifecycleObject;
+        return MoleLifecycleObject;
     })();
 
-    QUnit.module('Mock', new MockLifecycleObject());
+    QUnit.module('Mole', new MoleLifecycleObject());
 
     QUnit.test('constructor - should initialize correctly', 1, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
 
         // Act
-        var mock = new Mock(testObject);
+        var mole = new Mole(testObject);
 
         // Assert
-        assert.strictEqual(mock.object, testObject);
+        assert.strictEqual(mole.object, testObject);
     });
 
     QUnit.test('noArgumentsFunction - should call only the original function', function (assert) {
@@ -123,13 +123,13 @@ var Tests;
         context.testObject.noArgumentsFunction();
 
         // Assert
-        var verifyNoArguments = context.mock.verify(function (_) {
+        var verifyNoArguments = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         });
-        var verifyOneArguments = context.mock.verify(function (_) {
+        var verifyOneArguments = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg1);
         });
-        var verifyManyArguments = context.mock.verify(function (_) {
+        var verifyManyArguments = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         });
 
@@ -149,13 +149,13 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg1);
 
         // Assert
-        var verifyNoArguments = context.mock.verify(function (_) {
+        var verifyNoArguments = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         });
-        var verifyOneArguments = context.mock.verify(function (_) {
+        var verifyOneArguments = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg1);
         });
-        var verifyManyArguments = context.mock.verify(function (_) {
+        var verifyManyArguments = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         });
 
@@ -175,13 +175,13 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Assert
-        var verifyNoArguments = context.mock.verify(function (_) {
+        var verifyNoArguments = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         });
-        var verifyOneArguments = context.mock.verify(function (_) {
+        var verifyOneArguments = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg1);
         });
-        var verifyManyArguments = context.mock.verify(function (_) {
+        var verifyManyArguments = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         });
 
@@ -197,7 +197,7 @@ var Tests;
         var context = this;
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         });
 
@@ -212,7 +212,7 @@ var Tests;
         var context = this;
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(2));
 
@@ -227,7 +227,7 @@ var Tests;
         var context = this;
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0));
 
@@ -244,7 +244,7 @@ var Tests;
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0));
 
@@ -261,7 +261,7 @@ var Tests;
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(1));
 
@@ -278,7 +278,7 @@ var Tests;
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(2));
 
@@ -296,7 +296,7 @@ var Tests;
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(2));
 
@@ -314,7 +314,7 @@ var Tests;
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(1));
 
@@ -332,7 +332,7 @@ var Tests;
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(3));
 
@@ -349,7 +349,7 @@ var Tests;
         var arg = {};
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         });
 
@@ -366,7 +366,7 @@ var Tests;
         var arg = {};
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         }, Times.exact(1));
 
@@ -383,7 +383,7 @@ var Tests;
         var arg = {};
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         }, Times.exact(2));
 
@@ -400,7 +400,7 @@ var Tests;
         var arg = {};
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         }, Times.exact(0));
 
@@ -419,7 +419,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         });
 
@@ -438,7 +438,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         }, Times.exact(1));
 
@@ -457,7 +457,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         }, Times.exact(2));
 
@@ -476,7 +476,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         }, Times.exact(0));
 
@@ -496,7 +496,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         });
 
@@ -516,7 +516,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         }, Times.exact(2));
 
@@ -536,7 +536,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         }, Times.exact(0));
 
@@ -556,7 +556,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         }, Times.exact(1));
 
@@ -576,7 +576,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg);
         }, Times.exact(3));
 
@@ -597,7 +597,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg1);
         });
 
@@ -618,7 +618,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg1);
         }, Times.exact(1));
 
@@ -639,7 +639,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg1);
         }, Times.exact(0));
 
@@ -660,7 +660,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg1);
         }, Times.exact(2));
 
@@ -682,7 +682,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg1);
         }, Times.exact(2));
 
@@ -704,7 +704,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg1);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg1);
         }, Times.exact(2));
 
@@ -725,7 +725,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg2);
         });
 
@@ -746,7 +746,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg2);
         }, Times.exact(1));
 
@@ -767,7 +767,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg2);
         }, Times.exact(2));
 
@@ -788,7 +788,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg2);
         }, Times.exact(0));
 
@@ -810,7 +810,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg2);
         }, Times.exact(0));
 
@@ -832,7 +832,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg2);
         }, Times.exact(1));
 
@@ -854,7 +854,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg2);
         }, Times.exact(2));
 
@@ -876,7 +876,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg2);
         }, Times.exact(3));
 
@@ -898,7 +898,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg3);
         });
 
@@ -920,7 +920,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg3);
         }, Times.exact(1));
 
@@ -942,7 +942,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg3);
         }, Times.exact(2));
 
@@ -964,7 +964,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(arg3);
         }, Times.exact(0));
 
@@ -983,7 +983,7 @@ var Tests;
         var arg3 = {};
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         });
 
@@ -1002,7 +1002,7 @@ var Tests;
         var arg3 = {};
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         }, Times.exact(1));
 
@@ -1021,7 +1021,7 @@ var Tests;
         var arg3 = {};
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         }, Times.exact(2));
 
@@ -1040,7 +1040,7 @@ var Tests;
         var arg3 = {};
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         }, Times.exact(0));
 
@@ -1061,7 +1061,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         });
 
@@ -1082,7 +1082,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         }, Times.exact(1));
 
@@ -1103,7 +1103,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         }, Times.exact(0));
 
@@ -1124,7 +1124,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         }, Times.exact(2));
 
@@ -1146,7 +1146,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         }, Times.exact(0));
 
@@ -1168,7 +1168,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         }, Times.exact(1));
 
@@ -1190,7 +1190,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         }, Times.exact(2));
 
@@ -1212,7 +1212,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         });
 
@@ -1234,7 +1234,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(arg1, arg2, arg3);
         }, Times.exact(3));
 
@@ -1255,7 +1255,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
         });
 
@@ -1276,7 +1276,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
         }, Times.exact(1));
 
@@ -1297,7 +1297,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
         }, Times.exact(0));
 
@@ -1318,7 +1318,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
         }, Times.exact(2));
 
@@ -1339,7 +1339,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
         });
 
@@ -1360,7 +1360,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
         }, Times.exact(1));
 
@@ -1381,7 +1381,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
         }, Times.exact(0));
 
@@ -1402,7 +1402,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
         }, Times.exact(2));
 
@@ -1423,7 +1423,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]);
         });
 
@@ -1444,7 +1444,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]);
         }, Times.exact(1));
 
@@ -1465,7 +1465,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]);
         }, Times.exact(2));
 
@@ -1486,7 +1486,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]);
         }, Times.exact(0));
 
@@ -1521,191 +1521,191 @@ var Tests;
         context.testObject.oneArgumentsFunction(argSet[2]);
 
         // Assert
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }), true, 'no arguments function should be verified');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0)), false, 'no arguments function should not be verified for 0');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(1)), false, 'no arguments function should not be verified for 1');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(2)), false, 'no arguments function should not be verified for 2');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(3)), false, 'no arguments function should not be verified for 3');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(4)), true), 'no arguments function should be verified for 4';
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(5)), false, 'no arguments function should not be verified for 5');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(6)), false, 'no arguments function should not be verified for 6');
 
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[0]);
         }), true, 'one arguments function should be verified for argSet[0]');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[1]);
         }), true, 'one arguments function should be verified for argSet[1]');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[2]);
         }), true, 'one arguments function should be verified for argSet[2]');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[3]);
         }), false, 'one arguments function should not be verified for argSet[3]');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[0]);
         }, Times.exact(0)), false, 'one arguments function should not be verified for argSet[0] 0 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[0]);
         }, Times.exact(1)), false, 'one arguments function should not be verified for argSet[0] 1 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[0]);
         }, Times.exact(2)), false, 'one arguments function not should be verified for argSet[0] 2 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[0]);
         }, Times.exact(3)), true, 'one arguments function should be verified for argSet[0] 3 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[0]);
         }, Times.exact(4)), false, 'one arguments function should not be verified for argSet[0] 4 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[1]);
         }, Times.exact(0)), false, 'one arguments function should not be verified for argSet[1] 0 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[1]);
         }, Times.exact(1)), true, 'one arguments function should be verified for argSet[1] 1 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[1]);
         }, Times.exact(2)), false, 'one arguments function should not be verified for argSet[1] 2 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[1]);
         }, Times.exact(3)), false, 'one arguments function should not be verified for argSet[1] 3 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[2]);
         }, Times.exact(0)), false, 'one arguments function should not be verified for argSet[2] 0 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[2]);
         }, Times.exact(1)), false, 'one arguments function should not be verified for argSet[2] 1 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[2]);
         }, Times.exact(2)), false, 'one arguments function should not be verified for argSet[2] 2 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[2]);
         }, Times.exact(3)), true, 'one arguments function should be verified for argSet[2] 3 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[2]);
         }, Times.exact(4)), false, 'one arguments function should not be verified for argSet[2] 4 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.oneArgumentsFunction(argSet[2]);
         }, Times.exact(5)), false, 'one arguments function should not be verified for argSet[2] 5 times');
 
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
         }), true, 'many arguments function should be verified for argSet[0,1,2]');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
         }, Times.exact(0)), false, 'many arguments function should not be verified for argSet[0,1,2] 0 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
         }, Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,1,2] 1 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
         }, Times.exact(2)), false, 'many arguments function should not be verified for argSet[0,1,2] 2 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
         }, Times.exact(3)), true, 'many arguments function should be verified for argSet[0,1,2] 3 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
         }, Times.exact(4)), false, 'many arguments function should not be verified for argSet[0,1,2] 4 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
         }, Times.exact(5)), false, 'many arguments function should not be verified for argSet[0,1,2] 5 times');
 
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
         }), true, 'many arguments function should be verified for argSet[0,1,0]');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
         }, Times.exact(0)), false, 'many arguments function should not be verified for argSet[0,1,0] 0 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
         }, Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,1,0] 1 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
         }, Times.exact(2)), true, 'many arguments function should be verified for argSet[0,1,0] 2 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
         }, Times.exact(3)), false, 'many arguments function should not be verified for argSet[0,1,0] 3 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
         }, Times.exact(4)), false, 'many arguments function should not be verified for argSet[0,1,0] 4 times');
 
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]);
         }), true, 'many arguments function should not be verified for argSet[1,1,1]');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]);
         }, Times.exact(0)), false, 'many arguments function should not be verified for argSet[1,1,1] 0 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]);
         }, Times.exact(1)), true, 'many arguments function should be verified for argSet[1,1,1] 1 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]);
         }, Times.exact(2)), false, 'many arguments function should not be verified for argSet[1,1,1] 2 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]);
         }, Times.exact(3)), false, 'many arguments function should not be verified for argSet[1,1,1] 3 times');
 
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]);
         }), true, 'many arguments function should be verified for argSet[2,1,2]');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]);
         }, Times.exact(0)), false, 'many arguments function should not be verified for argSet[2,1,2] 0 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]);
         }, Times.exact(1)), true, 'many arguments function should be verified for argSet[2,1,2] 1 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]);
         }, Times.exact(2)), false, 'many arguments function should not be verified for argSet[2,1,2] 2 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]);
         }, Times.exact(3)), false, 'many arguments function should not be verified for argSet[2,1,2] 3 times');
 
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]);
         }), true, 'many arguments function should be verified for argSet[2,2,2]');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]);
         }, Times.exact(0)), false, 'many arguments function should not be verified for argSet[2,2,2] 0 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]);
         }, Times.exact(1)), true, 'many arguments function should be verified for argSet[2,2,2] 1 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]);
         }, Times.exact(2)), false, 'many arguments function should not be verified for argSet[2,2,2] 2 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]);
         }, Times.exact(3)), false, 'many arguments function should not be verified for argSet[2,2,2] 3 times');
 
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]);
         }), false, 'many arguments function should not be verified for argSet[0,0,0]');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]);
         }, Times.exact(0)), true, 'many arguments function should be verified for argSet[0,0,0] 0 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]);
         }, Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,0,0] 1 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]);
         }, Times.exact(2)), false, 'many arguments function should not be verified for argSet[0,0,0] 2 times');
-        assert.strictEqual(context.mock.verify(function (_) {
+        assert.strictEqual(context.mole.verify(function (_) {
             return _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]);
         }, Times.exact(3)), false, 'many arguments function should not be verified for argSet[0,0,0] 3 times');
     });
@@ -1714,16 +1714,16 @@ var Tests;
         // Arrange
         var context = this;
 
-        var timesMock = {
+        var timesMole = {
             match: function () {
                 return false;
             }
         };
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
-        }, timesMock);
+        }, timesMole);
 
         // Assert
         assert.strictEqual(result, false, 'should return false if times do not match');
@@ -1733,16 +1733,16 @@ var Tests;
         // Arrange
         var context = this;
 
-        var timesMock = {
+        var timesMole = {
             match: function () {
                 return true;
             }
         };
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.noArgumentsFunction();
-        }, timesMock);
+        }, timesMole);
 
         // Assert
         assert.strictEqual(result, true, 'should return true if times match');
@@ -1760,7 +1760,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(1);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(itIs);
         });
 
@@ -1780,7 +1780,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(1);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.oneArgumentsFunction(itIs);
         });
 
@@ -1800,7 +1800,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(itIs, itIs, itIs);
         });
 
@@ -1820,7 +1820,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(itIs, itIs, itIs);
         });
 
@@ -1845,7 +1845,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(trueItIs, trueItIs, falseItIs);
         });
 
@@ -1865,7 +1865,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(trueItIs, trueItIs, 2);
         });
 
@@ -1890,7 +1890,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(trueItIs, trueItIs, 2);
         }, Times.exact(2));
 
@@ -1917,7 +1917,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(1, trueItIs, 2);
         }, Times.exact(1));
 
@@ -1940,7 +1940,7 @@ var Tests;
         context.testObject.manyArgumentsFunction(16, 1, 6);
 
         // Act
-        var result = context.mock.verify(function (_) {
+        var result = context.mole.verify(function (_) {
             return _.manyArgumentsFunction(numberItIs, stringItIs, numberItIs);
         }, Times.exact(2));
 
@@ -1951,8 +1951,8 @@ var Tests;
     QUnit.test('callBase - set to true after constructor should call the original function', 1, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
-        var mock = new Mock(testObject);
-        mock.callBase = true;
+        var mole = new Mole(testObject);
+        mole.callBase = true;
 
         testObject.onNoArgumentsFunctionCalled = function () {
             // Assert
@@ -1966,8 +1966,8 @@ var Tests;
     QUnit.test('callBase - set to false after constructor should not call the original function', 0, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
-        var mock = new Mock(testObject);
-        mock.callBase = false;
+        var mole = new Mole(testObject);
+        mole.callBase = false;
 
         testObject.onNoArgumentsFunctionCalled = function () {
             // Assert
@@ -1981,8 +1981,8 @@ var Tests;
     QUnit.test('callBase - set to true should return the original function value', 1, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
-        var mock = new Mock(testObject);
-        mock.callBase = true;
+        var mole = new Mole(testObject);
+        mole.callBase = true;
 
         // Act
         var result = testObject.returning1Function();
@@ -1994,8 +1994,8 @@ var Tests;
     QUnit.test('callBase - set to false should not return the original function value', 1, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
-        var mock = new Mock(testObject);
-        mock.callBase = false;
+        var mole = new Mole(testObject);
+        mole.callBase = false;
 
         // Act
         var result = testObject.returning1Function();
@@ -2007,8 +2007,8 @@ var Tests;
     QUnit.test('callBase - set to false should return undefined', 1, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
-        var mock = new Mock(testObject);
-        mock.callBase = false;
+        var mole = new Mole(testObject);
+        mole.callBase = false;
 
         // Act
         var result = testObject.returning1Function();
@@ -2022,7 +2022,7 @@ var Tests;
         var context = this;
 
         // Act
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).callback(function () {
             // Assert
@@ -2034,7 +2034,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).callback(function () {
             // Assert
@@ -2049,7 +2049,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).callback(function () {
         });
@@ -2069,7 +2069,7 @@ var Tests;
 
         var arg = 1;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).callback(function (_arg) {
             // Assert
@@ -2088,7 +2088,7 @@ var Tests;
         var arg2 = 2;
         var arg3 = 3;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).callback(function (_arg1, _arg2, _arg3) {
             // Assert
@@ -2105,7 +2105,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).callback(function () {
         });
@@ -2127,7 +2127,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).callback(function () {
         });
@@ -2137,10 +2137,10 @@ var Tests;
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).callback(shouldNotHappen);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).callback(shouldNotHappen);
 
@@ -2156,7 +2156,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).callback(function () {
         });
@@ -2166,10 +2166,10 @@ var Tests;
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(shouldNotHappen);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).lazyReturns(shouldNotHappen);
 
@@ -2185,7 +2185,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).callback(function () {
             return {};
@@ -2202,7 +2202,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).callback(function () {
             // Assert
@@ -2233,7 +2233,7 @@ var Tests;
             assert.strictEqual(_arg, arg, 'should pass same argument');
         };
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).callback(checkArgument).callback(checkArgument).callback(checkArgument).callback(checkArgument);
 
@@ -2256,7 +2256,7 @@ var Tests;
             assert.strictEqual(_arg3, arg3, 'should pass same argument');
         };
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).callback(checkArgument).callback(checkArgument).callback(checkArgument).callback(checkArgument);
 
@@ -2269,13 +2269,13 @@ var Tests;
         var context = this;
 
         // Act
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).callback(function () {
         });
 
         // Assert
-        assert.ok(context.mock.verify(function (_) {
+        assert.ok(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0)), 'should not effect verify');
     });
@@ -2284,7 +2284,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).returns(111);
 
@@ -2301,7 +2301,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).returns(111);
 
@@ -2322,7 +2322,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).returns(111);
 
@@ -2331,10 +2331,10 @@ var Tests;
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).callback(shouldNotHappen);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).callback(shouldNotHappen);
 
@@ -2350,7 +2350,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).returns(111);
 
@@ -2359,10 +2359,10 @@ var Tests;
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(shouldNotHappen);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).lazyReturns(shouldNotHappen);
 
@@ -2379,7 +2379,7 @@ var Tests;
         var context = this;
 
         var returnValue = {};
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).returns(returnValue);
 
@@ -2398,16 +2398,16 @@ var Tests;
         var returnValue2 = {};
         var returnValue3 = {};
         var returnValue4 = {};
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).returns(returnValue1);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).returns(returnValue2);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).returns(returnValue3);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).returns(returnValue4);
 
@@ -2423,12 +2423,12 @@ var Tests;
         var context = this;
 
         // Act
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).returns(4);
 
         // Assert
-        assert.ok(context.mock.verify(function (_) {
+        assert.ok(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0)), 'should not effect verify');
     });
@@ -2438,7 +2438,7 @@ var Tests;
         var context = this;
 
         // Act
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).lazyReturns(function () {
             // Assert
@@ -2450,7 +2450,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).lazyReturns(function () {
             // Assert
@@ -2465,7 +2465,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).lazyReturns(function () {
         });
@@ -2485,7 +2485,7 @@ var Tests;
 
         var arg = 1;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(function (_arg) {
             // Assert
@@ -2504,7 +2504,7 @@ var Tests;
         var arg2 = 2;
         var arg3 = 3;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).lazyReturns(function (_arg1, _arg2, _arg3) {
             // Assert
@@ -2521,7 +2521,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).lazyReturns(function () {
         });
@@ -2543,7 +2543,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).lazyReturns(function () {
         });
@@ -2553,10 +2553,10 @@ var Tests;
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).callback(shouldNotHappen);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).callback(shouldNotHappen);
 
@@ -2572,7 +2572,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).lazyReturns(function () {
         });
@@ -2582,10 +2582,10 @@ var Tests;
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(shouldNotHappen);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).lazyReturns(shouldNotHappen);
 
@@ -2603,7 +2603,7 @@ var Tests;
 
         var returnValue = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).lazyReturns(function () {
             return returnValue;
@@ -2625,7 +2625,7 @@ var Tests;
         var returnValue3 = {};
         var returnValue4 = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).lazyReturns(function () {
             return returnValue1;
@@ -2649,14 +2649,14 @@ var Tests;
         var context = this;
 
         // Act
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).lazyReturns(function () {
             return 4;
         });
 
         // Assert
-        assert.ok(context.mock.verify(function (_) {
+        assert.ok(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0)), 'should not effect verify');
     });
@@ -2665,7 +2665,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).throws(111);
 
@@ -2684,7 +2684,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).throws(111);
 
@@ -2707,7 +2707,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).throws(111);
 
@@ -2716,10 +2716,10 @@ var Tests;
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).callback(shouldNotHappen);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).callback(shouldNotHappen);
 
@@ -2737,7 +2737,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).throws(111);
 
@@ -2746,10 +2746,10 @@ var Tests;
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(shouldNotHappen);
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).lazyReturns(shouldNotHappen);
 
@@ -2768,7 +2768,7 @@ var Tests;
         var context = this;
 
         var thrownError = {};
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).throws(thrownError);
 
@@ -2788,7 +2788,7 @@ var Tests;
         var thrownError2 = {};
         var thrownError3 = {};
         var thrownError4 = {};
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).throws(thrownError1).throws(thrownError2).throws(thrownError3).throws(thrownError4);
 
@@ -2805,12 +2805,12 @@ var Tests;
         var context = this;
 
         // Act
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.noArgumentsFunction();
         }).throws('error');
 
         // Assert
-        assert.ok(context.mock.verify(function (_) {
+        assert.ok(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0)), 'should not effect verify');
     });
@@ -2822,7 +2822,7 @@ var Tests;
         var returnValue = {};
         var thrownError = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).returns(returnValue).throws(thrownError);
 
@@ -2841,7 +2841,7 @@ var Tests;
         var returnValue = {};
         var thrownError = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).throws(thrownError).returns(returnValue);
 
@@ -2859,7 +2859,7 @@ var Tests;
         var returnValue = {};
         var thrownError = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).throws(thrownError).lazyReturns(function () {
             assert.ok(true, 'should call lazyRerturns');
@@ -2888,7 +2888,7 @@ var Tests;
         var returnValue = {};
         var thrownError = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).throws(thrownError).lazyReturns(function () {
             assert.ok(true, 'should call lazyRerturns');
@@ -2917,7 +2917,7 @@ var Tests;
         var returnValue = {};
         var thrownError = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).throws('asdasd').lazyReturns(function () {
             assert.ok(true, 'should call lazyRerturns');
@@ -2948,7 +2948,7 @@ var Tests;
         var thrownError = {};
 
         // Act
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.returning1Function();
         }).throws('asdasd').lazyReturns(function () {
             return 1;
@@ -2960,7 +2960,7 @@ var Tests;
         });
 
         // Assert
-        assert.ok(context.mock.verify(function (_) {
+        assert.ok(context.mole.verify(function (_) {
             return _.returning1Function();
         }, Times.exact(0)), 'should be called once');
     });
@@ -2971,7 +2971,7 @@ var Tests;
 
         var returnValue = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(function () {
             assert.ok(false, 'lazyReturns should not be called for any number');
@@ -2979,7 +2979,7 @@ var Tests;
             assert.ok(false, 'callback should not be called for any number');
         });
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction('aaa');
         }).throws('error').lazyReturns(function () {
             assert.ok(false, 'lazyReturns should not be called aaa');
@@ -2987,7 +2987,7 @@ var Tests;
             assert.ok(false, 'callback should not be called for aaa');
         });
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction('bbb');
         }).lazyReturns(function () {
             assert.ok(true, 'should be called');
@@ -3006,7 +3006,7 @@ var Tests;
         // Arrange
         var context = this;
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(function () {
             assert.ok(true, 'should call');
@@ -3014,7 +3014,7 @@ var Tests;
             assert.ok(true, 'should call');
         });
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(1);
         }).lazyReturns(function () {
             assert.ok(true, 'should call');
@@ -3032,7 +3032,7 @@ var Tests;
 
         var returnValue = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(function () {
             return 1;
@@ -3040,7 +3040,7 @@ var Tests;
             return 2;
         });
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(1);
         }).lazyReturns(function () {
             return 3;
@@ -3059,7 +3059,7 @@ var Tests;
 
         var returnValue = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(1);
         }).lazyReturns(function () {
             return 1;
@@ -3067,7 +3067,7 @@ var Tests;
             return 2;
         });
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(function () {
             return 3;
@@ -3086,7 +3086,7 @@ var Tests;
 
         var thrownError = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(function () {
             return 1;
@@ -3094,7 +3094,7 @@ var Tests;
             return 2;
         });
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(1);
         }).lazyReturns(function () {
             return 3;
@@ -3114,7 +3114,7 @@ var Tests;
 
         var thrownError = {};
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(1);
         }).lazyReturns(function () {
             return 1;
@@ -3122,7 +3122,7 @@ var Tests;
             return 2;
         });
 
-        context.mock.setup(function (_) {
+        context.mole.setup(function (_) {
             return _.oneArgumentsFunction(It.isAny(Number));
         }).lazyReturns(function () {
             return 3;
@@ -3136,4 +3136,4 @@ var Tests;
         }
     });
 })(Tests || (Tests = {}));
-//# sourceMappingURL=MockTest.js.map
+//# sourceMappingURL=MoleTest.js.map

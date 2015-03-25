@@ -5,42 +5,42 @@ module Tests {
     import It = moqJS.It;
     import ITimes = moqJS.ITimes;
     import Times = moqJS.Times;
-    import Mock = moqJS.Mock;
+    import Mole = moqJS.Mole;
 
-    class MockLifecycleObject implements LifecycleObject {
+    class MoleLifecycleObject implements LifecycleObject {
         public testObject: TestObject;
-        public mock: Mock<TestObject>;
+        public mole: Mole<TestObject>;
 
         public beforeEach = function () {
-            var context: MockLifecycleObject = this;
+            var context: MoleLifecycleObject = this;
 
             context.testObject = new TestObject();
 
-            context.mock = new Mock(context.testObject);
+            context.mole = new Mole(context.testObject);
         };
 
         public afterEach = function () {
         };
     }
 
-    QUnit.module('Mock', new MockLifecycleObject());
+    QUnit.module('Mole', new MoleLifecycleObject());
 
     QUnit.test('constructor - should initialize correctly', 1, function (assert: QUnitAssert) {
         // Arrange
         var testObject = new TestObject();
 
         // Act
-        var mock = new Mock(testObject);
+        var mole = new Mole(testObject);
 
         // Assert
-        assert.strictEqual(mock.object, testObject);
+        assert.strictEqual(mole.object, testObject);
     });
 
     QUnit.test('noArgumentsFunction - should call only the original function', function (assert: QUnitAssert) {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         context.testObject.onNoArgumentsFunctionCalled = () => {
             // Assert
@@ -63,7 +63,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
@@ -88,7 +88,7 @@ module Tests {
         QUnit.expect(3);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -116,7 +116,7 @@ module Tests {
     QUnit.test('verify - should verify only the no arguments function', 3, function (assert: QUnitAssert) {
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
@@ -125,9 +125,9 @@ module Tests {
         context.testObject.noArgumentsFunction();
 
         // Assert
-        var verifyNoArguments = context.mock.verify(_ => _.noArgumentsFunction());
-        var verifyOneArguments = context.mock.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
+        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
+        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
 
         assert.strictEqual(verifyNoArguments, true, 'no arguments should be verified');
         assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
@@ -137,7 +137,7 @@ module Tests {
     QUnit.test('verify - should verify only the one argument function', 3, function (assert: QUnitAssert) {
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
@@ -146,9 +146,9 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg1);
 
         // Assert
-        var verifyNoArguments = context.mock.verify(_ => _.noArgumentsFunction());
-        var verifyOneArguments = context.mock.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
+        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
+        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
 
         assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
         assert.strictEqual(verifyOneArguments, true, 'one arguments should be verified');
@@ -158,7 +158,7 @@ module Tests {
     QUnit.test('verify - should verify only the many argument function', 3, function (assert: QUnitAssert) {
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
@@ -167,9 +167,9 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Assert
-        var verifyNoArguments = context.mock.verify(_ => _.noArgumentsFunction());
-        var verifyOneArguments = context.mock.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
+        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
+        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
 
         assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
         assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
@@ -180,10 +180,10 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction());
+        var result = context.mole.verify(_ => _.noArgumentsFunction());
 
         // Assert
         assert.strictEqual(result, false, 'should not be verified');
@@ -193,10 +193,10 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(2));
+        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not be verified');
@@ -206,10 +206,10 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0));
+        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, true, 'should verified');
@@ -219,12 +219,12 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0));
+        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, false, 'should return false on 0 mathes');
@@ -234,12 +234,12 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(1));
+        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, true, 'should be verified');
@@ -249,12 +249,12 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(2));
+        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not be verified');
@@ -264,13 +264,13 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         context.testObject.noArgumentsFunction();
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(2));
+        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, true, 'should be verified');
@@ -280,13 +280,13 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         context.testObject.noArgumentsFunction();
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(1));
+        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, false, 'should not be verified');
@@ -296,13 +296,13 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         context.testObject.noArgumentsFunction();
         context.testObject.noArgumentsFunction();
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(3));
+        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(3));
 
         // Assert
         assert.strictEqual(result, false, 'should not be verified');
@@ -312,12 +312,12 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg));
 
         // Assert
         assert.strictEqual(result, false, 'should not find a match');
@@ -327,12 +327,12 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, false, 'should not find a match');
@@ -342,12 +342,12 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not find a match');
@@ -357,12 +357,12 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, true, 'should find 0 matches');
@@ -372,14 +372,14 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg));
 
         // Assert
         assert.strictEqual(result, true, 'should find a match');
@@ -389,14 +389,14 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, true, 'should find a match');
@@ -406,14 +406,14 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not find matches');
@@ -423,14 +423,14 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify 0 matches');
@@ -440,7 +440,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
@@ -448,7 +448,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg));
 
         // Assert
         assert.strictEqual(result, true, 'should verify match');
@@ -458,7 +458,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
@@ -466,7 +466,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, true, 'should verify match');
@@ -476,7 +476,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
@@ -484,7 +484,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify 0 matches');
@@ -494,7 +494,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
@@ -502,7 +502,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify 1 matches');
@@ -512,7 +512,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = {};
 
@@ -520,7 +520,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg), Times.exact(3));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(3));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify 3 matches');
@@ -530,7 +530,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -539,7 +539,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg1));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -549,7 +549,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -558,7 +558,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(1));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -568,7 +568,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -577,7 +577,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(0));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -587,7 +587,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -596,7 +596,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -606,7 +606,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -616,7 +616,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -626,7 +626,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -636,7 +636,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg1);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -646,7 +646,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -655,7 +655,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg2));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -665,7 +665,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -674,7 +674,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(1));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -684,7 +684,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -693,7 +693,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(2));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -703,7 +703,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -712,7 +712,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(0));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -722,7 +722,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -732,7 +732,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(0));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -742,7 +742,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -752,7 +752,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(1));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -762,7 +762,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -772,7 +772,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(2));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -782,7 +782,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -792,7 +792,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(3));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(3));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -802,7 +802,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -812,7 +812,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg3));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg3));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -822,7 +822,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -832,7 +832,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(1));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -842,7 +842,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -852,7 +852,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(2));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -862,7 +862,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -872,7 +872,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(0));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -882,14 +882,14 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -899,14 +899,14 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -916,14 +916,14 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -933,14 +933,14 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -950,7 +950,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -959,7 +959,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -969,7 +969,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -978,7 +978,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -988,7 +988,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -997,7 +997,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1007,7 +1007,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -1016,7 +1016,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1026,7 +1026,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -1036,7 +1036,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1046,7 +1046,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -1056,7 +1056,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1066,7 +1066,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -1076,7 +1076,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -1086,7 +1086,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -1096,7 +1096,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -1106,7 +1106,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = {};
         var arg2 = {};
@@ -1116,7 +1116,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(3));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(3));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1126,7 +1126,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1135,7 +1135,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -1145,7 +1145,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1154,7 +1154,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(1));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -1164,7 +1164,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1173,7 +1173,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(0));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1183,7 +1183,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1192,7 +1192,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(2));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1202,7 +1202,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1211,7 +1211,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -1221,7 +1221,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1230,7 +1230,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(1));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -1240,7 +1240,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1249,7 +1249,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(0));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1259,7 +1259,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1268,7 +1268,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(2));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1278,7 +1278,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1287,7 +1287,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1297,7 +1297,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1306,7 +1306,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(1));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1316,7 +1316,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1325,7 +1325,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(2));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, false, 'should not verify');
@@ -1335,7 +1335,7 @@ module Tests {
         QUnit.expect(1);
 
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var argSet1 = [{}, {}, {}];
         var argSet2 = [{}, {}, {}];
@@ -1344,7 +1344,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(0));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(0));
 
         // Assert
         assert.strictEqual(result, true, 'should verify');
@@ -1352,7 +1352,7 @@ module Tests {
 
     QUnit.test('verify - complex test', function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
         var argSet = [{}, {}, {}, {}, {}, {}];
 
         // Act
@@ -1377,85 +1377,85 @@ module Tests {
         context.testObject.oneArgumentsFunction(argSet[2]);
 
         // Assert
-        assert.strictEqual(context.mock.verify(_ => _.noArgumentsFunction()), true, 'no arguments function should be verified');
-        assert.strictEqual(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0)), false, 'no arguments function should not be verified for 0');
-        assert.strictEqual(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(1)), false, 'no arguments function should not be verified for 1');
-        assert.strictEqual(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(2)), false, 'no arguments function should not be verified for 2');
-        assert.strictEqual(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(3)), false, 'no arguments function should not be verified for 3');
-        assert.strictEqual(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(4)), true), 'no arguments function should be verified for 4';
-        assert.strictEqual(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(5)), false, 'no arguments function should not be verified for 5');
-        assert.strictEqual(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(6)), false, 'no arguments function should not be verified for 6');
+        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction()), true, 'no arguments function should be verified');
+        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), false, 'no arguments function should not be verified for 0');
+        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(1)), false, 'no arguments function should not be verified for 1');
+        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(2)), false, 'no arguments function should not be verified for 2');
+        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(3)), false, 'no arguments function should not be verified for 3');
+        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(4)), true), 'no arguments function should be verified for 4';
+        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(5)), false, 'no arguments function should not be verified for 5');
+        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(6)), false, 'no arguments function should not be verified for 6');
 
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[0])), true, 'one arguments function should be verified for argSet[0]');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[1])), true, 'one arguments function should be verified for argSet[1]');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[2])), true, 'one arguments function should be verified for argSet[2]');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[3])), false, 'one arguments function should not be verified for argSet[3]');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(0)), false, 'one arguments function should not be verified for argSet[0] 0 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(1)), false, 'one arguments function should not be verified for argSet[0] 1 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(2)), false, 'one arguments function not should be verified for argSet[0] 2 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(3)), true, 'one arguments function should be verified for argSet[0] 3 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(4)), false, 'one arguments function should not be verified for argSet[0] 4 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(0)), false, 'one arguments function should not be verified for argSet[1] 0 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(1)), true, 'one arguments function should be verified for argSet[1] 1 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(2)), false, 'one arguments function should not be verified for argSet[1] 2 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(3)), false, 'one arguments function should not be verified for argSet[1] 3 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(0)), false, 'one arguments function should not be verified for argSet[2] 0 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(1)), false, 'one arguments function should not be verified for argSet[2] 1 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(2)), false, 'one arguments function should not be verified for argSet[2] 2 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(3)), true, 'one arguments function should be verified for argSet[2] 3 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(4)), false, 'one arguments function should not be verified for argSet[2] 4 times');
-        assert.strictEqual(context.mock.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(5)), false, 'one arguments function should not be verified for argSet[2] 5 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0])), true, 'one arguments function should be verified for argSet[0]');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[1])), true, 'one arguments function should be verified for argSet[1]');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2])), true, 'one arguments function should be verified for argSet[2]');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[3])), false, 'one arguments function should not be verified for argSet[3]');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(0)), false, 'one arguments function should not be verified for argSet[0] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(1)), false, 'one arguments function should not be verified for argSet[0] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(2)), false, 'one arguments function not should be verified for argSet[0] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(3)), true, 'one arguments function should be verified for argSet[0] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(4)), false, 'one arguments function should not be verified for argSet[0] 4 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(0)), false, 'one arguments function should not be verified for argSet[1] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(1)), true, 'one arguments function should be verified for argSet[1] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(2)), false, 'one arguments function should not be verified for argSet[1] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(3)), false, 'one arguments function should not be verified for argSet[1] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(0)), false, 'one arguments function should not be verified for argSet[2] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(1)), false, 'one arguments function should not be verified for argSet[2] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(2)), false, 'one arguments function should not be verified for argSet[2] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(3)), true, 'one arguments function should be verified for argSet[2] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(4)), false, 'one arguments function should not be verified for argSet[2] 4 times');
+        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(5)), false, 'one arguments function should not be verified for argSet[2] 5 times');
 
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2])), true, 'many arguments function should be verified for argSet[0,1,2]');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[0,1,2] 0 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,1,2] 1 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[0,1,2] 2 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(3)), true, 'many arguments function should be verified for argSet[0,1,2] 3 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(4)), false, 'many arguments function should not be verified for argSet[0,1,2] 4 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(5)), false, 'many arguments function should not be verified for argSet[0,1,2] 5 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2])), true, 'many arguments function should be verified for argSet[0,1,2]');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[0,1,2] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,1,2] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[0,1,2] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(3)), true, 'many arguments function should be verified for argSet[0,1,2] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(4)), false, 'many arguments function should not be verified for argSet[0,1,2] 4 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(5)), false, 'many arguments function should not be verified for argSet[0,1,2] 5 times');
 
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0])), true, 'many arguments function should be verified for argSet[0,1,0]');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[0,1,0] 0 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,1,0] 1 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(2)), true, 'many arguments function should be verified for argSet[0,1,0] 2 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[0,1,0] 3 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(4)), false, 'many arguments function should not be verified for argSet[0,1,0] 4 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0])), true, 'many arguments function should be verified for argSet[0,1,0]');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[0,1,0] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,1,0] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(2)), true, 'many arguments function should be verified for argSet[0,1,0] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[0,1,0] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(4)), false, 'many arguments function should not be verified for argSet[0,1,0] 4 times');
 
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1])), true, 'many arguments function should not be verified for argSet[1,1,1]');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[1,1,1] 0 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(1)), true, 'many arguments function should be verified for argSet[1,1,1] 1 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[1,1,1] 2 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[1,1,1] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1])), true, 'many arguments function should not be verified for argSet[1,1,1]');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[1,1,1] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(1)), true, 'many arguments function should be verified for argSet[1,1,1] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[1,1,1] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[1,1,1] 3 times');
 
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2])), true, 'many arguments function should be verified for argSet[2,1,2]');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[2,1,2] 0 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(1)), true, 'many arguments function should be verified for argSet[2,1,2] 1 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[2,1,2] 2 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[2,1,2] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2])), true, 'many arguments function should be verified for argSet[2,1,2]');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[2,1,2] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(1)), true, 'many arguments function should be verified for argSet[2,1,2] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[2,1,2] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[2,1,2] 3 times');
 
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2])), true, 'many arguments function should be verified for argSet[2,2,2]');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[2,2,2] 0 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(1)), true, 'many arguments function should be verified for argSet[2,2,2] 1 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[2,2,2] 2 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[2,2,2] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2])), true, 'many arguments function should be verified for argSet[2,2,2]');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[2,2,2] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(1)), true, 'many arguments function should be verified for argSet[2,2,2] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[2,2,2] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[2,2,2] 3 times');
 
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0])), false, 'many arguments function should not be verified for argSet[0,0,0]');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(0)), true, 'many arguments function should be verified for argSet[0,0,0] 0 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,0,0] 1 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[0,0,0] 2 times');
-        assert.strictEqual(context.mock.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[0,0,0] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0])), false, 'many arguments function should not be verified for argSet[0,0,0]');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(0)), true, 'many arguments function should be verified for argSet[0,0,0] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,0,0] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[0,0,0] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[0,0,0] 3 times');
     });
 
     QUnit.test('verify - times returns false should return false', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        var timesMock: ITimes = {
+        var timesMole: ITimes = {
             match: () => { return false; }
         };
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction(), timesMock);
+        var result = context.mole.verify(_ => _.noArgumentsFunction(), timesMole);
 
         // Assert
         assert.strictEqual(result, false, 'should return false if times do not match');
@@ -1463,14 +1463,14 @@ module Tests {
 
     QUnit.test('verify - times returns true should return true', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        var timesMock: ITimes = {
+        var timesMole: ITimes = {
             match: () => { return true; }
         };
 
         // Act
-        var result = context.mock.verify(_ => _.noArgumentsFunction(), timesMock);
+        var result = context.mole.verify(_ => _.noArgumentsFunction(), timesMole);
 
         // Assert
         assert.strictEqual(result, true, 'should return true if times match');
@@ -1478,7 +1478,7 @@ module Tests {
 
     QUnit.test('verify - one argument - ItIsBase returns false should return false', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var itIs = new ItIsBase();
         itIs.match = () => false;
@@ -1486,7 +1486,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(1);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(itIs));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(itIs));
 
         // Assert
         assert.strictEqual(result, false, 'should return false if ItIs returns false');
@@ -1494,7 +1494,7 @@ module Tests {
 
     QUnit.test('verify - one argument - ItIsBase returns false should return true', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var itIs = new ItIsBase();
         itIs.match = () => true;
@@ -1502,7 +1502,7 @@ module Tests {
         context.testObject.oneArgumentsFunction(1);
 
         // Act
-        var result = context.mock.verify(_ => _.oneArgumentsFunction(itIs));
+        var result = context.mole.verify(_ => _.oneArgumentsFunction(itIs));
 
         // Assert
         assert.strictEqual(result, true, 'should return true if ItIs returns true');
@@ -1510,7 +1510,7 @@ module Tests {
 
     QUnit.test('verify - many arguments - ItIsBase returns false should return false', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var itIs = new ItIsBase();
         itIs.match = () => false;
@@ -1518,7 +1518,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(itIs, itIs, itIs));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(itIs, itIs, itIs));
 
         // Assert
         assert.strictEqual(result, false, 'should return false if ItIs returns false');
@@ -1526,7 +1526,7 @@ module Tests {
 
     QUnit.test('verify - many arguments - ItIsBase returns true should return true', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var itIs = new ItIsBase();
         itIs.match = () => true;
@@ -1534,7 +1534,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(itIs, itIs, itIs));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(itIs, itIs, itIs));
 
         // Assert
         assert.strictEqual(result, true, 'should return true if ItIs returns true');
@@ -1542,7 +1542,7 @@ module Tests {
 
     QUnit.test('verify - many arguments - ItIsBase returns true and false should return false', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var trueItIs = new ItIsBase();
         trueItIs.match = () => true;
@@ -1553,7 +1553,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, falseItIs));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, falseItIs));
 
         // Assert
         assert.strictEqual(result, false, 'should return false if some ItIs returns false');
@@ -1561,7 +1561,7 @@ module Tests {
 
     QUnit.test('verify - many arguments - ItIsBase returns true and other arguments dont match should return false', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var trueItIs = new ItIsBase();
         trueItIs.match = () => true;
@@ -1569,7 +1569,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, 2));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, 2));
 
         // Assert
         assert.strictEqual(result, false, 'should return false if some arguments dont match');
@@ -1577,7 +1577,7 @@ module Tests {
 
     QUnit.test('verify - many arguments - called many times ItIsBase returns true should return true', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var trueItIs = new ItIsBase();
         trueItIs.match = () => true;
@@ -1590,7 +1590,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, 2), Times.exact(2));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, 2), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, true, 'should return true if ItIs returns true and the times match');
@@ -1598,7 +1598,7 @@ module Tests {
 
     QUnit.test('verify - many arguments - called many times ItIsBase returns true once should return true', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var trueItIs = new ItIsBase();
         var numberOfTimesReturnedTrue = 0;
@@ -1615,7 +1615,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(1, trueItIs, 2), Times.exact(1));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(1, trueItIs, 2), Times.exact(1));
 
         // Assert
         assert.strictEqual(result, true, 'should return true if ItIs returns true and the times match');
@@ -1623,7 +1623,7 @@ module Tests {
 
     QUnit.test('verify - many arguments - called with numbers and strings should return only the strings', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var numberItIs = It.isAny(Number);
         var stringItIs = It.isAny(String);
@@ -1636,7 +1636,7 @@ module Tests {
         context.testObject.manyArgumentsFunction(16, 1, 6);
 
         // Act
-        var result = context.mock.verify(_ => _.manyArgumentsFunction(numberItIs, stringItIs, numberItIs), Times.exact(2));
+        var result = context.mole.verify(_ => _.manyArgumentsFunction(numberItIs, stringItIs, numberItIs), Times.exact(2));
 
         // Assert
         assert.strictEqual(result, true, 'should return true for 2 string calls');
@@ -1645,8 +1645,8 @@ module Tests {
     QUnit.test('callBase - set to true after constructor should call the original function', 1, function (assert: QUnitAssert) {
         // Arrange
         var testObject = new TestObject();
-        var mock = new Mock(testObject);
-        mock.callBase = true;
+        var mole = new Mole(testObject);
+        mole.callBase = true;
 
         testObject.onNoArgumentsFunctionCalled = () => {
             // Assert
@@ -1660,8 +1660,8 @@ module Tests {
     QUnit.test('callBase - set to false after constructor should not call the original function', 0, function (assert: QUnitAssert) {
         // Arrange
         var testObject = new TestObject();
-        var mock = new Mock(testObject);
-        mock.callBase = false;
+        var mole = new Mole(testObject);
+        mole.callBase = false;
 
         testObject.onNoArgumentsFunctionCalled = () => {
             // Assert
@@ -1675,8 +1675,8 @@ module Tests {
     QUnit.test('callBase - set to true should return the original function value', 1, function (assert: QUnitAssert) {
         // Arrange
         var testObject = new TestObject();
-        var mock = new Mock(testObject);
-        mock.callBase = true;
+        var mole = new Mole(testObject);
+        mole.callBase = true;
 
         // Act
         var result = testObject.returning1Function();
@@ -1688,8 +1688,8 @@ module Tests {
     QUnit.test('callBase - set to false should not return the original function value', 1, function (assert: QUnitAssert) {
         // Arrange
         var testObject = new TestObject();
-        var mock = new Mock(testObject);
-        mock.callBase = false;
+        var mole = new Mole(testObject);
+        mole.callBase = false;
 
         // Act
         var result = testObject.returning1Function();
@@ -1701,8 +1701,8 @@ module Tests {
     QUnit.test('callBase - set to false should return undefined', 1, function (assert: QUnitAssert) {
         // Arrange
         var testObject = new TestObject();
-        var mock = new Mock(testObject);
-        mock.callBase = false;
+        var mole = new Mole(testObject);
+        mole.callBase = false;
 
         // Act
         var result = testObject.returning1Function();
@@ -1713,10 +1713,10 @@ module Tests {
 
     QUnit.test('setup - callback - should not call callback if function is not called', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         // Act
-        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => {
+        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => {
             // Assert
             assert.ok(false, 'should not call callback');
         });
@@ -1724,9 +1724,9 @@ module Tests {
 
     QUnit.test('setup - callback - should call callback when function is called', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => {
+        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => {
             // Assert
             assert.ok(true, 'should call callback');
         });
@@ -1737,9 +1737,9 @@ module Tests {
 
     QUnit.test('setup - callback - should not call the original function', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => { });
+        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
         context.testObject.onNoArgumentsFunctionCalled = () => {
             // Assert
@@ -1752,11 +1752,11 @@ module Tests {
 
     QUnit.test('setup - callback - should pass the same parameters', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = 1;
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback((_arg) => {
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback((_arg) => {
             // Assert
             assert.strictEqual(_arg, arg, 'should return same argument');
         });
@@ -1767,13 +1767,13 @@ module Tests {
 
     QUnit.test('setup - callback - should pass the same parameters 2', 3, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = 1;
         var arg2 = 2;
         var arg3 = 3;
 
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
             .callback((_arg1, _arg2, _arg3) => {
                 // Assert
                 assert.strictEqual(_arg1, arg1, 'should return same argument');
@@ -1787,9 +1787,9 @@ module Tests {
 
     QUnit.test('setup - callback - should not call other original functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => { });
+        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
         var shouldNotHappen = () => {
             // Assert
@@ -1806,17 +1806,17 @@ module Tests {
 
     QUnit.test('setup - callback - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => { });
+        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
         var shouldNotHappen = () => {
             // Assert
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
         context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
         context.testObject.manyArgumentsFunction = shouldNotHappen;
@@ -1828,17 +1828,17 @@ module Tests {
 
     QUnit.test('setup - callback - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => { });
+        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
         var shouldNotHappen = () => {
             // Assert
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
         context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
         context.testObject.manyArgumentsFunction = shouldNotHappen;
@@ -1850,9 +1850,9 @@ module Tests {
 
     QUnit.test('setup - callback - should not return the callback return value', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.returning1Function()).callback(() => {
+        context.mole.setup(_ => _.returning1Function()).callback(() => {
             return {};
         });
 
@@ -1865,9 +1865,9 @@ module Tests {
 
     QUnit.test('setup - callback - should call all the callbacks when function is called', 4, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => {
+        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => {
             // Assert
             assert.ok(true, 'should call callback');
         }).callback(() => {
@@ -1887,7 +1887,7 @@ module Tests {
 
     QUnit.test('setup - callback - should pass teh same parameters to all the callbacks when function is called', 4, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = 12;
 
@@ -1896,7 +1896,7 @@ module Tests {
             assert.strictEqual(_arg, arg, 'should pass same argument');
         };
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
             .callback(checkArgument)
             .callback(checkArgument)
             .callback(checkArgument)
@@ -1908,7 +1908,7 @@ module Tests {
 
     QUnit.test('setup - callback - should pass teh same parameters to all the callbacks when function is called 2', 12, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = 11;
         var arg2 = 12;
@@ -1921,7 +1921,7 @@ module Tests {
             assert.strictEqual(_arg3, arg3, 'should pass same argument');
         };
 
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
             .callback(checkArgument)
             .callback(checkArgument)
             .callback(checkArgument)
@@ -1933,20 +1933,20 @@ module Tests {
 
     QUnit.test('setup - callback - should not affect verify', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         // Act
-        context.mock.setup(_ => _.noArgumentsFunction()).callback(() => { });
+        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
         // Assert
-        assert.ok(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
     });
 
     QUnit.test('setup - returns - should not call the original function', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).returns(111);
+        context.mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
         context.testObject.onNoArgumentsFunctionCalled = () => {
             // Assert
@@ -1959,9 +1959,9 @@ module Tests {
 
     QUnit.test('setup - returns - should not call other original functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).returns(111);
+        context.mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
         var shouldNotHappen = () => {
             // Assert
@@ -1978,17 +1978,17 @@ module Tests {
 
     QUnit.test('setup - returns - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).returns(111);
+        context.mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
         var shouldNotHappen = () => {
             // Assert
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
         context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
         context.testObject.manyArgumentsFunction = shouldNotHappen;
@@ -2000,17 +2000,17 @@ module Tests {
 
     QUnit.test('setup - returns - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).returns(111);
+        context.mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
         var shouldNotHappen = () => {
             // Assert
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
         context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
         context.testObject.manyArgumentsFunction = shouldNotHappen;
@@ -2022,10 +2022,10 @@ module Tests {
 
     QUnit.test('setup - returns - should return the value', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
-        context.mock.setup(_ => _.returning1Function()).returns(returnValue);
+        context.mole.setup(_ => _.returning1Function()).returns(returnValue);
 
         // Act
         var result = context.testObject.returning1Function();
@@ -2036,16 +2036,16 @@ module Tests {
 
     QUnit.test('setup - returns - should return the last returns value', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
         var returnValue4 = {};
-        context.mock.setup(_ => _.returning1Function()).returns(returnValue1);
-        context.mock.setup(_ => _.returning1Function()).returns(returnValue2);
-        context.mock.setup(_ => _.returning1Function()).returns(returnValue3);
-        context.mock.setup(_ => _.returning1Function()).returns(returnValue4);
+        context.mole.setup(_ => _.returning1Function()).returns(returnValue1);
+        context.mole.setup(_ => _.returning1Function()).returns(returnValue2);
+        context.mole.setup(_ => _.returning1Function()).returns(returnValue3);
+        context.mole.setup(_ => _.returning1Function()).returns(returnValue4);
 
         // Act
         var result = context.testObject.returning1Function();
@@ -2056,21 +2056,21 @@ module Tests {
 
     QUnit.test('setup - returns - should not affect verify', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         // Act
-        context.mock.setup(_ => _.noArgumentsFunction()).returns(4);
+        context.mole.setup(_ => _.noArgumentsFunction()).returns(4);
 
         // Assert
-        assert.ok(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
     });
 
     QUnit.test('setup - lazyReturns - should not call returnFunction if function is not called', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         // Act
-        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
             // Assert
             assert.ok(false, 'should not call returnFunction');
         });
@@ -2078,9 +2078,9 @@ module Tests {
 
     QUnit.test('setup - lazyReturns - should call returnFunction when function is called', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
             // Assert
             assert.ok(true, 'should call returnFunction');
         });
@@ -2091,9 +2091,9 @@ module Tests {
 
     QUnit.test('setup - lazyReturns - should not call the original function', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
         context.testObject.onNoArgumentsFunctionCalled = () => {
             // Assert
@@ -2106,11 +2106,11 @@ module Tests {
 
     QUnit.test('setup - lazyReturns - should pass the same parameters', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg = 1;
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns((_arg) => {
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns((_arg) => {
             // Assert
             assert.strictEqual(_arg, arg, 'should return same argument');
         });
@@ -2121,13 +2121,13 @@ module Tests {
 
     QUnit.test('setup - lazyReturns - should pass the same parameters 2', 3, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var arg1 = 1;
         var arg2 = 2;
         var arg3 = 3;
 
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
             .lazyReturns((_arg1, _arg2, _arg3) => {
                 // Assert
                 assert.strictEqual(_arg1, arg1, 'should return same argument');
@@ -2141,9 +2141,9 @@ module Tests {
 
     QUnit.test('setup - lazyReturns - should not call other original functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
         var shouldNotHappen = () => {
             // Assert
@@ -2160,17 +2160,17 @@ module Tests {
 
     QUnit.test('setup - lazyReturns - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
         var shouldNotHappen = () => {
             // Assert
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
         context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
         context.testObject.manyArgumentsFunction = shouldNotHappen;
@@ -2182,17 +2182,17 @@ module Tests {
 
     QUnit.test('setup - lazyReturns - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
         var shouldNotHappen = () => {
             // Assert
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
         context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
         context.testObject.manyArgumentsFunction = shouldNotHappen;
@@ -2204,11 +2204,11 @@ module Tests {
 
     QUnit.test('setup - lazyReturns - should return the returnFunction return value', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
 
-        context.mock.setup(_ => _.returning1Function()).lazyReturns(() => {
+        context.mole.setup(_ => _.returning1Function()).lazyReturns(() => {
             return returnValue;
         });
 
@@ -2221,14 +2221,14 @@ module Tests {
 
     QUnit.test('setup - lazyReturns - should return the last returnFunction return value', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
         var returnValue4 = {};
 
-        context.mock.setup(_ => _.returning1Function())
+        context.mole.setup(_ => _.returning1Function())
             .lazyReturns(() => { return returnValue1; })
             .lazyReturns(() => { return returnValue2; })
             .lazyReturns(() => { return returnValue3; })
@@ -2243,20 +2243,20 @@ module Tests {
 
     QUnit.test('setup - lazyReturns - should not affect verify', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         // Act
-        context.mock.setup(_ => _.noArgumentsFunction()).lazyReturns(() => 4);
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => 4);
 
         // Assert
-        assert.ok(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
     });
 
     QUnit.test('setup - throws - should not call the original function', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).throws(111);
+        context.mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
         context.testObject.onNoArgumentsFunctionCalled = () => {
             // Assert
@@ -2272,9 +2272,9 @@ module Tests {
 
     QUnit.test('setup - throws - should not call other original functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).throws(111);
+        context.mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
         var shouldNotHappen = () => {
             // Assert
@@ -2294,17 +2294,17 @@ module Tests {
 
     QUnit.test('setup - throws - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).throws(111);
+        context.mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
         var shouldNotHappen = () => {
             // Assert
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
         context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
         context.testObject.manyArgumentsFunction = shouldNotHappen;
@@ -2319,17 +2319,17 @@ module Tests {
 
     QUnit.test('setup - throws - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.noArgumentsFunction()).throws(111);
+        context.mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
         var shouldNotHappen = () => {
             // Assert
             assert.ok(false, 'should not call the original function');
         };
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mock.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
         context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
         context.testObject.manyArgumentsFunction = shouldNotHappen;
@@ -2344,10 +2344,10 @@ module Tests {
 
     QUnit.test('setup - throws - should throw the error', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var thrownError = {};
-        context.mock.setup(_ => _.returning1Function()).throws(thrownError);
+        context.mole.setup(_ => _.returning1Function()).throws(thrownError);
 
         // Act
         try {
@@ -2360,13 +2360,13 @@ module Tests {
 
     QUnit.test('setup - throws - should throw the last error', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var thrownError1 = {};
         var thrownError2 = {};
         var thrownError3 = {};
         var thrownError4 = {};
-        context.mock.setup(_ => _.returning1Function())
+        context.mole.setup(_ => _.returning1Function())
             .throws(thrownError1)
             .throws(thrownError2)
             .throws(thrownError3)
@@ -2383,23 +2383,23 @@ module Tests {
 
     QUnit.test('setup - throws - should not affect verify', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         // Act
-        context.mock.setup(_ => _.noArgumentsFunction()).throws('error');
+        context.mole.setup(_ => _.noArgumentsFunction()).throws('error');
 
         // Assert
-        assert.ok(context.mock.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
     });
 
     QUnit.test('setup - mix - should throw error if configured after return', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
         var thrownError = {};
 
-        context.mock.setup(_ => _.returning1Function())
+        context.mole.setup(_ => _.returning1Function())
             .returns(returnValue)
             .throws(thrownError);
 
@@ -2414,12 +2414,12 @@ module Tests {
 
     QUnit.test('setup - mix - should return value if configured after throw', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
         var thrownError = {};
 
-        context.mock.setup(_ => _.returning1Function())
+        context.mole.setup(_ => _.returning1Function())
             .throws(thrownError)
             .returns(returnValue);
 
@@ -2432,12 +2432,12 @@ module Tests {
 
     QUnit.test('setup - mix - should call all the callbacks and the lazy returns but return last configured one', 5, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
         var thrownError = {};
 
-        context.mock.setup(_ => _.returning1Function())
+        context.mole.setup(_ => _.returning1Function())
             .throws(thrownError)
             .lazyReturns(() => {
                 assert.ok(true, 'should call lazyRerturns');
@@ -2463,12 +2463,12 @@ module Tests {
 
     QUnit.test('setup - mix - should call all the callbacks and the lazy returns but return last configured one 2', 5, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
         var thrownError = {};
 
-        context.mock.setup(_ => _.returning1Function())
+        context.mole.setup(_ => _.returning1Function())
             .throws(thrownError)
             .lazyReturns(() => {
                 assert.ok(true, 'should call lazyRerturns');
@@ -2494,12 +2494,12 @@ module Tests {
 
     QUnit.test('setup - mix - should call all the callbacks and the lazy returns but throw last configured error', 5, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
         var thrownError = {};
 
-        context.mock.setup(_ => _.returning1Function())
+        context.mole.setup(_ => _.returning1Function())
             .throws('asdasd')
             .lazyReturns(() => {
                 assert.ok(true, 'should call lazyRerturns');
@@ -2528,13 +2528,13 @@ module Tests {
 
     QUnit.test('setup - mix - should not affect the verify', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
         var thrownError = {};
 
         // Act
-        context.mock.setup(_ => _.returning1Function())
+        context.mole.setup(_ => _.returning1Function())
             .throws('asdasd')
             .lazyReturns(() => 1)
             .lazyReturns(() => 2)
@@ -2544,16 +2544,16 @@ module Tests {
             .callback(() => { });
 
         // Assert
-        assert.ok(context.mock.verify(_ => _.returning1Function(), Times.exact(0)), 'should be called once');
+        assert.ok(context.mole.verify(_ => _.returning1Function(), Times.exact(0)), 'should be called once');
     });
 
     QUnit.test('setup - mix - should call only the matching set', 3, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
             .lazyReturns(() => {
                 assert.ok(false, 'lazyReturns should not be called for any number');
             })
@@ -2562,7 +2562,7 @@ module Tests {
                 assert.ok(false, 'callback should not be called for any number');
             });
 
-        context.mock.setup(_ => _.oneArgumentsFunction('aaa'))
+        context.mole.setup(_ => _.oneArgumentsFunction('aaa'))
             .throws('error')
             .lazyReturns(() => {
                 assert.ok(false, 'lazyReturns should not be called aaa');
@@ -2571,7 +2571,7 @@ module Tests {
                 assert.ok(false, 'callback should not be called for aaa');
             });
 
-        context.mock.setup(_ => _.oneArgumentsFunction('bbb'))
+        context.mole.setup(_ => _.oneArgumentsFunction('bbb'))
             .lazyReturns(() => {
                 assert.ok(true, 'should be called');
             })
@@ -2589,9 +2589,9 @@ module Tests {
 
     QUnit.test('setup - mix - if both setups match should call both', 4, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
             .lazyReturns(() => {
                 assert.ok(true, 'should call');
             })
@@ -2600,7 +2600,7 @@ module Tests {
                 assert.ok(true, 'should call');
             });
 
-        context.mock.setup(_ => _.oneArgumentsFunction(1))
+        context.mole.setup(_ => _.oneArgumentsFunction(1))
             .lazyReturns(() => {
                 assert.ok(true, 'should call');
             })
@@ -2615,15 +2615,15 @@ module Tests {
 
     QUnit.test('setup - mix - if both setups match should return from the last', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
             .lazyReturns(() => 1)
             .returns(() => 2);
 
-        context.mock.setup(_ => _.oneArgumentsFunction(1))
+        context.mole.setup(_ => _.oneArgumentsFunction(1))
             .lazyReturns(() => 3)
             .returns(returnValue);
 
@@ -2636,15 +2636,15 @@ module Tests {
 
     QUnit.test('setup - mix - if both setups match should return from the last 2', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var returnValue = {};
 
-        context.mock.setup(_ => _.oneArgumentsFunction(1))
+        context.mole.setup(_ => _.oneArgumentsFunction(1))
             .lazyReturns(() => 1)
             .returns(() => 2);
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
             .lazyReturns(() => 3)
             .returns(returnValue);
 
@@ -2657,16 +2657,16 @@ module Tests {
 
     QUnit.test('setup - mix - if both setups match should throw from the last', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var thrownError = {};
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
             .lazyReturns(() => 1)
             .throws('error')
             .returns(() => 2);
 
-        context.mock.setup(_ => _.oneArgumentsFunction(1))
+        context.mole.setup(_ => _.oneArgumentsFunction(1))
             .lazyReturns(() => 3)
             .throws(thrownError);
 
@@ -2681,16 +2681,16 @@ module Tests {
 
     QUnit.test('setup - mix - if both setups match should throw from the last 2', 1, function (assert: QUnitAssert) {
         // Arrange
-        var context: MockLifecycleObject = this;
+        var context: MoleLifecycleObject = this;
 
         var thrownError = {};
 
-        context.mock.setup(_ => _.oneArgumentsFunction(1))
+        context.mole.setup(_ => _.oneArgumentsFunction(1))
             .lazyReturns(() => 1)
             .throws('error')
             .returns(() => 2);
 
-        context.mock.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
             .lazyReturns(() => 3)
             .throws(thrownError);
 

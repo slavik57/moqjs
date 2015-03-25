@@ -161,13 +161,13 @@
     <TypeScriptCompile Include="Scripts\FunctionProxyConfigurations.ts" />
     <TypeScriptCompile Include="Scripts\FunctionSetup.ts" />
     <TypeScriptCompile Include="Scripts\It.ts" />
-    <TypeScriptCompile Include="Scripts\Mock.ts" />
+    <TypeScriptCompile Include="Scripts\Mole.ts" />
     <TypeScriptCompile Include="Scripts\Times.ts" />
     <TypeScriptCompile Include="Tests\Common\TestObject.ts" />
     <TypeScriptCompile Include="Tests\FunctionProxyTest.ts" />
     <TypeScriptCompile Include="Tests\FunctionSetupTest.ts" />
     <TypeScriptCompile Include="Tests\ItTest.ts" />
-    <TypeScriptCompile Include="Tests\MockTest.ts" />
+    <TypeScriptCompile Include="Tests\MoleTest.ts" />
     <TypeScriptCompile Include="Tests\TimesTest.ts" />
     <TypeScriptCompile Include="Vendor\qunit\qunit.d.ts" />
   </ItemGroup>

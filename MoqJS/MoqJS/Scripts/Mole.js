@@ -8,15 +8,15 @@ var moqJS;
     //  setup set
     // Get the mock by the object instace...
     // from all the created mocks get the one that behaves like this:( mock => boolean )
-    var Mock = (function () {
-        function Mock(object) {
+    var Mole = (function () {
+        function Mole(object) {
             this.object = object;
             this._FunctionProxyConfigurations = new moqJS.FunctionProxyConfigurations();
             this._FunctionProxyConfigurations.callBase = true;
 
             this._setFunctionProxies();
         }
-        Object.defineProperty(Mock.prototype, "callBase", {
+        Object.defineProperty(Mole.prototype, "callBase", {
             get: function () {
                 return this._FunctionProxyConfigurations.callBase;
             },
@@ -29,11 +29,11 @@ var moqJS;
 
 
         // setup private using string
-        Mock.prototype.setup = function (functionCall) {
+        Mole.prototype.setup = function (functionCall) {
             return new moqJS.FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         };
 
-        Mock.prototype.verify = function (functionCall, times) {
+        Mole.prototype.verify = function (functionCall, times) {
             var verifyMode = new moqJS.VerifyFunctionCallMode();
             this._FunctionProxyConfigurations.functionCallMode = verifyMode;
 
@@ -49,7 +49,7 @@ var moqJS;
             return times.match(numberOfMatches);
         };
 
-        Mock.prototype._setFunctionProxies = function () {
+        Mole.prototype._setFunctionProxies = function () {
             var proxies = [];
 
             for (var propertyName in this.object) {
@@ -66,7 +66,7 @@ var moqJS;
             }
         };
 
-        Mock.prototype._setFunctionProxy = function (proxies, proxyNumber, functionName) {
+        Mole.prototype._setFunctionProxy = function (proxies, proxyNumber, functionName) {
             this.object[functionName] = function () {
                 var args = [];
                 for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -75,8 +75,8 @@ var moqJS;
                 return proxies[proxyNumber].callFunction(args);
             };
         };
-        return Mock;
+        return Mole;
     })();
-    moqJS.Mock = Mock;
+    moqJS.Mole = Mole;
 })(moqJS || (moqJS = {}));
-//# sourceMappingURL=Mock.js.map
+//# sourceMappingURL=Mole.js.map
