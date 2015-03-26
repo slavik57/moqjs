@@ -26,11 +26,20 @@ module moqJS {
             this._FunctionProxyConfigurations.callBase = value;
         }
 
-        // setup private using string
         public setup(functionCall: (object: T) => any): IFunctionSetup {
             return new FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         }
 
+        public setupPrivate(privateFunctionName: string, ...functionArguments: any[]): IFunctionSetup {
+            var functionCall = (object: T) => {
+                var privateFunction: Function = object[privateFunctionName];
+                privateFunction.apply(object, functionArguments);
+            };
+
+            return this.setup(functionCall);
+        }
+
+        // TODO: add support for verifying private methods
         public verify(functionCall: (object: T) => any, times?: ITimes): boolean {
             var verifyMode = new VerifyFunctionCallMode();
             this._FunctionProxyConfigurations.functionCallMode = verifyMode;

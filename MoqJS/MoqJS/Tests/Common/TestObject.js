@@ -29,6 +29,19 @@ var Tests;
 
             return 1;
         };
+
+        TestObject.prototype.callPrivateFunction = function (arg1) {
+            return this._privateFunction(arg1);
+        };
+
+        TestObject.prototype._privateFunction = function (arg1) {
+            if (this.onPrivateFunctionCalled) {
+                this.onPrivateFunctionCalled(arg1);
+            }
+
+            return 1;
+        };
+        TestObject.PRIVATE_FUNCTION_NAME = '_privateFunction';
         return TestObject;
     })();
     Tests.TestObject = TestObject;

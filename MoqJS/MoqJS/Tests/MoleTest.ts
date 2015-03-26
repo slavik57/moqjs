@@ -2702,4 +2702,929 @@ module Tests {
             assert.strictEqual(error, thrownError, 'should throw the thrownError');
         }
     });
+
+    QUnit.test('setupPrivate - callback - should not call callback if function is not called', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME).callback(() => {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+    });
+
+    QUnit.test('setupPrivate - callback - should call callback when function is called', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.callPrivateFunction(null);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
+
+        context.testObject.onPrivateFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.callPrivateFunction(null);
+    });
+
+    QUnit.test('setupPrivate - callback - should pass the same parameters', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = 1;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).callback((_arg) => {
+            // Assert
+            assert.strictEqual(_arg, arg, 'should return same argument');
+        });
+
+        // Act
+        context.testObject.callPrivateFunction(arg);
+    });
+
+    QUnit.test('setupPrivate - callback - should pass the same parameters 2', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = 2;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 2)
+            .callback((_arg1) => {
+                // Assert
+                assert.strictEqual(_arg1, arg1, 'should return same argument');
+            });
+
+        // Act
+        context.testObject.callPrivateFunction(arg1);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call if not matching', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = 'some text';
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).callback(() => {
+            // Assert
+            assert.ok(false, 'should not be called');
+        });
+
+        // Act
+        context.testObject.callPrivateFunction(arg);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call if not matching 2', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = 3;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 2)
+            .callback(() => {
+                // Assert
+                assert.ok(false, 'should not be called');
+            });
+
+        // Act
+        context.testObject.callPrivateFunction(arg1);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call other original functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.callPrivateFunction(null);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.callPrivateFunction(null);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - callback - should not return the callback return value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => {
+            return {};
+        });
+
+        // Act
+        var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, undefined, 'should return undefined');
+    });
+
+    QUnit.test('setupPrivate - callback - should call all the callbacks when function is called', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(() => {
+                // Assert
+                assert.ok(true, 'should call callback');
+            }).callback(() => {
+                // Assert
+                assert.ok(true, 'should call callback');
+            }).callback(() => {
+                // Assert
+                assert.ok(true, 'should call callback');
+            });
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - callback - should pass teh same parameters to all the callbacks when function is called', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = 12;
+
+        var checkArgument = (_arg) => {
+            // Assert
+            assert.strictEqual(_arg, arg, 'should pass same argument');
+        };
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+            .callback(checkArgument)
+            .callback(checkArgument)
+            .callback(checkArgument)
+            .callback(checkArgument);
+
+        // Act
+        context.testObject.callPrivateFunction(arg);
+    });
+
+    QUnit.test('setupPrivate - returns - should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+
+        context.testObject.onPrivateFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - returns - should not call other original functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - returns - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - returns - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - returns - should return the value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue = {};
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue);
+
+        // Act
+        var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the configured value');
+    });
+
+    QUnit.test('setupPrivate - returns - should return the last returns value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue1);
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue2);
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue3);
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue4);
+
+        // Act
+        var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
+    });
+
+    QUnit.test('setupPrivate - lazyReturns - should not call returnFunction if function is not called', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
+            // Assert
+            assert.ok(false, 'should not call returnFunction');
+        });
+    });
+
+    QUnit.test('setupPrivate - lazyReturns - should call returnFunction when function is called', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
+            // Assert
+            assert.ok(true, 'should call returnFunction');
+        });
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - lazyReturns - should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
+
+        context.testObject.onPrivateFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - lazyReturns - should pass the same parameters', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = 1;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).lazyReturns((_arg) => {
+            // Assert
+            assert.strictEqual(_arg, arg, 'should return same argument');
+        });
+
+        // Act
+        context.testObject.callPrivateFunction(arg);
+    });
+
+    QUnit.test('setupPrivate - lazyReturns - should pass the same parameters 2', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = 1;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, arg1)
+            .lazyReturns((_arg1, _arg2, _arg3) => {
+                // Assert
+                assert.strictEqual(_arg1, arg1, 'should return same argument');
+            });
+
+        // Act
+        context.testObject.callPrivateFunction(arg1);
+    });
+
+    QUnit.test('setupPrivate - lazyReturns - should not call other original functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - lazyReturns - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - lazyReturns - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - lazyReturns - should return the returnFunction return value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
+            return returnValue;
+        });
+
+        // Act
+        var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return returnValue');
+    });
+
+    QUnit.test('setupPrivate - lazyReturns - should return the last returnFunction return value', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .lazyReturns(() => { return returnValue1; })
+            .lazyReturns(() => { return returnValue2; })
+            .lazyReturns(() => { return returnValue3; })
+            .lazyReturns(() => { return returnValue4; });
+
+        // Act
+        var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
+    });
+
+    QUnit.test('setupPrivate - throws - should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+
+        context.testObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        try {
+            context.testObject.callPrivateFunction(1);
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should not call other original functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        try {
+            context.testObject.callPrivateFunction(1);
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        try {
+            context.testObject.callPrivateFunction(1);
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        try {
+            context.testObject.callPrivateFunction(1);
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should throw the error', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var thrownError = {};
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(thrownError);
+
+        // Act
+        try {
+            context.testObject.callPrivateFunction(1);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should throw the last error', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var thrownError1 = {};
+        var thrownError2 = {};
+        var thrownError3 = {};
+        var thrownError4 = {};
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .throws(thrownError1)
+            .throws(thrownError2)
+            .throws(thrownError3)
+            .throws(thrownError4);
+
+        // Act
+        try {
+            context.testObject.callPrivateFunction(1);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setupPrivate - mix - should throw error if configured after return', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .returns(returnValue)
+            .throws(thrownError);
+
+        // Act
+        try {
+            context.testObject.callPrivateFunction(1);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the error');
+        }
+    });
+
+    QUnit.test('setupPrivate - mix - should return value if configured after throw', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .throws(thrownError)
+            .returns(returnValue);
+
+        // Act
+        var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the configured value');
+    });
+
+    QUnit.test('setupPrivate - mix - should call all the callbacks and the lazy returns but return last configured one', 5, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .throws(thrownError)
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 1;
+            })
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 2;
+            })
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 3;
+            })
+            .callback(() => assert.ok(true, 'should call callback'))
+            .returns(returnValue);
+
+        // Act
+        var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the configured value');
+    });
+
+    QUnit.test('setupPrivate - mix - should call all the callbacks and the lazy returns but return last configured one 2', 5, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .throws(thrownError)
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 1;
+            })
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 2;
+            })
+            .returns(3)
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return returnValue;
+            })
+            .callback(() => assert.ok(true, 'should call callback'));
+
+        // Act
+        var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the configured value');
+    });
+
+    QUnit.test('setupPrivate - mix - should call all the callbacks and the lazy returns but throw last configured error', 5, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue = {};
+        var thrownError = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .throws('asdasd')
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 1;
+            })
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 2;
+            })
+            .returns(returnValue)
+            .lazyReturns(() => {
+                assert.ok(true, 'should call lazyRerturns');
+                return 3;
+            })
+            .throws(thrownError)
+            .callback(() => assert.ok(true, 'should call callback'));
+
+        // Act
+        try {
+            context.testObject.callPrivateFunction(1);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setupPrivate - mix - should call only the matching set', 3, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+            .lazyReturns(() => {
+                assert.ok(false, 'lazyReturns should not be called for any number');
+            })
+            .returns('return value')
+            .callback(() => {
+                assert.ok(false, 'callback should not be called for any number');
+            });
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 'aaa')
+            .throws('error')
+            .lazyReturns(() => {
+                assert.ok(false, 'lazyReturns should not be called aaa');
+            })
+            .callback(() => {
+                assert.ok(false, 'callback should not be called for aaa');
+            });
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 'bbb')
+            .lazyReturns(() => {
+                assert.ok(true, 'should be called');
+            })
+            .callback(() => {
+                assert.ok(true, 'should be called');
+            })
+            .returns(returnValue);
+
+        // Act
+        var result = context.testObject.callPrivateFunction('bbb');
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the return value');
+    });
+
+    QUnit.test('setupPrivate - mix - if both setups match should call both', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+            .lazyReturns(() => {
+                assert.ok(true, 'should call');
+            })
+            .returns('return value')
+            .callback(() => {
+                assert.ok(true, 'should call');
+            });
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .lazyReturns(() => {
+                assert.ok(true, 'should call');
+            })
+            .returns('return value')
+            .callback(() => {
+                assert.ok(true, 'should call');
+            });
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+    });
+
+    QUnit.test('setupPrivate - mix - if both setups match should return from the last', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+            .lazyReturns(() => 1)
+            .returns(() => 2);
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .lazyReturns(() => 3)
+            .returns(returnValue);
+
+        // Act
+        var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the returnValue');
+    });
+
+    QUnit.test('setupPrivate - mix - if both setups match should return from the last 2', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .lazyReturns(() => 1)
+            .returns(() => 2);
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+            .lazyReturns(() => 3)
+            .returns(returnValue);
+
+        // Act
+        var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the returnValue');
+    });
+
+    QUnit.test('setupPrivate - mix - if both setups match should throw from the last', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var thrownError = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+            .lazyReturns(() => 1)
+            .throws('error')
+            .returns(() => 2);
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .lazyReturns(() => 3)
+            .throws(thrownError);
+
+        // Act
+        try {
+            context.testObject.callPrivateFunction(1);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the thrownError');
+        }
+    });
+
+    QUnit.test('setupPrivate - mix - if both setups match should throw from the last 2', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var thrownError = {};
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+            .lazyReturns(() => 1)
+            .throws('error')
+            .returns(() => 2);
+
+        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+            .lazyReturns(() => 3)
+            .throws(thrownError);
+
+        // Act
+        try {
+            context.testObject.callPrivateFunction(1);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the thrownError');
+        }
+    });
 }

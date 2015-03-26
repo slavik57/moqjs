@@ -28,11 +28,24 @@ var moqJS;
         });
 
 
-        // setup private using string
         Mole.prototype.setup = function (functionCall) {
             return new moqJS.FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         };
 
+        Mole.prototype.setupPrivate = function (privateFunctionName) {
+            var functionArguments = [];
+            for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                functionArguments[_i] = arguments[_i + 1];
+            }
+            var functionCall = function (object) {
+                var privateFunction = object[privateFunctionName];
+                privateFunction.apply(object, functionArguments);
+            };
+
+            return this.setup(functionCall);
+        };
+
+        // TODO: add support for verifying private methods
         Mole.prototype.verify = function (functionCall, times) {
             var verifyMode = new moqJS.VerifyFunctionCallMode();
             this._FunctionProxyConfigurations.functionCallMode = verifyMode;
