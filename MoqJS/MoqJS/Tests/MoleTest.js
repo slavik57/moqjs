@@ -1948,6 +1948,694 @@ var Tests;
         assert.strictEqual(result, true, 'should return true for 2 string calls');
     });
 
+    QUnit.test('verifyPrivate - should verify only the private function', 3, function (assert) {
+        // Arrange
+        var context = this;
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        context.testObject.callPrivateFunction(1);
+
+        // Assert
+        var verifyPrivateFunction = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [1]);
+        var verifyOneArguments = context.mole.verify(function (_) {
+            return _.oneArgumentsFunction(arg1);
+        });
+        var verifyManyArguments = context.mole.verify(function (_) {
+            return _.manyArgumentsFunction(arg1, arg2, arg3);
+        });
+
+        assert.strictEqual(verifyPrivateFunction, true, 'private function should be verified');
+        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
+        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
+    });
+
+    QUnit.test('verifyPrivate - should verify only the many argument function', 3, function (assert) {
+        // Arrange
+        var context = this;
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Assert
+        var verifyPrivateFunction = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [It.isAny(Object)]);
+        var verifyOneArguments = context.mole.verify(function (_) {
+            return _.oneArgumentsFunction(arg1);
+        });
+        var verifyManyArguments = context.mole.verify(function (_) {
+            return _.manyArgumentsFunction(arg1, arg2, arg3);
+        });
+
+        assert.strictEqual(verifyPrivateFunction, false, 'no arguments should not be verified');
+        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
+        assert.strictEqual(verifyManyArguments, true, 'many arguments should be verified');
+    });
+
+    QUnit.test('verifyPrivate - was not called should not find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg]);
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find a match');
+    });
+
+    QUnit.test('verifyPrivate - was not called should not find 1 match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find a match');
+    });
+
+    QUnit.test('verifyPrivate - was not called should not find 2 matches', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find a match');
+    });
+
+    QUnit.test('verifyPrivate - was not called should find 0 matches', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, true, 'should find 0 matches');
+    });
+
+    QUnit.test('verifyPrivate - was called should find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.testObject.callPrivateFunction(arg);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg]);
+
+        // Assert
+        assert.strictEqual(result, true, 'should find a match');
+    });
+
+    QUnit.test('verifyPrivate - was called should find 1 match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.testObject.callPrivateFunction(arg);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should find a match');
+    });
+
+    QUnit.test('verifyPrivate - was called should not find 2 matches', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.testObject.callPrivateFunction(arg);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find matches');
+    });
+
+    QUnit.test('verifyPrivate - was called should not verify 0 matches', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.testObject.callPrivateFunction(arg);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 0 matches');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should find a match', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.testObject.callPrivateFunction(arg);
+        context.testObject.callPrivateFunction(arg);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg]);
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify match');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should find 2 matches', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.testObject.callPrivateFunction(arg);
+        context.testObject.callPrivateFunction(arg);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify match');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should not find 0 matches', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.testObject.callPrivateFunction(arg);
+        context.testObject.callPrivateFunction(arg);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 0 matches');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should not find 1 matches', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.testObject.callPrivateFunction(arg);
+        context.testObject.callPrivateFunction(arg);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 1 matches');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should not find 3 matches', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        context.testObject.callPrivateFunction(arg);
+        context.testObject.callPrivateFunction(arg);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(3));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 3 matches');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should verify first arg', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg1]);
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should verify first arg called 1 time', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should not verify first arg called 0 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should not verify first arg called 2 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called 3 times should not verify first arg called 2 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called 3 times should verify first arg called 2 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+        context.testObject.callPrivateFunction(arg1);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should verify second arg was called', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg2]);
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should verify second arg was called 1 time', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should not verify second arg was called 2 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should not verify second arg was called 0 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called 3 times should not verify second arg was called 0 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called 3 times should not verify second arg was called 1 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called 3 times should verify second arg was called 2 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verifyPrivate - was called 3 times should not verify second arg was called 3 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(3));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should not verify with another arg', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg3]);
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should not verify with another arg was called 1 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg3], Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should not verify with another arg was called 2 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg3], Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verifyPrivate - was called twice should verify with another arg was called 0 times', function (assert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.callPrivateFunction(arg1);
+        context.testObject.callPrivateFunction(arg2);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [arg3], Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verifyPrivate - times returns false should return false', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var timesMole = {
+            match: function () {
+                return false;
+            }
+        };
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [1], timesMole);
+
+        // Assert
+        assert.strictEqual(result, false, 'should return false if times do not match');
+    });
+
+    QUnit.test('verifyPrivate - times returns true should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var timesMole = {
+            match: function () {
+                return true;
+            }
+        };
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [1], timesMole);
+
+        // Assert
+        assert.strictEqual(result, true, 'should return true if times match');
+    });
+
+    QUnit.test('verifyPrivate - one argument - ItIsBase returns false should return false', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var itIs = new ItIsBase();
+        itIs.match = function () {
+            return false;
+        };
+
+        context.testObject.callPrivateFunction(1);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [itIs]);
+
+        // Assert
+        assert.strictEqual(result, false, 'should return false if ItIs returns false');
+    });
+
+    QUnit.test('verifyPrivate - one argument - ItIsBase returns false should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var itIs = new ItIsBase();
+        itIs.match = function () {
+            return true;
+        };
+
+        context.testObject.callPrivateFunction(1);
+
+        // Act
+        var result = context.mole.verifyPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME, [itIs]);
+
+        // Assert
+        assert.strictEqual(result, true, 'should return true if ItIs returns true');
+    });
+
     QUnit.test('callBase - set to true after constructor should call the original function', 1, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
@@ -3234,6 +3922,21 @@ var Tests;
 
         // Act
         context.testObject.callPrivateFunction(arg1);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call if not matching 3', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg1 = 3;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME).callback(function () {
+            // Assert
+            assert.ok(false, 'should not be called');
+        });
+
+        // Act
+        context.testObject.callPrivateFunction(undefined);
     });
 
     QUnit.test('setupPrivate - callback - should not call other original functions', 0, function (assert) {

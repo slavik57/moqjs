@@ -45,7 +45,6 @@ var moqJS;
             return this.setup(functionCall);
         };
 
-        // TODO: add support for verifying private methods
         Mole.prototype.verify = function (functionCall, times) {
             var verifyMode = new moqJS.VerifyFunctionCallMode();
             this._FunctionProxyConfigurations.functionCallMode = verifyMode;
@@ -60,6 +59,15 @@ var moqJS;
             }
 
             return times.match(numberOfMatches);
+        };
+
+        Mole.prototype.verifyPrivate = function (privateFunctionName, functionArguments, times) {
+            var functionCall = function (object) {
+                var privateFunction = object[privateFunctionName];
+                privateFunction.apply(object, functionArguments);
+            };
+
+            return this.verify(functionCall, times);
         };
 
         Mole.prototype._setFunctionProxies = function () {

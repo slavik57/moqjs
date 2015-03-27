@@ -39,7 +39,6 @@ module moqJS {
             return this.setup(functionCall);
         }
 
-        // TODO: add support for verifying private methods
         public verify(functionCall: (object: T) => any, times?: ITimes): boolean {
             var verifyMode = new VerifyFunctionCallMode();
             this._FunctionProxyConfigurations.functionCallMode = verifyMode;
@@ -55,6 +54,15 @@ module moqJS {
             }
 
             return times.match(numberOfMatches);
+        }
+
+        public verifyPrivate(privateFunctionName: string, functionArguments: any[], times?: ITimes): boolean {
+            var functionCall = (object: T) => {
+                var privateFunction: Function = object[privateFunctionName];
+                privateFunction.apply(object, functionArguments);
+            };
+
+            return this.verify(functionCall, times);
         }
 
         private _setFunctionProxies() {
