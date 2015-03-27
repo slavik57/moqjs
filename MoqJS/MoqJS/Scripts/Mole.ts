@@ -2,7 +2,7 @@
 
 module moqJS {
     // TODO: Implement:
-    //  setup
+    //  Mock wrapping mole
     //  if has no setup should throw exception = strict
     //  setup get
     //  setup set
