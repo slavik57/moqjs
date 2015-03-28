@@ -48,6 +48,10 @@ module moqJS {
                 return this._executeOverrides(matchingOverrides, actualArguments);
             }
 
+            if (this.functionProxyConfigurations.isStrict) {
+                throw 'No function setups defined and using strict mode. Change "isStrict" to false or define a function setup';
+            }
+
             if (this.functionProxyConfigurations.callBase) {
                 return this.originalFunction.apply(this.thisObject, actualArguments);
             }

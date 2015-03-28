@@ -2051,4 +2051,75 @@ module Tests {
         // Assert
         assert.strictEqual(result, returnValue2, 'should return the second return value');
     });
+
+    QUnit.test('callFunction - strict - no setup should throw error', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+        context.functionProxyConfigurations.isStrict = true;
+
+        // Act
+        try {
+            context.noArgsFunctionProxy.callFunction([]);
+        } catch (error) {
+            // Assert
+            assert.ok(true, 'should throw error');
+        }
+    });
+
+    QUnit.test('callFunction - strict - has callback setup should not thow error', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+        context.functionProxyConfigurations.isStrict = true;
+
+        var functionCallMode = new CallbackOverrideFunctionCallMode(() => { });
+        context.functionProxyConfigurations.functionCallMode = functionCallMode;
+        context.noArgsFunctionProxy.callFunction([]);
+
+        // Act
+        try {
+            context.noArgsFunctionProxy.callFunction([]);
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('callFunction - strict - has returns setup should not thow error', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+        context.functionProxyConfigurations.isStrict = true;
+
+        var functionCallMode = new ReturnsOverrideFunctionCallMode(() => 1);
+        context.functionProxyConfigurations.functionCallMode = functionCallMode;
+        context.noArgsFunctionProxy.callFunction([]);
+
+        // Act
+        try {
+            context.noArgsFunctionProxy.callFunction([]);
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('callFunction - strict - has throws setup should thow the configured error', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionProxyLifecycleObject = this;
+        context.functionProxyConfigurations.isStrict = true;
+
+        var thrownError = {};
+        var functionCallMode = new ThrowsOverrideFunctionCallMode(() => { throw thrownError; });
+        context.functionProxyConfigurations.functionCallMode = functionCallMode;
+        context.noArgsFunctionProxy.callFunction([]);
+
+        context.setInvokeMode();
+
+        // Act
+        try {
+            context.noArgsFunctionProxy.callFunction([]);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(thrownError, error, 'should throw the configured error');
+        }
+    });
 }

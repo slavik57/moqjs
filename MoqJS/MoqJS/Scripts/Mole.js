@@ -3,7 +3,6 @@ var moqJS;
 (function (moqJS) {
     // TODO: Implement:
     //  Mock wrapping mole
-    //  if has no setup should throw exception = strict
     //  setup get
     //  setup set
     // Get the mock by the object instace...
@@ -22,6 +21,18 @@ var moqJS;
             },
             set: function (value) {
                 this._FunctionProxyConfigurations.callBase = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+
+        Object.defineProperty(Mole.prototype, "isStrict", {
+            get: function () {
+                return this._FunctionProxyConfigurations.isStrict;
+            },
+            set: function (value) {
+                this._FunctionProxyConfigurations.isStrict = value;
             },
             enumerable: true,
             configurable: true

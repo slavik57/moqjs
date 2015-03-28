@@ -3,7 +3,6 @@
 module moqJS {
     // TODO: Implement:
     //  Mock wrapping mole
-    //  if has no setup should throw exception = strict
     //  setup get
     //  setup set
     // Get the mock by the object instace...
@@ -24,6 +23,14 @@ module moqJS {
 
         public set callBase(value: boolean) {
             this._FunctionProxyConfigurations.callBase = value;
+        }
+
+        public get isStrict() {
+            return this._FunctionProxyConfigurations.isStrict;
+        }
+
+        public set isStrict(value: boolean) {
+            this._FunctionProxyConfigurations.isStrict = value;
         }
 
         public setup(functionCall: (object: T) => any): IFunctionSetup {

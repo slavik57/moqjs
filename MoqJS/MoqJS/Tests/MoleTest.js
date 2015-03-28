@@ -4760,5 +4760,201 @@ var Tests;
             assert.strictEqual(error, thrownError, 'should throw the thrownError');
         }
     });
+
+    QUnit.test('isStrict - true - no setup should throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        try  {
+            // Act
+            context.testObject.noArgumentsFunction();
+        } catch (error) {
+            // Assert
+            assert.ok(true, 'should throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - has callbeck setup should call the callback and not throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).callback(function () {
+            assert.ok(true, 'should call the setup');
+        });
+
+        try  {
+            // Act
+            context.testObject.noArgumentsFunction();
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - has lazyReturns setup should call the lazyReturns and not throw error', 2, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        var returnValue = {};
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).lazyReturns(function () {
+            assert.ok(true, 'should call the lazyReturns');
+            return returnValue;
+        });
+
+        try  {
+            // Act
+            var result = context.testObject.noArgumentsFunction();
+
+            // Assert
+            assert.strictEqual(result, returnValue, 'should return the return value');
+        } catch (error) {
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - has returns setup should return the returnValue and not throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        var returnValue = {};
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).returns(returnValue);
+
+        try  {
+            // Act
+            var result = context.testObject.noArgumentsFunction();
+
+            // Assert
+            assert.strictEqual(result, returnValue, 'should return the return value');
+        } catch (error) {
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - has throws setup should throw the thrownError', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        var thrownError = {};
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).throws(thrownError);
+
+        try  {
+            // Act
+            context.testObject.noArgumentsFunction();
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the thrown error');
+        }
+    });
+
+    QUnit.test('isStrict - false - no setup should not throw error', 0, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = false;
+
+        try  {
+            // Act
+            context.testObject.noArgumentsFunction();
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - false - has callbeck setup should call the callback and not throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = false;
+
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).callback(function () {
+            assert.ok(true, 'should call the setup');
+        });
+
+        try  {
+            // Act
+            context.testObject.noArgumentsFunction();
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - false - has lazyReturns setup should call the lazyReturns and not throw error', 2, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = false;
+
+        var returnValue = {};
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).lazyReturns(function () {
+            assert.ok(true, 'should call the lazyReturns');
+            return returnValue;
+        });
+
+        try  {
+            // Act
+            var result = context.testObject.noArgumentsFunction();
+
+            // Assert
+            assert.strictEqual(result, returnValue, 'should return the return value');
+        } catch (error) {
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - false - has returns setup should return the returnValue and not throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = false;
+
+        var returnValue = {};
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).returns(returnValue);
+
+        try  {
+            // Act
+            var result = context.testObject.noArgumentsFunction();
+
+            // Assert
+            assert.strictEqual(result, returnValue, 'should return the return value');
+        } catch (error) {
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - false - has throws setup should throw the thrownError', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = false;
+
+        var thrownError = {};
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).throws(thrownError);
+
+        try  {
+            // Act
+            context.testObject.noArgumentsFunction();
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the thrown error');
+        }
+    });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=MoleTest.js.map
