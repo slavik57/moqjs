@@ -17,6 +17,9 @@ var Tests;
                 context.mole = new Mole(context.testObject);
             };
             this.afterEach = function () {
+                var context = this;
+
+                context.mole.dispose();
             };
         }
         return MoleLifecycleObject;
@@ -4955,6 +4958,86 @@ var Tests;
             // Assert
             assert.strictEqual(error, thrownError, 'should throw the thrown error');
         }
+    });
+
+    QUnit.test('staticFunction - Override static function', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var mole = new Mole(Tests.TestObject);
+
+        // Act
+        mole.setup(function (_) {
+            Tests.TestObject.staticFunction();
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        Tests.TestObject.staticFunction();
+    });
+
+    QUnit.test('setup - inheritence - callback on sons function should call callback', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObjectSon = new Tests.TestObjectSon();
+        var mole = new Mole(testObjectSon);
+
+        // Act
+        mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'callbeck was called');
+        });
+
+        testObjectSon.noArgumentsFunction();
+    });
+
+    QUnit.test('dispose - before dispose should not call the original function', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+
+        testObject.onNoArgumentsFunctionCalled = function () {
+            assert.ok(false, 'should not call original function');
+        };
+
+        mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call the setup');
+        });
+
+        // Act
+        mole.dispose();
+    });
+
+    QUnit.test('dispose - should call the original function', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+
+        testObject.onNoArgumentsFunctionCalled = function () {
+            // Assert
+            assert.ok(true, 'should call original function');
+        };
+
+        mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).callback(function () {
+            assert.ok(false, 'should not call the setup');
+        });
+
+        // Act
+        mole.dispose();
+        testObject.noArgumentsFunction();
     });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=MoleTest.js.map

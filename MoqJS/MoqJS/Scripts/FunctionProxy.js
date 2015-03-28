@@ -17,7 +17,8 @@ var moqJS;
     })(FunctionExecutionResult || (FunctionExecutionResult = {}));
 
     var FunctionProxy = (function () {
-        function FunctionProxy(originalFunction, thisObject, functionProxyConfigurations) {
+        function FunctionProxy(originalFunctionName, originalFunction, thisObject, functionProxyConfigurations) {
+            this.originalFunctionName = originalFunctionName;
             this.originalFunction = originalFunction;
             this.thisObject = thisObject;
             this.functionProxyConfigurations = functionProxyConfigurations;

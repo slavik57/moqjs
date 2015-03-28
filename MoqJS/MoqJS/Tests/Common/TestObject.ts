@@ -4,11 +4,18 @@ module Tests {
     export class TestObject {
         public static PRIVATE_FUNCTION_NAME = '_privateFunction';
 
+        public static staticFunctionCalled: () => void;
         public onNoArgumentsFunctionCalled: () => void;
         public onOneArgumentsFunctionCalled: (arg1: any) => void;
         public onManyArgumentsFunctionCalled: (arg1: any, arg2: any, arg3: any) => void;
         public onReturnung1FunctionCalled: () => void;
         public onPrivateFunctionCalled: (arg1: any) => void;
+
+        public static staticFunction() {
+            if (this.staticFunctionCalled) {
+                this.staticFunctionCalled();
+            }
+        }
 
         public noArgumentsFunction() {
             if (this.onNoArgumentsFunctionCalled) {
@@ -47,5 +54,8 @@ module Tests {
 
             return 1;
         }
+    }
+
+    export class TestObjectSon extends TestObject {
     }
 }

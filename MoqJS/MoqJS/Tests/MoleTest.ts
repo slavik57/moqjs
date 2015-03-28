@@ -20,6 +20,9 @@ module Tests {
         };
 
         public afterEach = function () {
+            var context: MoleLifecycleObject = this;
+
+            context.mole.dispose();
         };
     }
 
@@ -4496,5 +4499,77 @@ module Tests {
             // Assert
             assert.strictEqual(error, thrownError, 'should throw the thrown error');
         }
+    });
+
+    QUnit.test('staticFunction - Override static function', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var mole = new Mole<any>(TestObject);
+
+        // Act
+        mole.setup(_ => { TestObject.staticFunction(); }).callback(() => {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        TestObject.staticFunction();
+    });
+
+    QUnit.test('setup - inheritence - callback on sons function should call callback', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var testObjectSon = new TestObjectSon();
+        var mole = new Mole<TestObjectSon>(testObjectSon);
+
+        // Act
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => {
+            // Assert
+            assert.ok(true, 'callbeck was called');
+        });
+
+        testObjectSon.noArgumentsFunction();
+    });
+
+    QUnit.test('dispose - before dispose should not call the original function', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var testObject = new TestObject();
+        var mole = new Mole<TestObject>(testObject);
+
+        testObject.onNoArgumentsFunctionCalled = () => {
+            assert.ok(false, 'should not call original function');
+        };
+
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => {
+            // Assert
+            assert.ok(true, 'should call the setup');
+        });
+
+        // Act
+        mole.dispose();
+    });
+
+    QUnit.test('dispose - should call the original function', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var testObject = new TestObject();
+        var mole = new Mole<TestObject>(testObject);
+
+        testObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(true, 'should call original function');
+        };
+
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => {
+            assert.ok(false, 'should not call the setup');
+        });
+
+        // Act
+        mole.dispose();
+        testObject.noArgumentsFunction();
     });
 }

@@ -1,9 +1,21 @@
 ﻿'use strict';
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var Tests;
 (function (Tests) {
     var TestObject = (function () {
         function TestObject() {
         }
+        TestObject.staticFunction = function () {
+            if (this.staticFunctionCalled) {
+                this.staticFunctionCalled();
+            }
+        };
+
         TestObject.prototype.noArgumentsFunction = function () {
             if (this.onNoArgumentsFunctionCalled) {
                 this.onNoArgumentsFunctionCalled();
@@ -45,5 +57,14 @@ var Tests;
         return TestObject;
     })();
     Tests.TestObject = TestObject;
+
+    var TestObjectSon = (function (_super) {
+        __extends(TestObjectSon, _super);
+        function TestObjectSon() {
+            _super.apply(this, arguments);
+        }
+        return TestObjectSon;
+    })(TestObject);
+    Tests.TestObjectSon = TestObjectSon;
 })(Tests || (Tests = {}));
 //# sourceMappingURL=TestObject.js.map

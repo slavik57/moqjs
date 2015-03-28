@@ -8,6 +8,7 @@ module moqJS {
     // Get the mock by the object instace...
     // from all the created mocks get the one that behaves like this:( mock => boolean )
     export class Mole<T> {
+        private _proxies: FunctionProxy[];
         private _FunctionProxyConfigurations: FunctionProxyConfigurations;
 
         constructor(public object: T) {
@@ -15,6 +16,14 @@ module moqJS {
             this._FunctionProxyConfigurations.callBase = true;
 
             this._setFunctionProxies();
+        }
+
+        public dispose() {
+            for (var i = 0; i < this._proxies.length; i++) {
+                var proxy: FunctionProxy = this._proxies[i];
+
+                this.object[proxy.originalFunctionName] = proxy.originalFunction;
+            }
         }
 
         public get callBase() {
@@ -73,19 +82,22 @@ module moqJS {
         }
 
         private _setFunctionProxies() {
-            var proxies: FunctionProxy[] = [];
+            this._proxies: FunctionProxy[] = [];
 
-            for (var propertyName in this.object) {
+            var propertyNames: string[] = Object.getOwnPropertyNames(this.object);
+
+            for (var i = 0; i < propertyNames.length; i++) {
+                var propertyName = propertyNames[i];
                 var propertyValue = this.object[propertyName];
 
                 if (typeof (propertyValue) != "function") {
                     continue;
                 }
 
-                var functionProxy = new FunctionProxy(propertyValue, this.object, this._FunctionProxyConfigurations);
-                proxies.push(functionProxy);
+                var functionProxy = new FunctionProxy(propertyName, propertyValue, this.object, this._FunctionProxyConfigurations);
+                this._proxies.push(functionProxy);
 
-                this._setFunctionProxy(proxies, proxies.length - 1, propertyName);
+                this._setFunctionProxy(this._proxies, this._proxies.length - 1, propertyName);
             }
         }
 

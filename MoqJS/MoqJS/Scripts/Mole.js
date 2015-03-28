@@ -15,6 +15,9 @@ var moqJS;
 
             this._setFunctionProxies();
         }
+        Mole.prototype.dispose = function () {
+        };
+
         Object.defineProperty(Mole.prototype, "callBase", {
             get: function () {
                 return this._FunctionProxyConfigurations.callBase;
@@ -84,14 +87,17 @@ var moqJS;
         Mole.prototype._setFunctionProxies = function () {
             var proxies = [];
 
-            for (var propertyName in this.object) {
+            var propertyNames = Object.getOwnPropertyNames(this.object);
+
+            for (var i = 0; i < propertyNames.length; i++) {
+                var propertyName = propertyNames[i];
                 var propertyValue = this.object[propertyName];
 
                 if (typeof (propertyValue) != "function") {
                     continue;
                 }
 
-                var functionProxy = new moqJS.FunctionProxy(propertyValue, this.object, this._FunctionProxyConfigurations);
+                var functionProxy = new moqJS.FunctionProxy(propertyName, propertyValue, this.object, this._FunctionProxyConfigurations);
                 proxies.push(functionProxy);
 
                 this._setFunctionProxy(proxies, proxies.length - 1, propertyName);

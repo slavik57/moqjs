@@ -18,7 +18,8 @@ module moqJS {
 
         private _argumentsWithOverridesList: ArgumentsWithOverrides[];
 
-        constructor(public originalFunction: Function,
+        constructor(public originalFunctionName: string,
+            public originalFunction: Function,
             public thisObject: any,
             public functionProxyConfigurations: FunctionProxyConfigurations) {
 
