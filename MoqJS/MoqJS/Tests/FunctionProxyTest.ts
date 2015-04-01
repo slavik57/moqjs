@@ -29,19 +29,19 @@ module Tests {
             context.thisObject = new TestObject();
             context.functionProxyConfigurations = new FunctionProxyConfigurations();
 
-            context.noArgsFunctionProxy = new FunctionProxy(context.thisObject.noArgumentsFunction,
+            context.noArgsFunctionProxy = new FunctionProxy('noArgumentsFunction', context.thisObject.noArgumentsFunction,
                 context.thisObject,
                 context.functionProxyConfigurations);
 
-            context.oneArgsFunctionProxy = new FunctionProxy(context.thisObject.oneArgumentsFunction,
+            context.oneArgsFunctionProxy = new FunctionProxy('oneArgumentsFunction', context.thisObject.oneArgumentsFunction,
                 context.thisObject,
                 context.functionProxyConfigurations);
 
-            context.manyArgsFunctionProxy = new FunctionProxy(context.thisObject.manyArgumentsFunction,
+            context.manyArgsFunctionProxy = new FunctionProxy('manyArgumentsFunction', context.thisObject.manyArgumentsFunction,
                 context.thisObject,
                 context.functionProxyConfigurations);
 
-            context.returning1FunctionProxy = new FunctionProxy(context.thisObject.returning1Function,
+            context.returning1FunctionProxy = new FunctionProxy('returning1Function', context.thisObject.returning1Function,
                 context.thisObject,
                 context.functionProxyConfigurations);
         };
@@ -80,7 +80,7 @@ module Tests {
         var functionProxyConfigurations = new FunctionProxyConfigurations();
 
         // Act
-        var proxy = new FunctionProxy(originalFunction, thisObject, functionProxyConfigurations);
+        var proxy = new FunctionProxy('originalFunction', originalFunction, thisObject, functionProxyConfigurations);
 
         // Assert
         assert.strictEqual(proxy.thisObject, thisObject);

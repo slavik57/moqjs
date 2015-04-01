@@ -2742,6 +2742,145 @@ module Tests {
         assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
     });
 
+    QUnit.test('setup - returnsInOrder - should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
+
+        context.testObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - returnsInOrder - should not call other original functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - returnsInOrder - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - returnsInOrder - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setup(_ => _.noArgumentsFunction()).returns([111]);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - returnsInOrder - should return the values', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        context.mole.setup(_ => _.returning1Function()).returnsInOrder([returnValue1, returnValue2, returnValue3]);
+
+        // Act
+        var result1 = context.testObject.returning1Function();
+        var result2 = context.testObject.returning1Function();
+        var result3 = context.testObject.returning1Function();
+        var result4 = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result1, returnValue1, 'should return the configured value1');
+        assert.strictEqual(result2, returnValue2, 'should return the configured value2');
+        assert.strictEqual(result3, returnValue3, 'should return the configured value3');
+        assert.strictEqual(result4, undefined, 'should return undefined');
+    });
+
+    QUnit.test('setup - returnsInOrder - should return the last returns values', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+        var returnValue5 = {};
+        var returnValue6 = {};
+        var returnValue7 = {};
+        context.mole.setup(_ => _.returning1Function()).returns(returnValue1);
+        context.mole.setup(_ => _.returning1Function()).returnsInOrder([returnValue2, returnValue3, returnValue4]);
+        context.mole.setup(_ => _.returning1Function()).returnsInOrder([returnValue5, returnValue6, returnValue7]);
+
+        // Act
+        var result1 = context.testObject.returning1Function();
+        var result2 = context.testObject.returning1Function();
+        var result3 = context.testObject.returning1Function();
+        var result4 = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result1, returnValue5, 'should return the last returnValue5');
+        assert.strictEqual(result2, returnValue6, 'should return the last returnValue6');
+        assert.strictEqual(result3, returnValue7, 'should return the last returnValue7');
+        assert.strictEqual(result4, undefined, 'should return undefined');
+    });
+
+    QUnit.test('setup - returnsInOrder - should not affect verify', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        context.mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([4]);
+
+        // Assert
+        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+    });
+
     QUnit.test('setup - lazyReturns - should not call returnFunction if function is not called', 0, function (assert: QUnitAssert) {
         // Arrange
         var context: MoleLifecycleObject = this;
@@ -2924,6 +3063,236 @@ module Tests {
 
         // Act
         context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => 4);
+
+        // Assert
+        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should not call returnFunction if function is not called', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => {
+            // Assert
+            assert.ok(false, 'should not call returnFunction');
+        }]);
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should call returnFunction when function is called', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var functionThatWasCalled = [];
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([
+            () => functionThatWasCalled.push(1),
+            () => functionThatWasCalled.push(2),
+            () => functionThatWasCalled.push(3)]);
+
+        // Act
+        context.testObject.noArgumentsFunction();
+        context.testObject.noArgumentsFunction();
+        context.testObject.noArgumentsFunction();
+        context.testObject.noArgumentsFunction();
+
+        // Assert
+        assert.strictEqual(functionThatWasCalled.length, 3, 'there should be only 3 function calls');
+        assert.strictEqual(functionThatWasCalled[0], 1, 'should be function number 1');
+        assert.strictEqual(functionThatWasCalled[1], 2, 'should be function number 2');
+        assert.strictEqual(functionThatWasCalled[2], 3, 'should be function number 3');
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should not call the original function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
+
+        context.testObject.onNoArgumentsFunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should pass the same parameters', 2, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = 1;
+        var arg2 = 2;
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturnsInOrder([(_arg1) => {
+            // Assert
+            assert.strictEqual(_arg1, arg1, 'should return same argument');
+        }, (_arg2) => {
+                // Assert
+                assert.strictEqual(_arg2, arg2, 'should return same argument');
+            }]);
+
+        // Act
+        context.testObject.oneArgumentsFunction(arg1);
+        context.testObject.oneArgumentsFunction(arg2);
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should pass the same parameters 2', 6, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg11 = 1;
+        var arg12 = 2;
+        var arg13 = 3;
+        var arg21 = 4;
+        var arg22 = 5;
+        var arg23 = 6;
+
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+            .lazyReturnsInOrder([(_arg11, _arg12, _arg13) => {
+                // Assert
+                assert.strictEqual(_arg11, arg11, 'should return same argument');
+                assert.strictEqual(_arg12, arg12, 'should return same argument');
+                assert.strictEqual(_arg13, arg13, 'should return same argument');
+            }, (_arg21, _arg22, _arg23) => {
+                    // Assert
+                    assert.strictEqual(_arg21, arg21, 'should return same argument');
+                    assert.strictEqual(_arg22, arg22, 'should return same argument');
+                    assert.strictEqual(_arg23, arg23, 'should return same argument');
+                }]);
+
+        // Act
+        context.testObject.manyArgumentsFunction(arg11, arg12, arg13);
+        context.testObject.manyArgumentsFunction(arg21, arg22, arg23);
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should not call other original functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
+
+        var shouldNotHappen = () => {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        // Act
+        context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should return the returnFunction return values', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+
+        context.mole.setup(_ => _.returning1Function()).lazyReturnsInOrder([
+            () => returnValue1,
+            () => returnValue2,
+            () => returnValue3
+        ]);
+
+        // Act
+        var result1 = context.testObject.returning1Function();
+        var result2 = context.testObject.returning1Function();
+        var result3 = context.testObject.returning1Function();
+        var result4 = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result1, returnValue1, 'should return returnValue1');
+        assert.strictEqual(result2, returnValue2, 'should return returnValue2');
+        assert.strictEqual(result3, returnValue3, 'should return returnValue3');
+        assert.strictEqual(result4, undefined, 'should return undefined');
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should return the last returnFunction return values', 4, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+        var returnValue5 = {};
+        var returnValue6 = {};
+        var returnValue7 = {};
+
+        context.mole.setup(_ => _.returning1Function())
+            .lazyReturns(() => { return returnValue1; })
+            .lazyReturns(() => { return returnValue2; })
+            .lazyReturnsInOrder([() => returnValue3, () => returnValue4])
+            .lazyReturnsInOrder([() => returnValue5, () => returnValue6, () => returnValue7]);
+
+        // Act
+        var result1 = context.testObject.returning1Function();
+        var result2 = context.testObject.returning1Function();
+        var result3 = context.testObject.returning1Function();
+        var result4 = context.testObject.returning1Function();
+
+        // Assert
+        assert.strictEqual(result1, returnValue5, 'should return the last returnValue5');
+        assert.strictEqual(result2, returnValue6, 'should return the last returnValue6');
+        assert.strictEqual(result3, returnValue7, 'should return the last returnValue7');
+        assert.strictEqual(result4, undefined, 'should return the last returnValue');
+    });
+
+    QUnit.test('setup - lazyReturnsInOrder - should not affect verify', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => 4]);
 
         // Assert
         assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
@@ -4549,7 +4918,7 @@ module Tests {
         });
 
         // Act
-        mole.dispose();
+        testObject.noArgumentsFunction();
     });
 
     QUnit.test('dispose - should call the original function', 1, function (assert: QUnitAssert) {

@@ -16,6 +16,11 @@ var moqJS;
             this._setFunctionProxies();
         }
         Mole.prototype.dispose = function () {
+            for (var i = 0; i < this._proxies.length; i++) {
+                var proxy = this._proxies[i];
+
+                this.object[proxy.originalFunctionName] = proxy.originalFunction;
+            }
         };
 
         Object.defineProperty(Mole.prototype, "callBase", {
@@ -85,23 +90,37 @@ var moqJS;
         };
 
         Mole.prototype._setFunctionProxies = function () {
-            var proxies = [];
+            this._proxies = [];
 
-            var propertyNames = Object.getOwnPropertyNames(this.object);
+            var propertyNames = this._getObjectPropertyNames();
 
             for (var i = 0; i < propertyNames.length; i++) {
-                var propertyName = propertyNames[i];
-                var propertyValue = this.object[propertyName];
+                try  {
+                    var propertyName = propertyNames[i];
+                    var propertyValue = this.object[propertyName];
 
-                if (typeof (propertyValue) != "function") {
-                    continue;
+                    if (typeof (propertyValue) != "function") {
+                        continue;
+                    }
+
+                    var functionProxy = new moqJS.FunctionProxy(propertyName, propertyValue, this.object, this._FunctionProxyConfigurations);
+                    this._proxies.push(functionProxy);
+
+                    this._setFunctionProxy(this._proxies, this._proxies.length - 1, propertyName);
+                } catch (e) {
                 }
-
-                var functionProxy = new moqJS.FunctionProxy(propertyName, propertyValue, this.object, this._FunctionProxyConfigurations);
-                proxies.push(functionProxy);
-
-                this._setFunctionProxy(proxies, proxies.length - 1, propertyName);
             }
+        };
+
+        Mole.prototype._getObjectPropertyNames = function () {
+            var propertyNames = Object.getOwnPropertyNames(this.object);
+            for (var propertyName in this.object) {
+                if (propertyNames.lastIndexOf(propertyName) < 0) {
+                    propertyNames.push(propertyName);
+                }
+            }
+
+            return propertyNames;
         };
 
         Mole.prototype._setFunctionProxy = function (proxies, proxyNumber, functionName) {

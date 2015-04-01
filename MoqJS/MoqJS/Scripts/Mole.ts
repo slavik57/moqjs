@@ -82,23 +82,37 @@ module moqJS {
         }
 
         private _setFunctionProxies() {
-            this._proxies: FunctionProxy[] = [];
+            this._proxies = [];
 
-            var propertyNames: string[] = Object.getOwnPropertyNames(this.object);
+            var propertyNames: string[] = this._getObjectPropertyNames();
 
             for (var i = 0; i < propertyNames.length; i++) {
-                var propertyName = propertyNames[i];
-                var propertyValue = this.object[propertyName];
+                try {
+                    var propertyName = propertyNames[i];
+                    var propertyValue = this.object[propertyName];
 
-                if (typeof (propertyValue) != "function") {
-                    continue;
+                    if (typeof (propertyValue) != "function") {
+                        continue;
+                    }
+
+                    var functionProxy = new FunctionProxy(propertyName, propertyValue, this.object, this._FunctionProxyConfigurations);
+                    this._proxies.push(functionProxy);
+
+                    this._setFunctionProxy(this._proxies, this._proxies.length - 1, propertyName);
+                } catch(e) {
                 }
-
-                var functionProxy = new FunctionProxy(propertyName, propertyValue, this.object, this._FunctionProxyConfigurations);
-                this._proxies.push(functionProxy);
-
-                this._setFunctionProxy(this._proxies, this._proxies.length - 1, propertyName);
             }
+        }
+
+        private _getObjectPropertyNames() {
+            var propertyNames: string[] = Object.getOwnPropertyNames(this.object);
+            for (var propertyName in this.object) {
+                if (propertyNames.lastIndexOf(propertyName) < 0) {
+                    propertyNames.push(propertyName);
+                }
+            }
+
+            return propertyNames;
         }
 
         private _setFunctionProxy(proxies: FunctionProxy[], proxyNumber: number, functionName: string) {

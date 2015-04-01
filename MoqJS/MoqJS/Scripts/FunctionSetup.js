@@ -7,8 +7,6 @@ var moqJS;
             this.object = object;
             this.functionProxyConfigurations = functionProxyConfigurations;
         }
-        // TODO: add returnsInOrder and lazyReturnsInOrder....
-        //  given list of return values return every call the next value... when finished return undefined
         // TODO: add lazyThrows
         FunctionSetup.prototype.lazyReturns = function (returnFunction) {
             var _this = this;
@@ -18,6 +16,36 @@ var moqJS;
                     args[_i] = arguments[_i + 0];
                 }
                 return returnFunction.apply(_this.object, args);
+            });
+
+            this.functionProxyConfigurations.functionCallMode = overrideMode;
+
+            this.functionCall(this.object);
+
+            this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
+
+            return this;
+        };
+
+        FunctionSetup.prototype.lazyReturnsInOrder = function (returnFunctions) {
+            var _this = this;
+            // NOTE: Clone to keep all given values and not change the orinial array
+            var functions = returnFunctions.map(function (func) {
+                return func;
+            });
+
+            var overrideMode = new moqJS.ReturnsOverrideFunctionCallMode(function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
+                }
+                if (functions.length < 1) {
+                    return undefined;
+                }
+
+                var firstFunction = functions.shift();
+
+                return firstFunction.apply(_this.object, args);
             });
 
             this.functionProxyConfigurations.functionCallMode = overrideMode;
@@ -41,6 +69,16 @@ var moqJS;
             this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
 
             return this;
+        };
+
+        FunctionSetup.prototype.returnsInOrder = function (values) {
+            var itemsToReturnFunctions = values.map(function (value) {
+                return function () {
+                    return value;
+                };
+            });
+
+            return this.lazyReturnsInOrder(itemsToReturnFunctions);
         };
 
         FunctionSetup.prototype.callback = function (callback) {
