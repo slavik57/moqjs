@@ -7,7 +7,6 @@ var moqJS;
             this.object = object;
             this.functionProxyConfigurations = functionProxyConfigurations;
         }
-        // TODO: add lazyThrows
         FunctionSetup.prototype.lazyReturns = function (returnFunction) {
             var _this = this;
             var overrideMode = new moqJS.ReturnsOverrideFunctionCallMode(function () {
@@ -18,13 +17,7 @@ var moqJS;
                 return returnFunction.apply(_this.object, args);
             });
 
-            this.functionProxyConfigurations.functionCallMode = overrideMode;
-
-            this.functionCall(this.object);
-
-            this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
-
-            return this;
+            return this._callWithOverrideMode(overrideMode);
         };
 
         FunctionSetup.prototype.lazyReturnsInOrder = function (returnFunctions) {
@@ -48,13 +41,7 @@ var moqJS;
                 return firstFunction.apply(_this.object, args);
             });
 
-            this.functionProxyConfigurations.functionCallMode = overrideMode;
-
-            this.functionCall(this.object);
-
-            this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
-
-            return this;
+            return this._callWithOverrideMode(overrideMode);
         };
 
         FunctionSetup.prototype.returns = function (value) {
@@ -62,13 +49,7 @@ var moqJS;
                 return value;
             });
 
-            this.functionProxyConfigurations.functionCallMode = overrideMode;
-
-            this.functionCall(this.object);
-
-            this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
-
-            return this;
+            return this._callWithOverrideMode(overrideMode);
         };
 
         FunctionSetup.prototype.returnsInOrder = function (values) {
@@ -91,20 +72,29 @@ var moqJS;
                 callback.apply(_this.object, args);
             });
 
-            this.functionProxyConfigurations.functionCallMode = overrideMode;
+            return this._callWithOverrideMode(overrideMode);
+        };
 
-            this.functionCall(this.object);
+        FunctionSetup.prototype.lazyThrows = function (errorReturningFunction) {
+            var _this = this;
+            var overrideMode = new moqJS.ThrowsOverrideFunctionCallMode(function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
+                }
+                return errorReturningFunction.apply(_this.object, args);
+            });
 
-            this.functionProxyConfigurations.functionCallMode = new moqJS.InvokeFunctionCallMode();
-
-            return this;
+            return this._callWithOverrideMode(overrideMode);
         };
 
         FunctionSetup.prototype.throws = function (error) {
-            var overrideMode = new moqJS.ThrowsOverrideFunctionCallMode(function () {
+            return this.lazyThrows(function () {
                 return error;
             });
+        };
 
+        FunctionSetup.prototype._callWithOverrideMode = function (overrideMode) {
             this.functionProxyConfigurations.functionCallMode = overrideMode;
 
             this.functionCall(this.object);

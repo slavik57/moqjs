@@ -7,6 +7,7 @@ module moqJS {
         returns(value: any): IFunctionSetup;
         returnsInOrder(values: any[]): IFunctionSetup;
         callback(callback: Function): IFunctionSetup;
+        lazyThrows(errorReturningFunction: Function): IFunctionSetup;
         throws(error: any): IFunctionSetup;
     }
 
@@ -14,20 +15,12 @@ module moqJS {
         constructor(public functionCall: (object: T) => any, public object: T, public functionProxyConfigurations: FunctionProxyConfigurations) {
         }
 
-        // TODO: add lazyThrows
-
         public lazyReturns(returnFunction: Function): IFunctionSetup {
             var overrideMode = new ReturnsOverrideFunctionCallMode((...args: any[]) => {
                 return returnFunction.apply(this.object, args);
             });
 
-            this.functionProxyConfigurations.functionCallMode = overrideMode;
-
-            this.functionCall(this.object);
-
-            this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
-
-            return this;
+            return this._callWithOverrideMode(overrideMode);
         }
 
         public lazyReturnsInOrder(returnFunctions: Function[]): IFunctionSetup {
@@ -44,13 +37,7 @@ module moqJS {
                 return firstFunction.apply(this.object, args);
             });
 
-            this.functionProxyConfigurations.functionCallMode = overrideMode;
-
-            this.functionCall(this.object);
-
-            this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
-
-            return this;
+            return this._callWithOverrideMode(overrideMode);
         }
 
         public returns(value: any): IFunctionSetup {
@@ -58,13 +45,7 @@ module moqJS {
                 return value;
             });
 
-            this.functionProxyConfigurations.functionCallMode = overrideMode;
-
-            this.functionCall(this.object);
-
-            this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
-
-            return this;
+            return this._callWithOverrideMode(overrideMode);
         }
 
         public returnsInOrder(values: any[]): IFunctionSetup {
@@ -80,20 +61,22 @@ module moqJS {
                 callback.apply(this.object, args);
             });
 
-            this.functionProxyConfigurations.functionCallMode = overrideMode;
+            return this._callWithOverrideMode(overrideMode);
+        }
 
-            this.functionCall(this.object);
+        public lazyThrows(errorReturningFunction: Function): IFunctionSetup {
+            var overrideMode = new ThrowsOverrideFunctionCallMode((...args: any[]) => {
+                return errorReturningFunction.apply(this.object, args);
+            });
 
-            this.functionProxyConfigurations.functionCallMode = new InvokeFunctionCallMode();
-
-            return this;
+            return this._callWithOverrideMode(overrideMode);
         }
 
         public throws(error: any): IFunctionSetup {
-            var overrideMode = new ThrowsOverrideFunctionCallMode(() => {
-                return error;
-            });
+            return this.lazyThrows(() => error);
+        }
 
+        private _callWithOverrideMode(overrideMode: OverrideFunctionCallMode): IFunctionSetup {
             this.functionProxyConfigurations.functionCallMode = overrideMode;
 
             this.functionCall(this.object);

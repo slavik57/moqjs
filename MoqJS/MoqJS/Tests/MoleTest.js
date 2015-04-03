@@ -3964,6 +3964,250 @@ var Tests;
         }, Times.exact(0)), 'should not effect verify');
     });
 
+    QUnit.test('setup - lazyThrows - should not call returnErrorFunction if function is not called', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).lazyThrows(function () {
+            // Assert
+            assert.ok(false, 'should not call returnFunction');
+        });
+    });
+
+    QUnit.test('setup - lazyThrows - should call returnErrorFunction when function is called', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).lazyThrows(function () {
+            // Assert
+            assert.ok(true, 'should call returnFunction');
+        });
+
+        try  {
+            context.testObject.noArgumentsFunction();
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - lazyThrows - should not call the original function', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).lazyThrows(function () {
+        });
+
+        context.testObject.onNoArgumentsFunctionCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        try  {
+            context.testObject.noArgumentsFunction();
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - lazyThrows - should pass the same parameters', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg = 1;
+
+        context.mole.setup(function (_) {
+            return _.oneArgumentsFunction(It.isAny(Number));
+        }).lazyThrows(function (_arg) {
+            // Assert
+            assert.strictEqual(_arg, arg, 'should return same argument');
+        });
+
+        try  {
+            context.testObject.oneArgumentsFunction(arg);
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - lazyThrows - should pass the same parameters 2', 3, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg1 = 1;
+        var arg2 = 2;
+        var arg3 = 3;
+
+        context.mole.setup(function (_) {
+            return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
+        }).lazyThrows(function (_arg1, _arg2, _arg3) {
+            // Assert
+            assert.strictEqual(_arg1, arg1, 'should return same argument');
+            assert.strictEqual(_arg2, arg2, 'should return same argument');
+            assert.strictEqual(_arg3, arg3, 'should return same argument');
+        });
+
+        try  {
+            context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - lazyThrows - should not call other original functions', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).lazyThrows(function () {
+        });
+
+        var shouldNotHappen = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        try  {
+            context.testObject.noArgumentsFunction();
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - lazyThrows - should not call callbacks on other functions', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).lazyThrows(function () {
+        });
+
+        var shouldNotHappen = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(function (_) {
+            return _.oneArgumentsFunction(It.isAny(Number));
+        }).callback(shouldNotHappen);
+        context.mole.setup(function (_) {
+            return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
+        }).callback(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        try  {
+            context.testObject.noArgumentsFunction();
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - lazyThrows - should not call lazyThrows on other functions', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).lazyThrows(function () {
+        });
+
+        var shouldNotHappen = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.mole.setup(function (_) {
+            return _.oneArgumentsFunction(It.isAny(Number));
+        }).lazyReturns(shouldNotHappen);
+        context.mole.setup(function (_) {
+            return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
+        }).lazyReturns(shouldNotHappen);
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+
+        try  {
+            context.testObject.noArgumentsFunction();
+        } catch (e) {
+        }
+    });
+
+    QUnit.test('setup - lazyThrows - should throw the returnErrorFunction error', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var error = {};
+
+        context.mole.setup(function (_) {
+            return _.returning1Function();
+        }).lazyThrows(function () {
+            return error;
+        });
+
+        try  {
+            context.testObject.returning1Function();
+        } catch (actualError) {
+            // Assert
+            assert.strictEqual(actualError, error, 'should throw the error');
+        }
+    });
+
+    QUnit.test('setup - lazyThrows - should throw the last returnErrorFunction error', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var error1 = {};
+        var error2 = {};
+        var error3 = {};
+        var error4 = {};
+
+        context.mole.setup(function (_) {
+            return _.returning1Function();
+        }).lazyThrows(function () {
+            return error1;
+        }).lazyThrows(function () {
+            return error2;
+        }).lazyThrows(function () {
+            return error3;
+        }).lazyThrows(function () {
+            return error4;
+        });
+
+        try  {
+            context.testObject.returning1Function();
+        } catch (actualError) {
+            // Assert
+            assert.strictEqual(actualError, error4, 'should throw the last error');
+        }
+    });
+
+    QUnit.test('setup - lazyThrows - should not affect verify', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.noArgumentsFunction();
+        }).lazyThrows(function () {
+            return 4;
+        });
+
+        // Assert
+        assert.ok(context.mole.verify(function (_) {
+            return _.noArgumentsFunction();
+        }, Times.exact(0)), 'should not effect verify');
+    });
+
     QUnit.test('setup - mix - should throw error if configured after return', 1, function (assert) {
         // Arrange
         var context = this;

@@ -898,4 +898,151 @@ module Tests {
         assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
     });
 
+    QUnit.test('lazyThrows - should call functionCall', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        context.testObject.onReturnung1FunctionCalled = () => {
+            // Assert
+            assert.ok(true, 'should be called');
+        }
+
+        // Act
+        context.returning1FunctionSetup.lazyThrows(() => 'error');
+    });
+
+    QUnit.test('lazyThrows - should call when the functionCallMode is OverrideFunctionCallMode', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        var error = {};
+
+        var errorReturningFunction = () => {
+            return error;
+        };
+
+        context.testObject.onReturnung1FunctionCalled = () => {
+            var functionCallMode: IFunctionCallMode = context.functionProxyConfigurations.functionCallMode;
+
+            // Assert
+            assert.ok(functionCallMode instanceof OverrideFunctionCallMode, 'functionCallMode should be should OverrideFunctionCallMode');
+        };
+
+        // Act
+        context.returning1FunctionSetup.lazyThrows(errorReturningFunction);
+    });
+
+    QUnit.test('lazyThrows - should call when the override type is throws', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        var error = {};
+
+        var errorReturningFunction = () => {
+            return error;
+        };
+
+        context.testObject.onReturnung1FunctionCalled = () => {
+            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+
+            // Assert
+            assert.ok(functionCallMode instanceof ThrowsOverrideFunctionCallMode, 'functionCallMode should be throws');
+        };
+
+        // Act
+        context.returning1FunctionSetup.lazyThrows(errorReturningFunction);
+    });
+
+    QUnit.test('lazyThrows - should call when the override contains function that returns the error', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        var error = {};
+
+        var errorReturningFunction = () => {
+            return error;
+        };
+
+        context.testObject.onReturnung1FunctionCalled = () => {
+            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
+            var actualError = functionCallMode.override();
+
+            // Assert
+            assert.strictEqual(actualError, error, 'should throw the setup error');
+        };
+
+        // Act
+        context.returning1FunctionSetup.lazyThrows(errorReturningFunction);
+    });
+
+    QUnit.test('lazyThrows - should call when the override contains function that throws the error 2', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        var error = {};
+        var errorReturningFunction = () => {
+            return error;
+        }
+
+        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
+            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
+            var actualError = functionCallMode.override();
+
+            // Assert
+            assert.strictEqual(actualError, error, 'should return the setup value');
+        };
+
+        // Act
+        context.oneArgumentFunctionSetup.lazyThrows(errorReturningFunction);
+    });
+
+    QUnit.test('lazyThrows - should not call other function', 0, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        context.testObject.onReturnung1FunctionCalled = () => {
+            // Assert
+            assert.ok(false, 'should not call other function');
+        };
+
+        var errorReturningFunction = () => { };
+
+        // Act
+        context.oneArgumentFunctionSetup.lazyThrows(errorReturningFunction);
+    });
+
+    QUnit.test('lazyThrows - should call functionCall with same parameter', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
+            // Assert
+            assert.strictEqual(_arg, context.argument, 'should be called with same argument');
+        }
+
+        // Act
+            context.oneArgumentFunctionSetup.lazyThrows(() => 4);
+    });
+
+    QUnit.test('lazyThrows - after returns functionCallMode should be InvokeFunctionCallMode', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        // Act
+        context.oneArgumentFunctionSetup.lazyThrows(() => 4);
+
+        // Assert
+        assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
+    });
+
+    QUnit.test('lazyThrows - should return same function setup object', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: FunctionSetupLyfecycleObject = this;
+
+        // Act
+        var functionSetup = context.oneArgumentFunctionSetup.lazyThrows(() => 4);
+
+        // Assert
+        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
+    });
 }
