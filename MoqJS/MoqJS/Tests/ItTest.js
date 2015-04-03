@@ -393,5 +393,121 @@ var Tests;
         // Assert
         assert.strictEqual(result, false, 'when passed function returns false should return false');
     });
+
+    QUnit.test('isInRange - not a number should return false', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg = {};
+
+        var itIs = It.isInRange(1, 2);
+
+        // Act
+        var result = itIs.match(arg);
+
+        // Assert
+        assert.strictEqual(result, false, 'when passed not a number should return false');
+    });
+
+    QUnit.test('isInRange - min range number should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var min = 1;
+        var max = 3;
+
+        var itIs = It.isInRange(min, max);
+
+        // Act
+        var result = itIs.match(min);
+
+        // Assert
+        assert.strictEqual(result, true, 'when passed min range number should return true');
+    });
+
+    QUnit.test('isInRange - max range number should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var min = 1;
+        var max = 3;
+
+        var itIs = It.isInRange(min, max);
+
+        // Act
+        var result = itIs.match(max);
+
+        // Assert
+        assert.strictEqual(result, true, 'when passed max range number should return true');
+    });
+
+    QUnit.test('isInRange - middle number should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var min = 1;
+        var middle = 2;
+        var max = 3;
+
+        var itIs = It.isInRange(min, max);
+
+        // Act
+        var result = itIs.match(middle);
+
+        // Assert
+        assert.strictEqual(result, true, 'when passed middle range number should return true');
+    });
+
+    QUnit.test('isRegExp - not string should return false', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var itIs = It.isRegExp(new RegExp('[1-8]'));
+
+        // Act
+        var result = itIs.match(1);
+
+        // Assert
+        assert.strictEqual(result, false, 'on not a string should return false');
+    });
+
+    QUnit.test('isRegExp - not string should return false 2', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var itIs = It.isRegExp(new RegExp('[1-8]'));
+
+        // Act
+        var result = itIs.match({});
+
+        // Assert
+        assert.strictEqual(result, false, 'on not a string should return false');
+    });
+
+    QUnit.test('isRegExp - not matching should return false', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var itIs = It.isRegExp(new RegExp('[1-8]'));
+
+        // Act
+        var result = itIs.match('9');
+
+        // Assert
+        assert.strictEqual(result, false, 'on not matching should return false');
+    });
+
+    QUnit.test('isRegExp - matching should return true', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var itIs = It.isRegExp(new RegExp('[1-8]'));
+
+        // Act
+        var result = itIs.match('8');
+
+        // Assert
+        assert.strictEqual(result, true, 'on matching should return false');
+    });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=ItTest.js.map

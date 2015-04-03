@@ -33,15 +33,56 @@ var moqJS;
         return ItIsAny;
     })(ItIsBase);
 
-    var Is = (function () {
-        function Is(predicate) {
+    var ItIs = (function (_super) {
+        __extends(ItIs, _super);
+        function ItIs(predicate) {
+            _super.call(this);
             this.predicate = predicate;
         }
-        Is.prototype.match = function (argument) {
+        ItIs.prototype.match = function (argument) {
             return this.predicate(argument);
         };
-        return Is;
-    })();
+        return ItIs;
+    })(ItIsBase);
+
+    var ItIsInRange = (function (_super) {
+        __extends(ItIsInRange, _super);
+        function ItIsInRange(minimumValue, maximumValue) {
+            _super.call(this);
+            this.minimumValue = minimumValue;
+            this.maximumValue = maximumValue;
+        }
+        ItIsInRange.prototype.match = function (argument) {
+            if (isNaN(argument)) {
+                return false;
+            }
+
+            return this.minimumValue <= argument && argument <= this.maximumValue;
+        };
+        return ItIsInRange;
+    })(ItIsBase);
+
+    var ItIsRegex = (function (_super) {
+        __extends(ItIsRegex, _super);
+        function ItIsRegex(regExp) {
+            _super.call(this);
+            this.regExp = regExp;
+        }
+        ItIsRegex.prototype.match = function (argument) {
+            if (!this._isString(argument)) {
+                return false;
+            }
+
+            return this.regExp.test(argument);
+        };
+
+        ItIsRegex.prototype._isString = function (argument) {
+            var isString = new ItIsAny(String);
+
+            return isString.match(argument);
+        };
+        return ItIsRegex;
+    })(ItIsBase);
 
     var It = (function () {
         function It() {
@@ -51,7 +92,15 @@ var moqJS;
         };
 
         It.is = function (predicate) {
-            return new Is(predicate);
+            return new ItIs(predicate);
+        };
+
+        It.isInRange = function (minimumValue, maximumValue) {
+            return new ItIsInRange(minimumValue, maximumValue);
+        };
+
+        It.isRegExp = function (regExp) {
+            return new ItIsRegex(regExp);
         };
         return It;
     })();
