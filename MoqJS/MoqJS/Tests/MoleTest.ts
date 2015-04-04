@@ -45,18 +45,19 @@ module Tests {
         // Arrange
         var context: MoleLifecycleObject = this;
 
+        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
+
         context.testObject.onNoArgumentsFunctionCalled = () => {
             // Assert
             assert.ok(true, 'no arguments function should be called');
         };
 
-        context.testObject.onOneArgumentsFunctionCalled = () => {
-            assert.ok(false, 'one arguments function should not be called');
-        };
-
-        context.testObject.onManyArgumentsFunctionCalled = () => {
-            assert.ok(false, 'many arguments function should not be called');
-        };
+        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onGetterCalled = shouldNotBeCalled;
+        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onSetterCalled = shouldNotBeCalled;
 
         // Act
         context.testObject.noArgumentsFunction();
@@ -68,19 +69,20 @@ module Tests {
         // Arrange
         var context: MoleLifecycleObject = this;
 
+        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
+
         var arg = {};
 
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            assert.ok(false, 'no arguments function should not be called');
-        };
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onGetterCalled = shouldNotBeCalled;
+        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onSetterCalled = shouldNotBeCalled;
 
         context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
             // Assert
             assert.strictEqual(_arg, arg, 'The arguments should be the same');
-        };
-
-        context.testObject.onManyArgumentsFunctionCalled = () => {
-            assert.ok(false, 'many arguments function should not be called');
         };
 
         // Act
@@ -93,17 +95,18 @@ module Tests {
         // Arrange
         var context: MoleLifecycleObject = this;
 
+        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
+
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
 
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            assert.ok(false, 'no arguments function should not be called');
-        };
-
-        context.testObject.onOneArgumentsFunctionCalled = () => {
-            assert.ok(false, 'one arguments function should not be called');
-        };
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onGetterCalled = shouldNotBeCalled;
+        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onSetterCalled = shouldNotBeCalled;
+        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled;
 
         context.testObject.onManyArgumentsFunctionCalled = (_arg1, _arg2, _arg3) => {
             // Assert
@@ -116,7 +119,105 @@ module Tests {
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
     });
 
-    QUnit.test('verify - should verify only the no arguments function', 3, function (assert: QUnitAssert) {
+    QUnit.test('getter - should call only the original getter', 2, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
+        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onSetterCalled = shouldNotBeCalled;
+
+        context.testObject.onGetterCalled = () => assert.ok(true, 'should call the getter');
+
+        var value = {};
+        context.testObject.getterValue = value;
+
+        // Act
+        var actualValue = context.testObject.getter;
+
+        // Assert
+        assert.strictEqual(actualValue, value, 'Should return the getter value');
+    });
+
+    QUnit.test('setter - should call only the original setter', 2, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
+        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onGetterCalled = shouldNotBeCalled;
+
+        context.testObject.onSetterCalled = () => assert.ok(true, 'should call the getter');
+
+        var value = {};
+
+        // Act
+        context.testObject.setter = value;
+
+        // Assert
+        assert.strictEqual(context.testObject.setterValue, value, 'Should set the setter value');
+    });
+
+    QUnit.test('getter&setter - setter - should call only the original setter', 2, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
+        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onSetterCalled = shouldNotBeCalled;
+        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onGetterCalled = shouldNotBeCalled;
+
+        context.testObject.onSetterOfGetterAndSetterCalled = () => assert.ok(true, 'should call the getter');
+
+        var value = {};
+
+        // Act
+        context.testObject.getterAndSetter = value;
+
+        // Assert
+        assert.strictEqual(context.testObject.getterAndSetterValue, value, 'Should set the value');
+    });
+
+    QUnit.test('getter&setter - getter - should call only the original getter', 2, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
+        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+        context.testObject.onSetterCalled = shouldNotBeCalled;
+        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+        context.testObject.onGetterCalled = shouldNotBeCalled;
+
+        context.testObject.onGetterOfGetterAndSetterCalled = () => assert.ok(true, 'should call the getter');
+
+        var value = {};
+        context.testObject.getterAndSetterValue = value;
+
+        // Act
+        var actualValue = context.testObject.getterAndSetter;
+
+        // Assert
+        assert.strictEqual(actualValue, value, 'Should get the value');
+    });
+
+    QUnit.test('verify - should verify only the no arguments function', 7, function (assert: QUnitAssert) {
 
         // Arrange
         var context: MoleLifecycleObject = this;
@@ -131,13 +232,21 @@ module Tests {
         var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
         var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
         var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var verifyGetter = context.mole.verify(_ => _.getter);
+        var verifySetter = context.mole.verify(_ => _.setter = arg1);
+        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
+        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
 
         assert.strictEqual(verifyNoArguments, true, 'no arguments should be verified');
         assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
         assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
+        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
+        assert.strictEqual(verifySetter, false, 'setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterGetter, false, 'getter of getter and setter should not be verified');
     });
 
-    QUnit.test('verify - should verify only the one argument function', 3, function (assert: QUnitAssert) {
+    QUnit.test('verify - should verify only the one argument function', 7, function (assert: QUnitAssert) {
 
         // Arrange
         var context: MoleLifecycleObject = this;
@@ -152,13 +261,21 @@ module Tests {
         var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
         var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
         var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var verifyGetter = context.mole.verify(_ => _.getter);
+        var verifySetter = context.mole.verify(_ => _.setter = arg1);
+        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
+        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
 
         assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
         assert.strictEqual(verifyOneArguments, true, 'one arguments should be verified');
         assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
+        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
+        assert.strictEqual(verifySetter, false, 'setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterGetter, false, 'getter of getter and setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
     });
 
-    QUnit.test('verify - should verify only the many argument function', 3, function (assert: QUnitAssert) {
+    QUnit.test('verify - should verify only the many argument function', 7, function (assert: QUnitAssert) {
 
         // Arrange
         var context: MoleLifecycleObject = this;
@@ -173,10 +290,132 @@ module Tests {
         var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
         var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
         var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var verifyGetter = context.mole.verify(_ => _.getter);
+        var verifySetter = context.mole.verify(_ => _.setter = arg1);
+        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
+        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
 
         assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
         assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
         assert.strictEqual(verifyManyArguments, true, 'many arguments should be verified');
+        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
+        assert.strictEqual(verifySetter, false, 'setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterGetter, false, 'getter of getter and setter should not be verified');
+    });
+
+    QUnit.test('verify - should verify only the getter', 7, function (assert: QUnitAssert) {
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        var value = context.testObject.getter;
+
+        // Assert
+        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
+        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
+        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var verifyGetter = context.mole.verify(_ => _.getter);
+        var verifySetter = context.mole.verify(_ => _.setter = arg1);
+        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
+        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
+
+        assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
+        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
+        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
+        assert.strictEqual(verifyGetter, true, 'getter should be verified');
+        assert.strictEqual(verifySetter, false, 'setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterGetter, false, 'getter of getter and setter should not be verified');
+    });
+
+    QUnit.test('verify - should verify only the setter', 7, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        context.testObject.setter = arg1;
+
+        // Assert
+        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
+        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
+        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var verifyGetter = context.mole.verify(_ => _.getter);
+        var verifySetter = context.mole.verify(_ => _.setter = arg1);
+        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
+        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
+
+        assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
+        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
+        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
+        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
+        assert.strictEqual(verifySetter, true, 'setter should be verified');
+        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterGetter, false, 'Getter of getter and setter should not be verified');
+    });
+
+    QUnit.test('verify - should verify only the getter of getter and setter', 7, function (assert: QUnitAssert) {
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        var value = context.testObject.getterAndSetter;
+
+        // Assert
+        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
+        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
+        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var verifyGetter = context.mole.verify(_ => _.getter);
+        var verifySetter = context.mole.verify(_ => _.setter = arg1);
+        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
+        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
+
+        assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
+        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
+        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
+        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
+        assert.strictEqual(verifySetter, false, 'setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterGetter, true, 'getter of getter and setter should be verified');
+        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
+    });
+
+    QUnit.test('verify - should verify only the setter of getter and setter', 7, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        context.testObject.getterAndSetter = arg1;
+
+        // Assert
+        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
+        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
+        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+        var verifyGetter = context.mole.verify(_ => _.getter);
+        var verifySetter = context.mole.verify(_ => _.setter = arg1);
+        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
+        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
+
+        assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
+        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
+        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
+        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
+        assert.strictEqual(verifySetter, false, 'setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterGetter, false, 'getter of getter and setter should not be verified');
+        assert.strictEqual(verifyGetterAndSetterSetter, true, 'setter of getter and setter should be verified');
     });
 
     QUnit.test('verify - no arguments - was not called should not find a match', function (assert: QUnitAssert) {
@@ -1353,6 +1592,1410 @@ module Tests {
         assert.strictEqual(result, true, 'should verify');
     });
 
+    QUnit.test('verify - getter - was not called should not find a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        var result = context.mole.verify(_ => _.getter);
+
+        // Assert
+        assert.strictEqual(result, false, 'should not be verified');
+    });
+
+    QUnit.test('verify - getter - was not called should not find 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        var result = context.mole.verify(_ => _.getter, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not be verified');
+    });
+
+    QUnit.test('verify - getter - was not called should return true on 0 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        var result = context.mole.verify(_ => _.getter, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verified');
+    });
+
+    QUnit.test('verify - getter - was called should return false on 0 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value = context.testObject.getter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getter, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should return false on 0 mathes');
+    });
+
+    QUnit.test('verify - getter - was called should return true on 1 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value = context.testObject.getter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getter, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should be verified');
+    });
+
+    QUnit.test('verify - getter - was called should return false on 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value = context.testObject.getter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getter, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not be verified');
+    });
+
+    QUnit.test('verify - getter - was called twice should return true on 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value1 = context.testObject.getter;
+        var value2 = context.testObject.getter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getter, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should be verified');
+    });
+
+    QUnit.test('verify - getter - was called twice should return false on 1 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value1 = context.testObject.getter;
+        var value2 = context.testObject.getter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getter, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not be verified');
+    });
+
+    QUnit.test('verify - getter - was called twice should return false on 3 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value1 = context.testObject.getter;
+        var value2 = context.testObject.getter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getter, Times.exact(3));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not be verified');
+    });
+
+    QUnit.test('verify - setter - was not called should not find a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg);
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find a match');
+    });
+
+    QUnit.test('verify - setter - was not called should not find 1 match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find a match');
+    });
+
+    QUnit.test('verify - setter - was not called should not find 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find a match');
+    });
+
+    QUnit.test('verify - setter - was not called should find 0 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, true, 'should find 0 matches');
+    });
+
+    QUnit.test('verify - setter - was called should find a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.setter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg);
+
+        // Assert
+        assert.strictEqual(result, true, 'should find a match');
+    });
+
+    QUnit.test('verify - setter - was called should find 1 match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.setter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should find a match');
+    });
+
+    QUnit.test('verify - setter - was called should not find 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.setter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find matches');
+    });
+
+    QUnit.test('verify - setter - was called should not verify 0 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.setter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 0 matches');
+    });
+
+    QUnit.test('verify - setter - was called twice should find a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.setter = arg;
+        context.testObject.setter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg);
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify match');
+    });
+
+    QUnit.test('verify - setter - was called twice should find 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.setter = arg;
+        context.testObject.setter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify match');
+    });
+
+    QUnit.test('verify - setter - was called twice should not find 0 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.setter = arg;
+        context.testObject.setter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 0 matches');
+    });
+
+    QUnit.test('verify - setter - was called twice should not find 1 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.setter = arg;
+        context.testObject.setter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 1 matches');
+    });
+
+    QUnit.test('verify - setter - was called twice should not find 3 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.setter = arg;
+        context.testObject.setter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg, Times.exact(3));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 3 matches');
+    });
+
+    QUnit.test('verify - setter - was called twice should verify first arg', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg1);
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should verify first arg called 1 time', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg1, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should not verify first arg called 0 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg1, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should not verify first arg called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg1, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called 3 times should not verify first arg called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg1, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called 3 times should verify first arg called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+        context.testObject.setter = arg1;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg1, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should verify second arg was called', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg2);
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should verify second arg was called 1 time', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should not verify second arg was called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should not verify second arg was called 0 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called 3 times should not verify second arg was called 0 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called 3 times should not verify second arg was called 1 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called 3 times should verify second arg was called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - setter - was called 3 times should not verify second arg was called 3 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(3));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should not verify with another arg', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg3);
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should not verify with another arg was called 1 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg3, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should not verify with another arg was called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg3, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - setter - was called twice should verify with another arg was called 0 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.setter = arg1;
+        context.testObject.setter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = arg3, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - getter&setter - getter - was not called should not find a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter);
+
+        // Assert
+        assert.strictEqual(result, false, 'should not be verified');
+    });
+
+    QUnit.test('verify - getter&setter - getter - was not called should not find 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not be verified');
+    });
+
+    QUnit.test('verify - getter&setter - getter - was not called should return true on 0 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verified');
+    });
+
+    QUnit.test('verify - getter&setter - getter - was called should return false on 0 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value = context.testObject.getterAndSetter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should return false on 0 mathes');
+    });
+
+    QUnit.test('verify - getter&setter - getter - was called should return true on 1 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value = context.testObject.getterAndSetter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should be verified');
+    });
+
+    QUnit.test('verify - getter&setter - getter - was called should return false on 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value = context.testObject.getterAndSetter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not be verified');
+    });
+
+    QUnit.test('verify - getter&setter - getter - was called twice should return true on 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value1 = context.testObject.getterAndSetter;
+        var value2 = context.testObject.getterAndSetter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should be verified');
+    });
+
+    QUnit.test('verify - getter&setter - getter - was called twice should return false on 1 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value1 = context.testObject.getterAndSetter;
+        var value2 = context.testObject.getterAndSetter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not be verified');
+    });
+
+    QUnit.test('verify - getter&setter - getter - was called twice should return false on 3 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var value1 = context.testObject.getterAndSetter;
+        var value2 = context.testObject.getterAndSetter;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(3));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not be verified');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was not called should not find a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg);
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find a match');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was not called should not find 1 match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find a match');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was not called should not find 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find a match');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was not called should find 0 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, true, 'should find 0 matches');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called should find a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.getterAndSetter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg);
+
+        // Assert
+        assert.strictEqual(result, true, 'should find a match');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called should find 1 match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.getterAndSetter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should find a match');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called should not find 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.getterAndSetter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not find matches');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called should not verify 0 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.getterAndSetter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 0 matches');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should find a match', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.getterAndSetter = arg;
+        context.testObject.getterAndSetter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg);
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify match');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should find 2 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.getterAndSetter = arg;
+        context.testObject.getterAndSetter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify match');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should not find 0 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.getterAndSetter = arg;
+        context.testObject.getterAndSetter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 0 matches');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should not find 1 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.getterAndSetter = arg;
+        context.testObject.getterAndSetter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 1 matches');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should not find 3 matches', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg = {};
+
+        context.testObject.getterAndSetter = arg;
+        context.testObject.getterAndSetter = arg;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(3));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify 3 matches');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should verify first arg', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg1);
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should verify first arg called 1 time', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg1, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should not verify first arg called 0 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg1, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should not verify first arg called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg1, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called 3 times should not verify first arg called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg1, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called 3 times should verify first arg called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+        context.testObject.getterAndSetter = arg1;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg1, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should verify second arg was called', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg2);
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should verify second arg was called 1 time', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should not verify second arg was called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should not verify second arg was called 0 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called 3 times should not verify second arg was called 0 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called 3 times should not verify second arg was called 1 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called 3 times should verify second arg was called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called 3 times should not verify second arg was called 3 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(3));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should not verify with another arg', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg3);
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should not verify with another arg was called 1 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg3, Times.exact(1));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should not verify with another arg was called 2 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg3, Times.exact(2));
+
+        // Assert
+        assert.strictEqual(result, false, 'should not verify');
+    });
+
+    QUnit.test('verify - getter&setter - setter - was called twice should verify with another arg was called 0 times', function (assert: QUnitAssert) {
+        QUnit.expect(1);
+
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        context.testObject.getterAndSetter = arg1;
+        context.testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = arg3, Times.exact(0));
+
+        // Assert
+        assert.strictEqual(result, true, 'should verify');
+    });
+
     QUnit.test('verify - complex test', function (assert: QUnitAssert) {
         // Arrange
         var context: MoleLifecycleObject = this;
@@ -1361,21 +3004,43 @@ module Tests {
         // Act
         context.testObject.noArgumentsFunction();
         context.testObject.oneArgumentsFunction(argSet[0]);
+        context.testObject.setter = argSet[0];
+        context.testObject.getterAndSetter = argSet[0];
+        context.testObject.getterAndSetter;
         context.testObject.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]);
         context.testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
         context.testObject.oneArgumentsFunction(argSet[2]);
+        context.testObject.getterAndSetter;
+        context.testObject.setter = argSet[2];
+        context.testObject.getterAndSetter = argSet[2];
         context.testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
         context.testObject.oneArgumentsFunction(argSet[0]);
+        context.testObject.setter = argSet[0];
+        context.testObject.getterAndSetter;
+        context.testObject.getterAndSetter = argSet[0];
         context.testObject.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]);
+        context.testObject.getter;
         context.testObject.noArgumentsFunction();
         context.testObject.oneArgumentsFunction(argSet[0]);
+        context.testObject.setter = argSet[0];
+        context.testObject.getterAndSetter = argSet[0];
+        context.testObject.getter;
         context.testObject.noArgumentsFunction();
+        context.testObject.getterAndSetter;
         context.testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
         context.testObject.noArgumentsFunction();
         context.testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
+        context.testObject.getter;
+        context.testObject.setter = argSet[1];
         context.testObject.oneArgumentsFunction(argSet[1]);
+        context.testObject.getterAndSetter = argSet[1];
+        context.testObject.getterAndSetter = argSet[2];
+        context.testObject.getterAndSetter = argSet[2];
         context.testObject.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]);
+        context.testObject.getter;
         context.testObject.oneArgumentsFunction(argSet[2]);
+        context.testObject.setter = argSet[2];
+        context.testObject.setter = argSet[2];
         context.testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
         context.testObject.oneArgumentsFunction(argSet[2]);
 
@@ -1447,6 +3112,64 @@ module Tests {
         assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,0,0] 1 times');
         assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[0,0,0] 2 times');
         assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[0,0,0] 3 times');
+
+        assert.strictEqual(context.mole.verify(_ => _.getter), true, 'getter should be verified');
+        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(0)), false, 'getter should not be verified for 0');
+        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(1)), false, 'getter should not be verified for 1');
+        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(2)), false, 'getter should not be verified for 2');
+        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(3)), false, 'getter should not be verified for 3');
+        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(4)), true), 'getter should be verified for 4';
+        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(5)), false, 'getter should not be verified for 5');
+        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(6)), false, 'getter should not be verified for 6');
+
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0]), true, 'setter should be verified for argSet[0]');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[1]), true, 'setter should be verified for argSet[1]');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2]), true, 'setter should be verified for argSet[2]');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[3]), false, 'setter should not be verified for argSet[3]');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0], Times.exact(0)), false, 'setter should not be verified for argSet[0] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0], Times.exact(1)), false, 'setter should not be verified for argSet[0] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0], Times.exact(2)), false, 'setter not should be verified for argSet[0] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0], Times.exact(3)), true, 'setter should be verified for argSet[0] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0], Times.exact(4)), false, 'setter should not be verified for argSet[0] 4 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[1], Times.exact(0)), false, 'setter should not be verified for argSet[1] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[1], Times.exact(1)), true, 'setter should be verified for argSet[1] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[1], Times.exact(2)), false, 'setter should not be verified for argSet[1] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[1], Times.exact(3)), false, 'setter should not be verified for argSet[1] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(0)), false, 'setter should not be verified for argSet[2] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(1)), false, 'setter should not be verified for argSet[2] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(2)), false, 'setter should not be verified for argSet[2] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(3)), true, 'setter should be verified for argSet[2] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(4)), false, 'setter should not be verified for argSet[2] 4 times');
+        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(5)), false, 'setter should not be verified for argSet[2] 5 times');
+
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter), true, 'getterAndSetter getter should be verified');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(0)), false, 'getterAndSetter getter should not be verified for 0');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(1)), false, 'getterAndSetter getter should not be verified for 1');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(2)), false, 'getterAndSetter getter should not be verified for 2');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(3)), false, 'getterAndSetter getter should not be verified for 3');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(4)), true), 'getterAndSetter getter should be verified for 4';
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(5)), false, 'getterAndSetter getter should not be verified for 5');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(6)), false, 'getterAndSetter getter should not be verified for 6');
+
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0]), true, 'getterAndSetter setter should be verified for argSet[0]');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[1]), true, 'getterAndSetter setter should be verified for argSet[1]');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2]), true, 'getterAndSetter setter should be verified for argSet[2]');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[3]), false, 'getterAndSetter setter should not be verified for argSet[3]');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(0)), false, 'getterAndSetter setter should not be verified for argSet[0] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(1)), false, 'getterAndSetter setter should not be verified for argSet[0] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(2)), false, 'getterAndSetter setter not should be verified for argSet[0] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(3)), true, 'getterAndSetter setter should be verified for argSet[0] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(4)), false, 'getterAndSetter setter should not be verified for argSet[0] 4 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(0)), false, 'getterAndSetter setter should not be verified for argSet[1] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(1)), true, 'getterAndSetter setter should be verified for argSet[1] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(2)), false, 'getterAndSetter setter should not be verified for argSet[1] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(3)), false, 'getterAndSetter setter should not be verified for argSet[1] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(0)), false, 'getterAndSetter setter should not be verified for argSet[2] 0 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(1)), false, 'getterAndSetter setter should not be verified for argSet[2] 1 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(2)), false, 'getterAndSetter setter should not be verified for argSet[2] 2 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(3)), true, 'getterAndSetter setter should be verified for argSet[2] 3 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(4)), false, 'getterAndSetter setter should not be verified for argSet[2] 4 times');
+        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(5)), false, 'getterAndSetter setter should not be verified for argSet[2] 5 times');
     });
 
     QUnit.test('verify - times returns false should return false', 1, function (assert: QUnitAssert) {
@@ -1643,6 +3366,70 @@ module Tests {
 
         // Assert
         assert.strictEqual(result, true, 'should return true for 2 string calls');
+    });
+
+    QUnit.test('verify - setter - ItIsBase returns false should return false', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var itIs = new ItIsBase();
+        itIs.match = () => false;
+
+        context.testObject.setter = 1;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = itIs);
+
+        // Assert
+        assert.strictEqual(result, false, 'should return false if ItIs returns false');
+    });
+
+    QUnit.test('verify - setter - ItIsBase returns false should return true', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var itIs = new ItIsBase();
+        itIs.match = () => true;
+
+        context.testObject.setter = 1;
+
+        // Act
+        var result = context.mole.verify(_ => _.setter = itIs);
+
+        // Assert
+        assert.strictEqual(result, true, 'should return true if ItIs returns true');
+    });
+
+    QUnit.test('verify - getter$setter - setter - ItIsBase returns false should return false', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var itIs = new ItIsBase();
+        itIs.match = () => false;
+
+        context.testObject.getterAndSetter = 1;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = itIs);
+
+        // Assert
+        assert.strictEqual(result, false, 'should return false if ItIs returns false');
+    });
+
+    QUnit.test('verify - getter$setter - setter - ItIsBase returns false should return true', 1, function (assert: QUnitAssert) {
+        // Arrange
+        var context: MoleLifecycleObject = this;
+
+        var itIs = new ItIsBase();
+        itIs.match = () => true;
+
+        context.testObject.getterAndSetter = 1;
+
+        // Act
+        var result = context.mole.verify(_ => _.getterAndSetter = itIs);
+
+        // Assert
+        assert.strictEqual(result, true, 'should return true if ItIs returns true');
     });
 
     QUnit.test('verifyPrivate - should verify only the private function', 3, function (assert: QUnitAssert) {
@@ -2318,7 +4105,7 @@ module Tests {
         // Assert
         assert.strictEqual(result, true, 'should return true if ItIs returns true');
     });
-
+    // continue getters and setters from here
     QUnit.test('callBase - set to true after constructor should call the original function', 1, function (assert: QUnitAssert) {
         // Arrange
         var testObject = new TestObject();
@@ -5153,4 +6940,6 @@ module Tests {
         mole.dispose();
         testObject.noArgumentsFunction();
     });
+
+    // TODO: tests for verify after setups
 }

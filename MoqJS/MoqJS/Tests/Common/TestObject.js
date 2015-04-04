@@ -10,6 +10,50 @@ var Tests;
     var TestObject = (function () {
         function TestObject() {
         }
+        Object.defineProperty(TestObject.prototype, "getter", {
+            get: function () {
+                if (this.onGetterCalled) {
+                    this.onGetterCalled();
+                }
+
+                return this.getterValue;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        Object.defineProperty(TestObject.prototype, "setter", {
+            set: function (value) {
+                this.setterValue = value;
+
+                if (this.onSetterCalled) {
+                    this.onSetterCalled(value);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        Object.defineProperty(TestObject.prototype, "getterAndSetter", {
+            get: function () {
+                if (this.onGetterOfGetterAndSetterCalled) {
+                    this.onGetterOfGetterAndSetterCalled();
+                }
+
+                return this.getterAndSetterValue;
+            },
+            set: function (value) {
+                this.getterAndSetterValue = value;
+
+                if (this.onSetterOfGetterAndSetterCalled) {
+                    this.onSetterOfGetterAndSetterCalled(value);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+
         TestObject.staticFunction = function () {
             if (this.staticFunctionCalled) {
                 this.staticFunctionCalled();

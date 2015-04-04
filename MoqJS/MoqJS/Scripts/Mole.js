@@ -14,12 +14,33 @@ var moqJS;
             this._FunctionProxyConfigurations.callBase = true;
 
             this._setFunctionProxies();
+            this._setPropertiesProxies();
         }
         Mole.prototype.dispose = function () {
-            for (var i = 0; i < this._proxies.length; i++) {
-                var proxy = this._proxies[i];
+            for (var i = 0; i < this._functionProxies.length; i++) {
+                var proxy = this._functionProxies[i];
 
                 this.object[proxy.originalFunctionName] = proxy.originalFunction;
+            }
+
+            for (var i = 0; i < this._propertyGetterProxies.length; i++) {
+                var proxy = this._propertyGetterProxies[i];
+
+                var descriptor = this._getPropertyDescriptor(this.object, proxy.originalFunctionName);
+
+                descriptor.get = proxy.originalFunction;
+
+                this._setProperty(this.object, proxy.originalFunctionName, descriptor);
+            }
+
+            for (var i = 0; i < this._propertySetterProxies.length; i++) {
+                var proxy = this._propertySetterProxies[i];
+
+                var descriptor = this._getPropertyDescriptor(this.object, proxy.originalFunctionName);
+
+                descriptor.set = proxy.originalFunction;
+
+                this._setProperty(this.object, proxy.originalFunctionName, descriptor);
             }
         };
 
@@ -90,7 +111,7 @@ var moqJS;
         };
 
         Mole.prototype._setFunctionProxies = function () {
-            this._proxies = [];
+            this._functionProxies = [];
 
             var propertyNames = this._getObjectPropertyNames();
 
@@ -104,9 +125,9 @@ var moqJS;
                     }
 
                     var functionProxy = new moqJS.FunctionProxy(propertyName, propertyValue, this.object, this._FunctionProxyConfigurations);
-                    this._proxies.push(functionProxy);
+                    this._functionProxies.push(functionProxy);
 
-                    this._setFunctionProxy(this._proxies, this._proxies.length - 1, propertyName);
+                    this._setFunctionProxy(this._functionProxies, this._functionProxies.length - 1, propertyName);
                 } catch (e) {
                 }
             }
@@ -130,6 +151,82 @@ var moqJS;
                     args[_i] = arguments[_i + 0];
                 }
                 return proxies[proxyNumber].callFunction(args);
+            };
+        };
+
+        Mole.prototype._setPropertiesProxies = function () {
+            this._propertyGetterProxies = [];
+            this._propertySetterProxies = [];
+
+            var propertyNames = this._getObjectPropertyNames();
+
+            for (var i = 0; i < propertyNames.length; i++) {
+                try  {
+                    var propertyName = propertyNames[i];
+
+                    var descriptor = this._getPropertyDescriptor(this.object, propertyName);
+                    if (!descriptor) {
+                        continue;
+                    }
+
+                    if (descriptor.get) {
+                        this._setPropertyGetterProxy(propertyName, descriptor);
+                    }
+
+                    if (descriptor.set) {
+                        this._setPropertySetterProxy(propertyName, descriptor);
+                    }
+
+                    if (descriptor.get || descriptor.set) {
+                        this._setProperty(this.object, propertyName, descriptor);
+                    }
+                } catch (e) {
+                }
+            }
+        };
+
+        Mole.prototype._getPropertyDescriptor = function (obj, propertyName) {
+            var descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
+            if (descriptor) {
+                return descriptor;
+            }
+
+            if (!obj.__proto__) {
+                return undefined;
+            }
+
+            return this._getPropertyDescriptor(obj.__proto__, propertyName);
+        };
+
+        Mole.prototype._setProperty = function (obj, propertyName, propertyDescriptor) {
+            var descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
+            if (descriptor) {
+                Object.defineProperty(obj, propertyName, propertyDescriptor);
+                return;
+            }
+
+            if (!obj.__proto__) {
+                return;
+            }
+
+            return this._setProperty(obj.__proto__, propertyName, propertyDescriptor);
+        };
+
+        Mole.prototype._setPropertyGetterProxy = function (propertyName, descriptor) {
+            var functionProxy = new moqJS.FunctionProxy(propertyName, descriptor.get, this.object, this._FunctionProxyConfigurations);
+            this._propertyGetterProxies.push(functionProxy);
+
+            descriptor.get = function () {
+                return functionProxy.callFunction([]);
+            };
+        };
+
+        Mole.prototype._setPropertySetterProxy = function (propertyName, descriptor) {
+            var functionProxy = new moqJS.FunctionProxy(propertyName, descriptor.set, this.object, this._FunctionProxyConfigurations);
+            this._propertySetterProxies.push(functionProxy);
+
+            descriptor.set = function (value) {
+                return functionProxy.callFunction([value]);
             };
         };
         return Mole;

@@ -8,7 +8,9 @@ module moqJS {
     // Get the mock by the object instace...
     // from all the created mocks get the one that behaves like this:( mock => boolean )
     export class Mole<T> {
-        private _proxies: FunctionProxy[];
+        private _functionProxies: FunctionProxy[];
+        private _propertyGetterProxies: FunctionProxy[];
+        private _propertySetterProxies: FunctionProxy[];
         private _FunctionProxyConfigurations: FunctionProxyConfigurations;
 
         constructor(public object: T) {
@@ -16,13 +18,34 @@ module moqJS {
             this._FunctionProxyConfigurations.callBase = true;
 
             this._setFunctionProxies();
+            this._setPropertiesProxies();
         }
 
         public dispose() {
-            for (var i = 0; i < this._proxies.length; i++) {
-                var proxy: FunctionProxy = this._proxies[i];
+            for (var i = 0; i < this._functionProxies.length; i++) {
+                var proxy: FunctionProxy = this._functionProxies[i];
 
                 this.object[proxy.originalFunctionName] = proxy.originalFunction;
+            }
+
+            for (var i = 0; i < this._propertyGetterProxies.length; i++) {
+                var proxy: FunctionProxy = this._propertyGetterProxies[i];
+
+                var descriptor = this._getPropertyDescriptor(this.object, proxy.originalFunctionName);
+
+                descriptor.get = <any>proxy.originalFunction;
+
+                this._setProperty(this.object, proxy.originalFunctionName, descriptor);
+            }
+
+            for (var i = 0; i < this._propertySetterProxies.length; i++) {
+                var proxy: FunctionProxy = this._propertySetterProxies[i];
+
+                var descriptor = this._getPropertyDescriptor(this.object, proxy.originalFunctionName);
+
+                descriptor.set = <any>proxy.originalFunction;
+
+                this._setProperty(this.object, proxy.originalFunctionName, descriptor);
             }
         }
 
@@ -82,7 +105,7 @@ module moqJS {
         }
 
         private _setFunctionProxies() {
-            this._proxies = [];
+            this._functionProxies = [];
 
             var propertyNames: string[] = this._getObjectPropertyNames();
 
@@ -96,10 +119,10 @@ module moqJS {
                     }
 
                     var functionProxy = new FunctionProxy(propertyName, propertyValue, this.object, this._FunctionProxyConfigurations);
-                    this._proxies.push(functionProxy);
+                    this._functionProxies.push(functionProxy);
 
-                    this._setFunctionProxy(this._proxies, this._proxies.length - 1, propertyName);
-                } catch(e) {
+                    this._setFunctionProxy(this._functionProxies, this._functionProxies.length - 1, propertyName);
+                } catch (e) {
                 }
             }
         }
@@ -117,6 +140,78 @@ module moqJS {
 
         private _setFunctionProxy(proxies: FunctionProxy[], proxyNumber: number, functionName: string) {
             this.object[functionName] = (...args: any[]) => proxies[proxyNumber].callFunction(args);
+        }
+
+        private _setPropertiesProxies() {
+            this._propertyGetterProxies = [];
+            this._propertySetterProxies = [];
+
+            var propertyNames: string[] = this._getObjectPropertyNames();
+
+            for (var i = 0; i < propertyNames.length; i++) {
+                try {
+                    var propertyName = propertyNames[i];
+
+                    var descriptor = this._getPropertyDescriptor(this.object, propertyName);
+                    if (!descriptor) {
+                        continue;
+                    }
+
+                    if (descriptor.get) {
+                        this._setPropertyGetterProxy(propertyName, descriptor);
+                    }
+
+                    if (descriptor.set) {
+                        this._setPropertySetterProxy(propertyName, descriptor);
+                    }
+
+                    if (descriptor.get || descriptor.set) {
+                        this._setProperty(this.object, propertyName, descriptor);
+                    }
+                } catch (e) {
+                }
+            }
+        }
+
+        private _getPropertyDescriptor(obj: any, propertyName: string): PropertyDescriptor {
+            var descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
+            if (descriptor) {
+                return descriptor;
+            }
+
+            if (!obj.__proto__) {
+                return undefined;
+            }
+
+            return this._getPropertyDescriptor(obj.__proto__, propertyName);
+        }
+
+        private _setProperty(obj: any, propertyName: string, propertyDescriptor) {
+            var descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
+            if (descriptor) {
+                Object.defineProperty(obj, propertyName, propertyDescriptor);
+                return;
+            }
+
+            if (!obj.__proto__) {
+                return;
+            }
+
+            return this._setProperty(obj.__proto__, propertyName, propertyDescriptor);
+        }
+
+        private _setPropertyGetterProxy(propertyName: string, descriptor: PropertyDescriptor) {
+            var functionProxy = new FunctionProxy(propertyName, descriptor.get, this.object, this._FunctionProxyConfigurations);
+            this._propertyGetterProxies.push(functionProxy);
+
+            descriptor.get = () => functionProxy.callFunction([]);
+        }
+
+        private _setPropertySetterProxy(propertyName: string, descriptor: PropertyDescriptor) {
+            var functionProxy = new FunctionProxy(propertyName, descriptor.set, this.object, this._FunctionProxyConfigurations);
+            this._propertySetterProxies.push(functionProxy);
+
+            descriptor.set = (value: any) => functionProxy.callFunction([value]);
         }
     }
 }

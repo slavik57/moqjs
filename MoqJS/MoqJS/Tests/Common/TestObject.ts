@@ -11,6 +11,48 @@ module Tests {
         public onReturnung1FunctionCalled: () => void;
         public onPrivateFunctionCalled: (arg1: any) => void;
 
+        public onGetterCalled: () => void;
+        public onSetterCalled: (value: any) => void;
+        public onGetterOfGetterAndSetterCalled: () => void;
+        public onSetterOfGetterAndSetterCalled: (value: any) => void;
+
+
+        public getterValue: any;
+        public setterValue: any;
+        public getterAndSetterValue: any;
+
+        public get getter() {
+            if (this.onGetterCalled) {
+                this.onGetterCalled();
+            }
+
+            return this.getterValue;
+        }
+
+        public set setter(value: any) {
+            this.setterValue = value;
+
+            if (this.onSetterCalled) {
+                this.onSetterCalled(value);
+            }
+        }
+
+        public get getterAndSetter() {
+            if (this.onGetterOfGetterAndSetterCalled) {
+                this.onGetterOfGetterAndSetterCalled();
+            }
+
+            return this.getterAndSetterValue;
+        }
+
+        public set getterAndSetter(value: any) {
+            this.getterAndSetterValue = value;
+
+            if (this.onSetterOfGetterAndSetterCalled) {
+                this.onSetterOfGetterAndSetterCalled(value);
+            }
+        }
+
         public static staticFunction() {
             if (this.staticFunctionCalled) {
                 this.staticFunctionCalled();
