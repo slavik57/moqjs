@@ -4810,7 +4810,7 @@ var Tests;
         assert.strictEqual(result, true, 'should return true if ItIs returns true');
     });
 
-    // continue getters and setters from here
+    // TODO: continue getters and setters from here
     QUnit.test('callBase - set to true after constructor should call the original function', 1, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();

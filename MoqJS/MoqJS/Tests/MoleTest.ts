@@ -4105,7 +4105,7 @@ module Tests {
         // Assert
         assert.strictEqual(result, true, 'should return true if ItIs returns true');
     });
-    // continue getters and setters from here
+    // TODO: continue getters and setters from here
     QUnit.test('callBase - set to true after constructor should call the original function', 1, function (assert: QUnitAssert) {
         // Arrange
         var testObject = new TestObject();
@@ -6942,4 +6942,6 @@ module Tests {
     });
 
     // TODO: tests for verify after setups
+    // TODO: tests for private setup for getters and setters...probably should check the descriptor in the implementation
+    //      try not to create another method and use the existing setup() method
 }
