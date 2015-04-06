@@ -4082,7 +4082,7 @@ var Tests;
         assert.strictEqual(result, true, 'should return true if ItIs returns true');
     });
 
-    QUnit.test('verify - getter$setter - setter - ItIsBase returns false should return false', 1, function (assert) {
+    QUnit.test('verify - getter&setter - setter - ItIsBase returns false should return false', 1, function (assert) {
         // Arrange
         var context = this;
 
@@ -4102,7 +4102,7 @@ var Tests;
         assert.strictEqual(result, false, 'should return false if ItIs returns false');
     });
 
-    QUnit.test('verify - getter$setter - setter - ItIsBase returns false should return true', 1, function (assert) {
+    QUnit.test('verify - getter&setter - setter - ItIsBase returns false should return true', 1, function (assert) {
         // Arrange
         var context = this;
 
@@ -4120,6 +4120,67 @@ var Tests;
 
         // Assert
         assert.strictEqual(result, true, 'should return true if ItIs returns true');
+    });
+
+    QUnit.test('verify - after setups should count ok', function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).callback(function () {
+        });
+        context.testObject.getter;
+        context.testObject.getter;
+        context.testObject.getter;
+        context.testObject.getter;
+
+        context.mole.setup(function (_) {
+            return _.oneArgumentsFunction(1);
+        }).callback(function () {
+        });
+        context.mole.setup(function (_) {
+            return _.oneArgumentsFunction(2);
+        }).callback(function () {
+        });
+        context.mole.setup(function (_) {
+            return _.oneArgumentsFunction(3);
+        }).callback(function () {
+        });
+        context.testObject.oneArgumentsFunction(1);
+        context.testObject.oneArgumentsFunction(2);
+        context.testObject.oneArgumentsFunction(2);
+        context.testObject.oneArgumentsFunction(3);
+        context.testObject.oneArgumentsFunction(3);
+        context.testObject.oneArgumentsFunction(3);
+        context.testObject.oneArgumentsFunction(4);
+        context.testObject.oneArgumentsFunction(4);
+        context.testObject.oneArgumentsFunction(4);
+        context.testObject.oneArgumentsFunction(4);
+
+        // Assert
+        assert.strictEqual(context.mole.verify(function (_) {
+            return _.getter;
+        }, Times.exact(4)), true, 'should verify getter correctly');
+        assert.strictEqual(context.mole.verify(function (_) {
+            return _.oneArgumentsFunction(1);
+        }, Times.exact(1)), true, 'should verify calling the function with parameter correctly');
+        assert.strictEqual(context.mole.verify(function (_) {
+            return _.oneArgumentsFunction(2);
+        }, Times.exact(2)), true, 'should verify calling the function with parameter correctly');
+        assert.strictEqual(context.mole.verify(function (_) {
+            return _.oneArgumentsFunction(3);
+        }, Times.exact(3)), true, 'should verify calling the function with parameter correctly');
+        assert.strictEqual(context.mole.verify(function (_) {
+            return _.oneArgumentsFunction(4);
+        }, Times.exact(4)), true, 'should verify calling the function with parameter correctly');
+        assert.strictEqual(context.mole.verify(function (_) {
+            return _.oneArgumentsFunction(It.isAny(Number));
+        }, Times.exact(10)), true, 'should verify calling with any number correctly');
+        assert.strictEqual(context.mole.verify(function (_) {
+            return _.oneArgumentsFunction(It.isAny(Number));
+        }, Times.exact(11)), false, 'should verify calling with any number correctly');
     });
 
     QUnit.test('verifyPrivate - should verify only the private function', 3, function (assert) {
@@ -4810,7 +4871,6 @@ var Tests;
         assert.strictEqual(result, true, 'should return true if ItIs returns true');
     });
 
-    // TODO: continue getters and setters from here
     QUnit.test('callBase - set to true after constructor should call the original function', 1, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
@@ -4824,6 +4884,74 @@ var Tests;
 
         // Act
         testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('callBase - set to true after constructor should call the original getter', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = true;
+
+        var originalGetterWasCalled = function () {
+            // Assert
+            assert.ok(true, 'original getter should be called');
+        };
+
+        testObject.onGetterCalled = originalGetterWasCalled;
+
+        // Act
+        testObject.getter;
+    });
+
+    QUnit.test('callBase - set to true after constructor should call the original setter', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = true;
+
+        var originalSetterWasCalled = function () {
+            // Assert
+            assert.ok(true, 'original setter should be called');
+        };
+
+        testObject.onSetterCalled = originalSetterWasCalled;
+
+        // Act
+        testObject.setter = 1;
+    });
+
+    QUnit.test('callBase - set to true after constructor should call the original getter of getter and setter', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = true;
+
+        var originalGetterWasCalled = function () {
+            // Assert
+            assert.ok(true, 'original getter should be called');
+        };
+
+        testObject.onGetterOfGetterAndSetterCalled = originalGetterWasCalled;
+
+        // Act
+        testObject.getterAndSetter;
+    });
+
+    QUnit.test('callBase - set to true after constructor should call the original setter of getter and setter', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = true;
+
+        var originalSetterWasCalled = function () {
+            // Assert
+            assert.ok(true, 'original setter should be called');
+        };
+
+        testObject.onSetterOfGetterAndSetterCalled = originalSetterWasCalled;
+
+        // Act
+        testObject.getterAndSetter = 1;
     });
 
     QUnit.test('callBase - set to false after constructor should not call the original function', 0, function (assert) {
@@ -4841,6 +4969,29 @@ var Tests;
         testObject.noArgumentsFunction();
     });
 
+    QUnit.test('callBase - set to false after constructor should not call the original getters and setters', 0, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = false;
+
+        var shouldNotCall = function () {
+            // Assert
+            assert.ok(false, 'should not be called');
+        };
+
+        testObject.onGetterCalled = shouldNotCall;
+        testObject.onSetterCalled = shouldNotCall;
+        testObject.onGetterOfGetterAndSetterCalled = shouldNotCall;
+        testObject.onSetterOfGetterAndSetterCalled = shouldNotCall;
+
+        // Act
+        testObject.getter;
+        testObject.setter = 1;
+        testObject.getterAndSetter;
+        testObject.getterAndSetter = 1;
+    });
+
     QUnit.test('callBase - set to true should return the original function value', 1, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
@@ -4852,6 +5003,68 @@ var Tests;
 
         // Assert
         assert.strictEqual(result, 1, 'should return the original value');
+    });
+
+    QUnit.test('callBase - set to true should return the original getter value', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = true;
+
+        var getterValue = {};
+        testObject.getterValue = getterValue;
+
+        // Act
+        var result = testObject.getter;
+
+        // Assert
+        assert.strictEqual(result, getterValue, 'should return the correct value');
+    });
+
+    QUnit.test('callBase - set to true should set the setter value', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = true;
+
+        var setterValue = {};
+
+        // Act
+        testObject.setter = setterValue;
+
+        // Assert
+        assert.strictEqual(testObject.setterValue, setterValue, 'should set the correct value');
+    });
+
+    QUnit.test('callBase - set to true should return the original getter of getter and setter value', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = true;
+
+        var getterAndSetterValue = {};
+        testObject.getterAndSetterValue = getterAndSetterValue;
+
+        // Act
+        var result = testObject.getterAndSetter;
+
+        // Assert
+        assert.strictEqual(result, getterAndSetterValue, 'should return the correct value');
+    });
+
+    QUnit.test('callBase - set to true should set the setter of getter and setter value', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = true;
+
+        var getterAndSetterValue = {};
+
+        // Act
+        testObject.getterAndSetter = getterAndSetterValue;
+
+        // Assert
+        assert.strictEqual(testObject.getterAndSetterValue, getterAndSetterValue, 'should set the correct value');
     });
 
     QUnit.test('callBase - set to false should not return the original function value', 1, function (assert) {
@@ -4867,6 +5080,68 @@ var Tests;
         assert.notStrictEqual(result, 1, 'should not return the original value');
     });
 
+    QUnit.test('callBase - set to false should not return the original getter value', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = false;
+
+        var getterValue = {};
+        testObject.getterValue = getterValue;
+
+        // Act
+        var result = testObject.getter;
+
+        // Assert
+        assert.notStrictEqual(result, getterValue, 'should not return the value');
+    });
+
+    QUnit.test('callBase - set to false should not set the setter value', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = true;
+
+        var setterValue = {};
+
+        // Act
+        testObject.setter = setterValue;
+
+        // Assert
+        assert.notStrictEqual(testObject.setterValue, setterValue, 'should not set the value');
+    });
+
+    QUnit.test('callBase - set to false should not return the original getter of getter and setter value', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = false;
+
+        var getterAndSetterValue = {};
+        testObject.getterAndSetterValue = getterAndSetterValue;
+
+        // Act
+        var result = testObject.getterAndSetter;
+
+        // Assert
+        assert.notStrictEqual(result, getterAndSetterValue, 'should not return the correct value');
+    });
+
+    QUnit.test('callBase - set to false should not set the setter of getter and setter value', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = true;
+
+        var getterAndSetterValue = {};
+
+        // Act
+        testObject.getterAndSetter = getterAndSetterValue;
+
+        // Assert
+        assert.notStrictEqual(testObject.getterAndSetterValue, getterAndSetterValue, 'should not set the value');
+    });
+
     QUnit.test('callBase - set to false should return undefined', 1, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
@@ -4880,6 +5155,24 @@ var Tests;
         assert.strictEqual(result, undefined, 'should return undefined');
     });
 
+    QUnit.test('callBase - set to false should return undefined from getters', 1, function (assert) {
+        // Arrange
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+        mole.callBase = false;
+
+        testObject.getterValue = 1;
+        testObject.getterAndSetterValue = 1;
+
+        // Act
+        var result1 = testObject.getter;
+        var result2 = testObject.getterAndSetter;
+
+        // Assert
+        assert.strictEqual(result1, undefined, 'should return undefined');
+        assert.strictEqual(result2, undefined, 'should return undefined');
+    });
+
     QUnit.test('setup - callback - should not call callback if function is not called', 0, function (assert) {
         // Arrange
         var context = this;
@@ -4887,6 +5180,58 @@ var Tests;
         // Act
         context.mole.setup(function (_) {
             return _.noArgumentsFunction();
+        }).callback(function () {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+    });
+
+    QUnit.test('setup - callback - should not call callback if getter is not called', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).callback(function () {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+    });
+
+    QUnit.test('setup - callback - should not call callback if setter is not called', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+    });
+
+    QUnit.test('setup - callback - should not call callback if getter of getter and setter is not called', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(function () {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+    });
+
+    QUnit.test('setup - callback - should not call callback if setter of getter and setter is not called', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
         }).callback(function () {
             // Assert
             assert.ok(false, 'should not call callback');
@@ -4908,6 +5253,66 @@ var Tests;
         context.testObject.noArgumentsFunction();
     });
 
+    QUnit.test('setup - callback - should call callback when getter is called', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.getter;
+    });
+
+    QUnit.test('setup - callback - should call callback when setter is called', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.setter = 1;
+    });
+
+    QUnit.test('setup - callback - should call callback when getter of getter and setter is called', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.getterAndSetter;
+    });
+
+    QUnit.test('setup - callback - should call callback when setter of getter and setter is called', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.getterAndSetter = 1;
+    });
+
     QUnit.test('setup - callback - should not call the original function', 0, function (assert) {
         // Arrange
         var context = this;
@@ -4924,6 +5329,78 @@ var Tests;
 
         // Act
         context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - callback - should not call the original getter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).callback(function () {
+        });
+
+        context.testObject.onGetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.getter;
+    });
+
+    QUnit.test('setup - callback - should not call the original setter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+        });
+
+        context.testObject.onSetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.setter = 1;
+    });
+
+    QUnit.test('setup - callback - should not call the original getter of getter and setter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(function () {
+        });
+
+        context.testObject.onGetterOfGetterAndSetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.getterAndSetter;
+    });
+
+    QUnit.test('setup - callback - should not call the original setter of getter and setter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).callback(function () {
+        });
+
+        context.testObject.onSetterOfGetterAndSetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.getterAndSetter = 1;
     });
 
     QUnit.test('setup - callback - should pass the same parameters', 1, function (assert) {
@@ -4964,6 +5441,40 @@ var Tests;
         context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
     });
 
+    QUnit.test('setup - callback - should pass the same parameters to setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg = 1;
+
+        context.mole.setup(function (_) {
+            return _.setter = It.isAny(Number);
+        }).callback(function (_arg) {
+            // Assert
+            assert.strictEqual(_arg, arg, 'should call with same argument');
+        });
+
+        // Act
+        context.testObject.setter = arg;
+    });
+
+    QUnit.test('setup - callback - should pass the same parameters to setter of getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg = 1;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = It.isAny(Number);
+        }).callback(function (_arg) {
+            // Assert
+            assert.strictEqual(_arg, arg, 'should pass the same argument');
+        });
+
+        // Act
+        context.testObject.getterAndSetter = arg;
+    });
+
     QUnit.test('setup - callback - should not call other original functions', 0, function (assert) {
         // Arrange
         var context = this;
@@ -4981,9 +5492,65 @@ var Tests;
         context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
         context.testObject.manyArgumentsFunction = shouldNotHappen;
         context.testObject.oneArgumentsFunction = shouldNotHappen;
+        context.testObject.onGetterCalled = shouldNotHappen;
+        context.testObject.onSetterCalled = shouldNotHappen;
+        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
+        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
 
         // Act
         context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - callback - should not call other original functions 2', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(function () {
+        });
+
+        var shouldNotHappen = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        context.testObject.onGetterCalled = shouldNotHappen;
+        context.testObject.onSetterCalled = shouldNotHappen;
+        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
+        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
+
+        // Act
+        context.testObject.getterAndSetter;
+    });
+
+    QUnit.test('setup - callback - should not call other original functions 3', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+        });
+
+        var shouldNotHappen = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        context.testObject.manyArgumentsFunction = shouldNotHappen;
+        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        context.testObject.onGetterCalled = shouldNotHappen;
+        context.testObject.onSetterCalled = shouldNotHappen;
+        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
+        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
+
+        // Act
+        context.testObject.setter = 1;
     });
 
     QUnit.test('setup - callback - should not call callbacks on other functions', 0, function (assert) {
@@ -5006,10 +5573,26 @@ var Tests;
         context.mole.setup(function (_) {
             return _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number));
         }).callback(shouldNotHappen);
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).callback(shouldNotHappen);
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(shouldNotHappen);
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(shouldNotHappen);
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).callback(shouldNotHappen);
 
         context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
         context.testObject.manyArgumentsFunction = shouldNotHappen;
         context.testObject.oneArgumentsFunction = shouldNotHappen;
+        context.testObject.onGetterCalled = shouldNotHappen;
+        context.testObject.onSetterCalled = shouldNotHappen;
+        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
+        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
 
         // Act
         context.testObject.noArgumentsFunction();
@@ -5085,6 +5668,102 @@ var Tests;
         context.testObject.noArgumentsFunction();
     });
 
+    QUnit.test('setup - callback - should call all the callbacks when function is called for getter', 4, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.getter;
+    });
+
+    QUnit.test('setup - callback - should call all the callbacks when function is called for setter', 4, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.setter = 1;
+    });
+
+    QUnit.test('setup - callback - should call all the callbacks when function is called for getter of getter and setter', 4, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.getterAndSetter;
+    });
+
+    QUnit.test('setup - callback - should call all the callbacks when function is called for setter of getter and setter', 4, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.getterAndSetter = 1;
+    });
+
     QUnit.test('setup - callback - should pass teh same parameters to all the callbacks when function is called', 4, function (assert) {
         // Arrange
         var context = this;
@@ -5143,6 +5822,147 @@ var Tests;
         }, Times.exact(0)), 'should not effect verify');
     });
 
+    QUnit.test('setup - callback - should not affect verify for getter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).callback(function () {
+        });
+
+        // Assert
+        assert.ok(context.mole.verify(function (_) {
+            return _.getter;
+        }, Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - callback - should not affect verify for setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+        });
+
+        // Assert
+        assert.ok(context.mole.verify(function (_) {
+            return _.setter = 1;
+        }, Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - callback - should not affect verify for getter of getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(function () {
+        });
+
+        // Assert
+        assert.ok(context.mole.verify(function (_) {
+            return _.getterAndSetter;
+        }, Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - callback - should not affect verify for setter of getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).callback(function () {
+        });
+
+        // Assert
+        assert.ok(context.mole.verify(function (_) {
+            return _.getterAndSetter = 1;
+        }, Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - callback - setting setter should not affect getter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).callback(function () {
+        });
+
+        var value = {};
+        context.testObject.getterAndSetterValue = value;
+
+        // Act
+        var result = context.testObject.getterAndSetter;
+
+        // Assert
+        assert.strictEqual(result, value, 'should return the correct value');
+    });
+
+    QUnit.test('setup - callback - setting getter should not affect setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(function () {
+        });
+
+        var value = {};
+
+        // Act
+        context.testObject.getterAndSetter = value;
+
+        // Assert
+        assert.strictEqual(context.testObject.getterAndSetterValue, value, 'should set the correct value');
+    });
+
+    QUnit.test('setup - callback - calling with not matching value should call the original function', 2, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.oneArgumentsFunction(1);
+        }).callback(function () {
+        });
+
+        var arg = {};
+        context.testObject.onOneArgumentsFunctionCalled = function (_arg) {
+            // Assert
+            assert.ok(true, 'should call the original function');
+            assert.strictEqual(_arg, arg, 'should call with the passed value');
+        };
+
+        // Act
+        context.testObject.oneArgumentsFunction(arg);
+    });
+
+    QUnit.test('setup - callback - calling setter with not matching value should call the original setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+        });
+
+        var arg = {};
+        context.testObject.onSetterCalled = function (_arg) {
+            // Assert
+            assert.ok(true, 'should call the original setter');
+            assert.strictEqual(_arg, arg, 'should call with the passed value');
+        };
+
+        // Act
+        context.testObject.setter = arg;
+    });
+
     QUnit.test('setup - returns - should not call the original function', 0, function (assert) {
         // Arrange
         var context = this;
@@ -5158,6 +5978,40 @@ var Tests;
 
         // Act
         context.testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('setup - returns - should not call the original getter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).returns(111);
+
+        context.testObject.onGetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.getter;
+    });
+
+    QUnit.test('setup - returns - should not call the original getter of getter and setter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).returns(111);
+
+        context.testObject.onGetterOfGetterAndSetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.getterAndSetter;
     });
 
     QUnit.test('setup - returns - should not call other original functions', 0, function (assert) {
@@ -5253,6 +6107,38 @@ var Tests;
         assert.strictEqual(result, returnValue, 'should return the configured value');
     });
 
+    QUnit.test('setup - returns - should return the value for getter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var returnValue = {};
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).returns(returnValue);
+
+        // Act
+        var result = context.testObject.getter;
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the configured value');
+    });
+
+    QUnit.test('setup - returns - should return the value for getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var returnValue = {};
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).returns(returnValue);
+
+        // Act
+        var result = context.testObject.getterAndSetter;
+
+        // Assert
+        assert.strictEqual(result, returnValue, 'should return the configured value');
+    });
+
     QUnit.test('setup - returns - should return the last returns value', 1, function (assert) {
         // Arrange
         var context = this;
@@ -5294,6 +6180,40 @@ var Tests;
         assert.ok(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - returns - setting getter should not affect setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var returnValue = {};
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).returns(returnValue);
+
+        var valueToSet = {};
+
+        // Act
+        context.testObject.getterAndSetter = valueToSet;
+
+        // Assert
+        assert.strictEqual(context.testObject.getterAndSetterValue, returnValue, 'should set the configured value');
+    });
+
+    QUnit.test('setup - returns - calling with not matching argument should return the original', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var returnValue = {};
+        context.mole.setup(function (_) {
+            return _.oneArgumentsFunction(1);
+        }).returns(returnValue);
+
+        // Act
+        var result = context.testObject.oneArgumentsFunction(2);
+
+        // Assert
+        assert.notStrictEqual(result, returnValue, 'should not return the configured value');
     });
 
     QUnit.test('setup - returnsInOrder - should not call the original function', 0, function (assert) {
@@ -5461,6 +6381,40 @@ var Tests;
         assert.ok(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - returnsInOrder - should return the last returns values for getter', 4, function (assert) {
+        // Arrange
+        var context = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+        var returnValue5 = {};
+        var returnValue6 = {};
+        var returnValue7 = {};
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).returns(returnValue1);
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).returnsInOrder([returnValue2, returnValue3, returnValue4]);
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).returnsInOrder([returnValue5, returnValue6, returnValue7]);
+
+        // Act
+        var result1 = context.testObject.getter;
+        var result2 = context.testObject.getter;
+        var result3 = context.testObject.getter;
+        var result4 = context.testObject.getter;
+
+        // Assert
+        assert.strictEqual(result1, returnValue5, 'should return the last returnValue5');
+        assert.strictEqual(result2, returnValue6, 'should return the last returnValue6');
+        assert.strictEqual(result3, returnValue7, 'should return the last returnValue7');
+        assert.strictEqual(result4, undefined, 'should return undefined');
     });
 
     QUnit.test('setup - lazyReturns - should not call returnFunction if function is not called', 0, function (assert) {
@@ -5689,6 +6643,34 @@ var Tests;
         assert.ok(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - lazyReturns - should return the last returnFunction return of getter of getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).lazyReturns(function () {
+            return returnValue1;
+        }).lazyReturns(function () {
+            return returnValue2;
+        }).lazyReturns(function () {
+            return returnValue3;
+        }).lazyReturns(function () {
+            return returnValue4;
+        });
+
+        // Act
+        var result = context.testObject.getterAndSetter;
+
+        // Assert
+        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
     });
 
     QUnit.test('setup - lazyReturnsInOrder - should not call returnFunction if function is not called', 0, function (assert) {
@@ -5982,6 +6964,49 @@ var Tests;
         }, Times.exact(0)), 'should not effect verify');
     });
 
+    QUnit.test('setup - lazyReturnsInOrder - should return the last returnFunction return values of getter of getter and setter', 4, function (assert) {
+        // Arrange
+        var context = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+        var returnValue5 = {};
+        var returnValue6 = {};
+        var returnValue7 = {};
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).lazyReturns(function () {
+            return returnValue1;
+        }).lazyReturns(function () {
+            return returnValue2;
+        }).lazyReturnsInOrder([function () {
+                return returnValue3;
+            }, function () {
+                return returnValue4;
+            }]).lazyReturnsInOrder([function () {
+                return returnValue5;
+            }, function () {
+                return returnValue6;
+            }, function () {
+                return returnValue7;
+            }]);
+
+        // Act
+        var result1 = context.testObject.getterAndSetter;
+        var result2 = context.testObject.getterAndSetter;
+        var result3 = context.testObject.getterAndSetter;
+        var result4 = context.testObject.getterAndSetter;
+
+        // Assert
+        assert.strictEqual(result1, returnValue5, 'should return the last returnValue5');
+        assert.strictEqual(result2, returnValue6, 'should return the last returnValue6');
+        assert.strictEqual(result3, returnValue7, 'should return the last returnValue7');
+        assert.strictEqual(result4, undefined, 'should return the last returnValue');
+    });
+
     QUnit.test('setup - throws - should not call the original function', 0, function (assert) {
         // Arrange
         var context = this;
@@ -6121,6 +7146,86 @@ var Tests;
         }
     });
 
+    QUnit.test('setup - throws - should throw the last error for getter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError1 = {};
+        var thrownError2 = {};
+        var thrownError3 = {};
+        var thrownError4 = {};
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).throws(thrownError1).throws(thrownError2).throws(thrownError3).throws(thrownError4);
+
+        try  {
+            context.testObject.getter;
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setup - throws - should throw the last error for setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError1 = {};
+        var thrownError2 = {};
+        var thrownError3 = {};
+        var thrownError4 = {};
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).throws(thrownError1).throws(thrownError2).throws(thrownError3).throws(thrownError4);
+
+        try  {
+            context.testObject.setter = 1;
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setup - throws - should throw the last error for getter of getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError1 = {};
+        var thrownError2 = {};
+        var thrownError3 = {};
+        var thrownError4 = {};
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).throws(thrownError1).throws(thrownError2).throws(thrownError3).throws(thrownError4);
+
+        try  {
+            context.testObject.getterAndSetter;
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setup - throws - should throw the last error for setter of getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError1 = {};
+        var thrownError2 = {};
+        var thrownError3 = {};
+        var thrownError4 = {};
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).throws(thrownError1).throws(thrownError2).throws(thrownError3).throws(thrownError4);
+
+        try  {
+            context.testObject.getterAndSetter = 1;
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+        }
+    });
+
     QUnit.test('setup - throws - should not affect verify', 1, function (assert) {
         // Arrange
         var context = this;
@@ -6134,6 +7239,89 @@ var Tests;
         assert.ok(context.mole.verify(function (_) {
             return _.noArgumentsFunction();
         }, Times.exact(0)), 'should not effect verify');
+    });
+
+    QUnit.test('setup - throws - setting getter should not affect setter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError1 = {};
+        var thrownError2 = {};
+        var thrownError3 = {};
+        var thrownError4 = {};
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).throws(thrownError1).throws(thrownError2).throws(thrownError3).throws(thrownError4);
+
+        try  {
+            context.testObject.getterAndSetter = 1;
+        } catch (e) {
+            assert.ok(false, 'should not throw');
+        }
+    });
+
+    QUnit.test('setup - throws - setting setter should not affect getter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError1 = {};
+        var thrownError2 = {};
+        var thrownError3 = {};
+        var thrownError4 = {};
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).throws(thrownError1).throws(thrownError2).throws(thrownError3).throws(thrownError4);
+
+        try  {
+            context.testObject.getterAndSetter;
+        } catch (e) {
+            assert.ok(false, 'should not throw');
+        }
+    });
+
+    QUnit.test('setup - throws - calling setter with not matching argument should not throw', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).throws({});
+
+        try  {
+            context.testObject.setter = 2;
+        } catch (e) {
+            assert.ok(false, 'should not throw');
+        }
+    });
+
+    QUnit.test('setup - throws - calling setter of getter and setter with not matching argument should not throw', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).throws({});
+
+        try  {
+            context.testObject.getterAndSetter = 2;
+        } catch (e) {
+            assert.ok(false, 'should not throw');
+        }
+    });
+
+    QUnit.test('setup - throws - calling function with not matching argument should not throw', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setup(function (_) {
+            return _.oneArgumentsFunction(1);
+        }).throws({});
+
+        try  {
+            context.testObject.oneArgumentsFunction(2);
+        } catch (e) {
+            assert.ok(false, 'should not throw');
+        }
     });
 
     QUnit.test('setup - lazyThrows - should not call returnErrorFunction if function is not called', 0, function (assert) {
@@ -6712,6 +7900,50 @@ var Tests;
         });
     });
 
+    QUnit.test('setupPrivate - callback - should not call callback if getter is not called', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_NAME).callback(function () {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+    });
+
+    QUnit.test('setupPrivate - callback - should not call callback if setter is not called', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, 1).callback(function () {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+    });
+
+    QUnit.test('setupPrivate - callback - should not call callback if getter of geter&setter is not called', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(function () {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+    });
+
+    QUnit.test('setupPrivate - callback - should not call callback if setter of geter&setter is not called', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(function () {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+    });
+
     QUnit.test('setupPrivate - callback - should call callback when function is called', 1, function (assert) {
         // Arrange
         var context = this;
@@ -6723,6 +7955,84 @@ var Tests;
 
         // Act
         context.testObject.callPrivateFunction(null);
+    });
+
+    QUnit.test('setupPrivate - callback - should call callback when getter is called', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_NAME).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.callPrivateGetter();
+    });
+
+    QUnit.test('setupPrivate - callback - should call callback when setter is called', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, 1).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.callPrivateSetter(1);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call callback when setter is called with wrong parameter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, 1).callback(function () {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+
+        // Act
+        context.testObject.callPrivateSetter(2);
+    });
+
+    QUnit.test('setupPrivate - callback - should call callback when getter of getter&setter is called', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.callPrivateGetterOfGetterAndSetter();
+    });
+
+    QUnit.test('setupPrivate - callback - should call callback when setter of getter&setter is called', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(function () {
+            // Assert
+            assert.ok(true, 'should call callback');
+        });
+
+        // Act
+        context.testObject.callPrivateSetterOfGetterAndSetter(1);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call callback when setter of getter&setter is called with wrong parameter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(function () {
+            // Assert
+            assert.ok(false, 'should not call callback');
+        });
+
+        // Act
+        context.testObject.callPrivateSetterOfGetterAndSetter(2);
     });
 
     QUnit.test('setupPrivate - callback - should not call the original function', 0, function (assert) {
@@ -6739,6 +8049,102 @@ var Tests;
 
         // Act
         context.testObject.callPrivateFunction(null);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call the original getter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_NAME).callback(function () {
+        });
+
+        context.testObject.onPrivateGetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.callPrivateGetter();
+    });
+
+    QUnit.test('setupPrivate - callback - should not call the original setter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, 1).callback(function () {
+        });
+
+        context.testObject.onPrivateSetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.callPrivateSetter(1);
+    });
+
+    QUnit.test('setupPrivate - callback - should call the original setter if called with other argument', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, 1).callback(function () {
+        });
+
+        context.testObject.onPrivateSetterCalled = function () {
+            // Assert
+            assert.ok(true, 'should call the original setter');
+        };
+
+        // Act
+        context.testObject.callPrivateSetter(2);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call the original getter of getter and setter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(function () {
+        });
+
+        context.testObject.onPrivateGetterOfGetterAndSetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.callPrivateGetterOfGetterAndSetter();
+    });
+
+    QUnit.test('setupPrivate - callback - should not call the original setter of getter and setter', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(function () {
+        });
+
+        context.testObject.onPrivateSetterOfGetterAndSetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not call the original function');
+        };
+
+        // Act
+        context.testObject.callPrivateSetterOfGetterAndSetter(1);
+    });
+
+    QUnit.test('setupPrivate - callback - should call the original setter of getter and setter if called with other argument', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(function () {
+        });
+
+        context.testObject.onPrivateSetterOfGetterAndSetterCalled = function () {
+            // Assert
+            assert.ok(true, 'should call the original setter');
+        };
+
+        // Act
+        context.testObject.callPrivateSetterOfGetterAndSetter(2);
     });
 
     QUnit.test('setupPrivate - callback - should pass the same parameters', 1, function (assert) {
@@ -6769,6 +8175,36 @@ var Tests;
 
         // Act
         context.testObject.callPrivateFunction(arg1);
+    });
+
+    QUnit.test('setupPrivate - callback - should pass the same parameters to setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg1 = 2;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, 2).callback(function (_arg1) {
+            // Assert
+            assert.strictEqual(_arg1, arg1, 'should return same argument');
+        });
+
+        // Act
+        context.testObject.callPrivateSetter(arg1);
+    });
+
+    QUnit.test('setupPrivate - callback - should pass the same parameters to setter of getter&setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg1 = 2;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 2).callback(function (_arg1) {
+            // Assert
+            assert.strictEqual(_arg1, arg1, 'should return same argument');
+        });
+
+        // Act
+        context.testObject.callPrivateSetterOfGetterAndSetter(arg1);
     });
 
     QUnit.test('setupPrivate - callback - should not call if not matching', 0, function (assert) {
@@ -6814,6 +8250,36 @@ var Tests;
 
         // Act
         context.testObject.callPrivateFunction(undefined);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call setter if not matching', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg = 'some text';
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, It.isAny(Number)).callback(function () {
+            // Assert
+            assert.ok(false, 'should not be called');
+        });
+
+        // Act
+        context.testObject.callPrivateSetter(arg);
+    });
+
+    QUnit.test('setupPrivate - callback - should not call setter of getter&setter if not matching', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        var arg = 'some text';
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, It.isAny(Number)).callback(function () {
+            // Assert
+            assert.ok(false, 'should not be called');
+        });
+
+        // Act
+        context.testObject.callPrivateSetterOfGetterAndSetter(arg);
     });
 
     QUnit.test('setupPrivate - callback - should not call other original functions', 0, function (assert) {
@@ -6927,7 +8393,7 @@ var Tests;
         context.testObject.callPrivateFunction(1);
     });
 
-    QUnit.test('setupPrivate - callback - should pass teh same parameters to all the callbacks when function is called', 4, function (assert) {
+    QUnit.test('setupPrivate - callback - should pass the same parameters to all the callbacks when function is called', 4, function (assert) {
         // Arrange
         var context = this;
 
@@ -7059,6 +8525,46 @@ var Tests;
 
         // Act
         var result = context.testObject.callPrivateFunction(1);
+
+        // Assert
+        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
+    });
+
+    QUnit.test('setupPrivate - returns - should return the last getter value', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_NAME).returns(returnValue1);
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_NAME).returns(returnValue2);
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_NAME).returns(returnValue3);
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_NAME).returns(returnValue4);
+
+        // Act
+        var result = context.testObject.callPrivateGetter();
+
+        // Assert
+        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
+    });
+
+    QUnit.test('setupPrivate - returns - should return the last getter of getter and setter value', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var returnValue1 = {};
+        var returnValue2 = {};
+        var returnValue3 = {};
+        var returnValue4 = {};
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue1);
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue2);
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue3);
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue4);
+
+        // Act
+        var result = context.testObject.callPrivateGetterOfGetterAndSetter();
 
         // Assert
         assert.strictEqual(result, returnValue4, 'should return the last returnValue');
@@ -7251,6 +8757,23 @@ var Tests;
         assert.strictEqual(result, returnValue4, 'should return the last returnValue');
     });
 
+    QUnit.test('setupPrivate - lazyReturns - setup getter should not affect setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_FUNCTION_NAME).lazyReturns(function () {
+            return 1;
+        });
+
+        var value = {};
+
+        // Act
+        context.testObject.callPrivateSetterOfGetterAndSetter(value);
+
+        // Assert
+        assert.strictEqual(context.testObject.privateGetterAndSetterValue, value, 'should set the value');
+    });
+
     QUnit.test('setupPrivate - throws - should not call the original function', 0, function (assert) {
         // Arrange
         var context = this;
@@ -7357,6 +8880,126 @@ var Tests;
         } catch (error) {
             // Assert
             assert.strictEqual(error, thrownError, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should throw the error for getter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError = {};
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_NAME).throws(thrownError);
+
+        try  {
+            context.testObject.callPrivateGetter();
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should throw the error for setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError = {};
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, 1).throws(thrownError);
+
+        try  {
+            context.testObject.callPrivateSetter(1);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should not throw the error for setter if arguments dont match', 0, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError = {};
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, 1).throws(thrownError);
+
+        try  {
+            context.testObject.callPrivateSetter(2);
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should throw the error for getter of getter&setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError = {};
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).throws(thrownError);
+
+        try  {
+            context.testObject.callPrivateGetterOfGetterAndSetter();
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should throw the error for setter of getter&setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError = {};
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
+
+        try  {
+            context.testObject.callPrivateSetterOfGetterAndSetter(1);
+        } catch (error) {
+            // Assert
+            assert.strictEqual(error, thrownError, 'should throw the configured error');
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - should not throw the error for setter of getter&setter if arguments dont match', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError = {};
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
+
+        try  {
+            context.testObject.callPrivateSetterOfGetterAndSetter(2);
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - setup getter should not throw on setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError = {};
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).throws(thrownError);
+
+        try  {
+            context.testObject.callPrivateSetterOfGetterAndSetter(2);
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('setupPrivate - throws - setup setter should not throw on getter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var thrownError = {};
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
+
+        try  {
+            context.testObject.callPrivateGetterOfGetterAndSetter();
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
         }
     });
 
@@ -7544,6 +9187,46 @@ var Tests;
         context.testObject.callPrivateFunction(1);
     });
 
+    QUnit.test('setupPrivate - mix - if both setups match should call both for setter', 4, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, It.isAny(Number)).lazyReturns(function () {
+            assert.ok(true, 'should call');
+        }).returns('return value').callback(function () {
+            assert.ok(true, 'should call');
+        });
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_SETTER_NAME, 1).lazyReturns(function () {
+            assert.ok(true, 'should call');
+        }).returns('return value').callback(function () {
+            assert.ok(true, 'should call');
+        });
+
+        // Act
+        context.testObject.callPrivateSetter(1);
+    });
+
+    QUnit.test('setupPrivate - mix - if both setups match should call both for setter of getter and setter', 4, function (assert) {
+        // Arrange
+        var context = this;
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, It.isAny(Number)).lazyReturns(function () {
+            assert.ok(true, 'should call');
+        }).returns('return value').callback(function () {
+            assert.ok(true, 'should call');
+        });
+
+        context.mole.setupPrivate(Tests.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).lazyReturns(function () {
+            assert.ok(true, 'should call');
+        }).returns('return value').callback(function () {
+            assert.ok(true, 'should call');
+        });
+
+        // Act
+        context.testObject.callPrivateSetterOfGetterAndSetter(1);
+    });
+
     QUnit.test('setupPrivate - mix - if both setups match should return from the last', 1, function (assert) {
         // Arrange
         var context = this;
@@ -7652,7 +9335,63 @@ var Tests;
         }
     });
 
-    QUnit.test('isStrict - true - has callbeck setup should call the callback and not throw error', 1, function (assert) {
+    QUnit.test('isStrict - true - no setup for getter should throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        try  {
+            // Act
+            context.testObject.getter;
+        } catch (error) {
+            // Assert
+            assert.ok(true, 'should throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - no setup for setter should throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        try  {
+            // Act
+            context.testObject.setter = 1;
+        } catch (error) {
+            // Assert
+            assert.ok(true, 'should throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - no setup for getter of getter and setter should throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        try  {
+            // Act
+            context.testObject.getterAndSetter;
+        } catch (error) {
+            // Assert
+            assert.ok(true, 'should throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - no setup for setter of getter and setter should throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        try  {
+            // Act
+            context.testObject.getterAndSetter = 1;
+        } catch (error) {
+            // Assert
+            assert.ok(true, 'should throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - has callback setup should call the callback and not throw error', 1, function (assert) {
         // Arrange
         var context = this;
         context.mole.isStrict = true;
@@ -7669,6 +9408,143 @@ var Tests;
         } catch (error) {
             // Assert
             assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - getter has callback setup should call the callback and not throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        context.mole.setup(function (_) {
+            return _.getter;
+        }).callback(function () {
+            assert.ok(true, 'should call the setup');
+        });
+
+        try  {
+            // Act
+            context.testObject.getter;
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - setter has callback setup should call the callback and not throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+            assert.ok(true, 'should call the setup');
+        });
+
+        try  {
+            // Act
+            context.testObject.setter = 1;
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - getter of getter&setter has callback setup should call the callback and not throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(function () {
+            assert.ok(true, 'should call the setup');
+        });
+
+        try  {
+            // Act
+            context.testObject.getterAndSetter;
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - setter of getter&setter has callback setup should call the callback and not throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).callback(function () {
+            assert.ok(true, 'should call the setup');
+        });
+
+        try  {
+            // Act
+            context.testObject.getterAndSetter = 1;
+        } catch (error) {
+            // Assert
+            assert.ok(false, 'should not throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - has callback setup  for other argument should throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        context.mole.setup(function (_) {
+            return _.oneArgumentsFunction(1);
+        }).callback(function () {
+        });
+
+        try  {
+            // Act
+            context.testObject.oneArgumentsFunction(2);
+        } catch (error) {
+            // Assert
+            assert.ok(true, 'should throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - setter has callback setup for other argument should throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        context.mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+        });
+
+        try  {
+            // Act
+            context.testObject.setter = 2;
+        } catch (error) {
+            // Assert
+            assert.ok(true, 'should throw error');
+        }
+    });
+
+    QUnit.test('isStrict - true - setter of getter&setter has callback setup for other argument should throw error', 1, function (assert) {
+        // Arrange
+        var context = this;
+        context.mole.isStrict = true;
+
+        context.mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).callback(function () {
+        });
+
+        try  {
+            // Act
+            context.testObject.getterAndSetter = 2;
+        } catch (error) {
+            // Assert
+            assert.ok(true, 'should throw error');
         }
     });
 
@@ -7891,6 +9767,94 @@ var Tests;
         testObject.noArgumentsFunction();
     });
 
+    QUnit.test('dispose - before dispose should not call the original getter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+
+        testObject.onGetterCalled = function () {
+            assert.ok(false, 'should not call original function');
+        };
+
+        mole.setup(function (_) {
+            return _.getter;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call the setup');
+        });
+
+        // Act
+        testObject.getter;
+    });
+
+    QUnit.test('dispose - before dispose should not call the original setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+
+        testObject.onSetterCalled = function () {
+            assert.ok(false, 'should not call original function');
+        };
+
+        mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call the setup');
+        });
+
+        // Act
+        testObject.setter = 1;
+    });
+
+    QUnit.test('dispose - before dispose should not call the original getter of getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+
+        testObject.onGetterOfGetterAndSetterCalled = function () {
+            assert.ok(false, 'should not call original function');
+        };
+
+        mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call the setup');
+        });
+
+        // Act
+        testObject.getterAndSetter;
+    });
+
+    QUnit.test('dispose - before dispose should not call the original setter of getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+
+        testObject.onSetterOfGetterAndSetterCalled = function () {
+            assert.ok(false, 'should not call original function');
+        };
+
+        mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).callback(function () {
+            // Assert
+            assert.ok(true, 'should call the setup');
+        });
+
+        // Act
+        testObject.getterAndSetter = 1;
+    });
+
     QUnit.test('dispose - should call the original function', 1, function (assert) {
         // Arrange
         var context = this;
@@ -7912,6 +9876,98 @@ var Tests;
         // Act
         mole.dispose();
         testObject.noArgumentsFunction();
+    });
+
+    QUnit.test('dispose - should call the original getter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+
+        testObject.onGetterCalled = function () {
+            // Assert
+            assert.ok(true, 'should call original function');
+        };
+
+        mole.setup(function (_) {
+            return _.getter;
+        }).callback(function () {
+            assert.ok(false, 'should not call the setup');
+        });
+
+        // Act
+        mole.dispose();
+        testObject.getter;
+    });
+
+    QUnit.test('dispose - should call the original setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+
+        testObject.onSetterCalled = function () {
+            // Assert
+            assert.ok(true, 'should call original function');
+        };
+
+        mole.setup(function (_) {
+            return _.setter = 1;
+        }).callback(function () {
+            assert.ok(false, 'should not call the setup');
+        });
+
+        // Act
+        mole.dispose();
+        testObject.setter = 1;
+    });
+
+    QUnit.test('dispose - should call the original getter of getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+
+        testObject.onGetterOfGetterAndSetterCalled = function () {
+            // Assert
+            assert.ok(true, 'should call original function');
+        };
+
+        mole.setup(function (_) {
+            return _.getterAndSetter;
+        }).callback(function () {
+            assert.ok(false, 'should not call the setup');
+        });
+
+        // Act
+        mole.dispose();
+        testObject.getterAndSetter;
+    });
+
+    QUnit.test('dispose - should call the original setter of getter and setter', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject = new Tests.TestObject();
+        var mole = new Mole(testObject);
+
+        testObject.onSetterOfGetterAndSetterCalled = function () {
+            // Assert
+            assert.ok(true, 'should call original function');
+        };
+
+        mole.setup(function (_) {
+            return _.getterAndSetter = 1;
+        }).callback(function () {
+            assert.ok(false, 'should not call the setup');
+        });
+
+        // Act
+        mole.dispose();
+        testObject.getterAndSetter = 1;
     });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=MoleTest.js.map

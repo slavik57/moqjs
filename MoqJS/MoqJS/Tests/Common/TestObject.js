@@ -97,7 +97,70 @@ var Tests;
 
             return 1;
         };
+
+        TestObject.prototype.callPrivateGetter = function () {
+            return this._privateGetter;
+        };
+
+        TestObject.prototype.callPrivateSetter = function (value) {
+            this._privateSetter = value;
+        };
+
+        TestObject.prototype.callPrivateGetterOfGetterAndSetter = function () {
+            return this._privateGetterAndSetter;
+        };
+
+        TestObject.prototype.callPrivateSetterOfGetterAndSetter = function (value) {
+            this._privateGetterAndSetter = value;
+        };
+
+        Object.defineProperty(TestObject.prototype, "_privateGetter", {
+            get: function () {
+                if (this.onPrivateGetterCalled) {
+                    this.onPrivateGetterCalled();
+                }
+
+                return this.privateGetterValue;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        Object.defineProperty(TestObject.prototype, "_privateSetter", {
+            set: function (value) {
+                this.privateSetterValue = value;
+
+                if (this.onPrivateSetterCalled) {
+                    this.onPrivateSetterCalled(value);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        Object.defineProperty(TestObject.prototype, "_privateGetterAndSetter", {
+            get: function () {
+                if (this.onPrivateGetterOfGetterAndSetterCalled) {
+                    this.onPrivateGetterOfGetterAndSetterCalled();
+                }
+
+                return this.privateGetterAndSetterValue;
+            },
+            set: function (value) {
+                this.privateGetterAndSetterValue = value;
+
+                if (this.onPrivateSetterOfGetterAndSetterCalled) {
+                    this.onPrivateSetterOfGetterAndSetterCalled(value);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+
         TestObject.PRIVATE_FUNCTION_NAME = '_privateFunction';
+        TestObject.PRIVATE_GETTER_NAME = '_privateGetter';
+        TestObject.PRIVATE_SETTER_NAME = '_privateSetter';
+        TestObject.PRIVATE_GETTER_AND_SETTER_NAME = '_privateGetterAndSetter';
         return TestObject;
     })();
     Tests.TestObject = TestObject;

@@ -3,6 +3,9 @@
 module Tests {
     export class TestObject {
         public static PRIVATE_FUNCTION_NAME = '_privateFunction';
+        public static PRIVATE_GETTER_NAME = '_privateGetter';
+        public static PRIVATE_SETTER_NAME = '_privateSetter';
+        public static PRIVATE_GETTER_AND_SETTER_NAME = '_privateGetterAndSetter';
 
         public static staticFunctionCalled: () => void;
         public onNoArgumentsFunctionCalled: () => void;
@@ -16,10 +19,18 @@ module Tests {
         public onGetterOfGetterAndSetterCalled: () => void;
         public onSetterOfGetterAndSetterCalled: (value: any) => void;
 
+        public onPrivateGetterCalled: () => void;
+        public onPrivateSetterCalled: (value: any) => void;
+        public onPrivateGetterOfGetterAndSetterCalled: () => void;
+        public onPrivateSetterOfGetterAndSetterCalled: (value: any) => void;
 
         public getterValue: any;
         public setterValue: any;
         public getterAndSetterValue: any;
+
+        public privateGetterValue: any;
+        public privateSetterValue: any;
+        public privateGetterAndSetterValue: any;
 
         public get getter() {
             if (this.onGetterCalled) {
@@ -95,6 +106,54 @@ module Tests {
             }
 
             return 1;
+        }
+
+        public callPrivateGetter() {
+            return this._privateGetter;
+        }
+
+        public callPrivateSetter(value: any) {
+            this._privateSetter = value;
+        }
+
+        public callPrivateGetterOfGetterAndSetter() {
+            return this._privateGetterAndSetter;
+        }
+
+        public callPrivateSetterOfGetterAndSetter(value: any) {
+            this._privateGetterAndSetter = value;
+        }
+
+        private get _privateGetter() {
+            if (this.onPrivateGetterCalled) {
+                this.onPrivateGetterCalled();
+            }
+
+            return this.privateGetterValue;
+        }
+
+        private set _privateSetter(value: any) {
+            this.privateSetterValue = value;
+
+            if (this.onPrivateSetterCalled) {
+                this.onPrivateSetterCalled(value);
+            }
+        }
+
+        private get _privateGetterAndSetter() {
+            if (this.onPrivateGetterOfGetterAndSetterCalled) {
+                this.onPrivateGetterOfGetterAndSetterCalled();
+            }
+
+            return this.privateGetterAndSetterValue;
+        }
+
+        private set _privateGetterAndSetter(value: any) {
+            this.privateGetterAndSetterValue = value;
+
+            if (this.onPrivateSetterOfGetterAndSetterCalled) {
+                this.onPrivateSetterOfGetterAndSetterCalled(value);
+            }
         }
     }
 
