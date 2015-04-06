@@ -7889,6 +7889,58 @@ var Tests;
         }
     });
 
+    QUnit.test('setup - mix - setup for one object should not affect other', 5, function (assert) {
+        // Arrange
+        var context = this;
+
+        var testObject1 = new Tests.TestObject();
+        var testObject2 = new Tests.TestObject();
+
+        var mole1 = new Mole(testObject1);
+        var mole2 = new Mole(testObject2);
+
+        var arg1 = 10;
+        var returnsValue = 1;
+        mole1.setup(function (_) {
+            return _.getter;
+        }).returns(returnsValue);
+        mole1.setup(function (_) {
+            return _.oneArgumentsFunction(It.isAny(Number));
+        }).callback(function (_arg) {
+            // Assert
+            assert.strictEqual(_arg, arg1, 'should call with correct argument');
+        });
+
+        var arg2 = 20;
+        testObject2.onOneArgumentsFunctionCalled = function (_arg) {
+            // Assert
+            assert.strictEqual(_arg, arg2, 'should call with correct argument');
+        };
+
+        testObject1.onGetterCalled = function () {
+            // Assert
+            assert.ok(false, 'should not be called');
+        };
+
+        testObject2.onGetterCalled = function () {
+            // Assert
+            assert.ok(true, 'should be called');
+        };
+
+        var value = {};
+        testObject2.getterValue = value;
+
+        // Act
+        var result1 = testObject1.getter;
+        var result2 = testObject2.getter;
+        testObject1.oneArgumentsFunction(arg1);
+        testObject2.oneArgumentsFunction(arg2);
+
+        // Assert
+        assert.strictEqual(result1, returnsValue, 'should return the correct value');
+        assert.strictEqual(result2, value, 'should return the correct value');
+    });
+
     QUnit.test('setupPrivate - callback - should not call callback if function is not called', 0, function (assert) {
         // Arrange
         var context = this;
