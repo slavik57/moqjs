@@ -69,13 +69,29 @@ module moqJS {
             return new FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         }
 
-        public setupPrivate(privateFunctionName: string, ...functionArguments: any[]): IFunctionSetup {
-            var functionCall = (object: T) => {
-                var privateFunction: Function = object[privateFunctionName];
-                privateFunction.apply(object, functionArguments);
-            };
+        public setupPrivate(privatePropertyName: string, ...functionArguments: any[]): IFunctionSetup {
+            var descriptor = this._getPropertyDescriptor(this.object, privatePropertyName);
 
-            return this.setup(functionCall);
+            if (descriptor.value) {
+                return this.setup((object: T) => {
+                    var privateFunction: Function = object[privatePropertyName];
+                    privateFunction.apply(object, functionArguments);
+                });
+            }
+
+            if (functionArguments.length < 1 && descriptor.get) {
+                return this.setup((object: T) => {
+                    descriptor.get.apply(object, functionArguments);
+                });
+            }
+
+            if (functionArguments.length === 1 && descriptor.set) {
+                return this.setup((object: T) => {
+                    descriptor.set.apply(object, functionArguments);
+                });
+            }
+
+            throw 'Should be an existing function/getter/setter with appropriate number of arguments';
         }
 
         public verify(functionCall: (object: T) => any, times?: ITimes): boolean {
@@ -112,7 +128,9 @@ module moqJS {
             for (var i = 0; i < propertyNames.length; i++) {
                 try {
                     var propertyName = propertyNames[i];
-                    var propertyValue = this.object[propertyName];
+                    var descriptor = this._getPropertyDescriptor(this.object, propertyName);
+
+                    var propertyValue = descriptor.value;
 
                     if (typeof (propertyValue) != "function") {
                         continue;
@@ -187,17 +205,7 @@ module moqJS {
         }
 
         private _setProperty(obj: any, propertyName: string, propertyDescriptor) {
-            var descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
-            if (descriptor) {
-                Object.defineProperty(obj, propertyName, propertyDescriptor);
-                return;
-            }
-
-            if (!obj.__proto__) {
-                return;
-            }
-
-            return this._setProperty(obj.__proto__, propertyName, propertyDescriptor);
+            Object.defineProperty(obj, propertyName, propertyDescriptor);
         }
 
         private _setPropertyGetterProxy(propertyName: string, descriptor: PropertyDescriptor) {

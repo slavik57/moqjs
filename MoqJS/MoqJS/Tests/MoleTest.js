@@ -5100,7 +5100,7 @@ var Tests;
         // Arrange
         var testObject = new Tests.TestObject();
         var mole = new Mole(testObject);
-        mole.callBase = true;
+        mole.callBase = false;
 
         var setterValue = {};
 
@@ -5131,7 +5131,7 @@ var Tests;
         // Arrange
         var testObject = new Tests.TestObject();
         var mole = new Mole(testObject);
-        mole.callBase = true;
+        mole.callBase = false;
 
         var getterAndSetterValue = {};
 
@@ -5155,7 +5155,7 @@ var Tests;
         assert.strictEqual(result, undefined, 'should return undefined');
     });
 
-    QUnit.test('callBase - set to false should return undefined from getters', 1, function (assert) {
+    QUnit.test('callBase - set to false should return undefined from getters', 2, function (assert) {
         // Arrange
         var testObject = new Tests.TestObject();
         var mole = new Mole(testObject);
@@ -5943,7 +5943,7 @@ var Tests;
         context.testObject.oneArgumentsFunction(arg);
     });
 
-    QUnit.test('setup - callback - calling setter with not matching value should call the original setter', 1, function (assert) {
+    QUnit.test('setup - callback - calling setter with not matching value should call the original setter', 2, function (assert) {
         // Arrange
         var context = this;
 
@@ -6197,7 +6197,7 @@ var Tests;
         context.testObject.getterAndSetter = valueToSet;
 
         // Assert
-        assert.strictEqual(context.testObject.getterAndSetterValue, returnValue, 'should set the configured value');
+        assert.strictEqual(context.testObject.getterAndSetterValue, valueToSet, 'should set the configured value');
     });
 
     QUnit.test('setup - returns - calling with not matching argument should return the original', 1, function (assert) {
@@ -8958,7 +8958,7 @@ var Tests;
         }
     });
 
-    QUnit.test('setupPrivate - throws - should not throw the error for setter of getter&setter if arguments dont match', 1, function (assert) {
+    QUnit.test('setupPrivate - throws - should not throw the error for setter of getter&setter if arguments dont match', 0, function (assert) {
         // Arrange
         var context = this;
 
@@ -8973,7 +8973,7 @@ var Tests;
         }
     });
 
-    QUnit.test('setupPrivate - throws - setup getter should not throw on setter', 1, function (assert) {
+    QUnit.test('setupPrivate - throws - setup getter should not throw on setter', 0, function (assert) {
         // Arrange
         var context = this;
 
@@ -8988,7 +8988,7 @@ var Tests;
         }
     });
 
-    QUnit.test('setupPrivate - throws - setup setter should not throw on getter', 1, function (assert) {
+    QUnit.test('setupPrivate - throws - setup setter should not throw on getter', 0, function (assert) {
         // Arrange
         var context = this;
 

@@ -72,17 +72,33 @@ var moqJS;
             return new moqJS.FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         };
 
-        Mole.prototype.setupPrivate = function (privateFunctionName) {
+        Mole.prototype.setupPrivate = function (privatePropertyName) {
             var functionArguments = [];
             for (var _i = 0; _i < (arguments.length - 1); _i++) {
                 functionArguments[_i] = arguments[_i + 1];
             }
-            var functionCall = function (object) {
-                var privateFunction = object[privateFunctionName];
-                privateFunction.apply(object, functionArguments);
-            };
+            var descriptor = this._getPropertyDescriptor(this.object, privatePropertyName);
 
-            return this.setup(functionCall);
+            if (descriptor.value) {
+                return this.setup(function (object) {
+                    var privateFunction = object[privatePropertyName];
+                    privateFunction.apply(object, functionArguments);
+                });
+            }
+
+            if (functionArguments.length < 1 && descriptor.get) {
+                return this.setup(function (object) {
+                    descriptor.get.apply(object, functionArguments);
+                });
+            }
+
+            if (functionArguments.length === 1 && descriptor.set) {
+                return this.setup(function (object) {
+                    descriptor.set.apply(object, functionArguments);
+                });
+            }
+
+            throw 'Should be an existing function/getter/setter with appropriate number of arguments';
         };
 
         Mole.prototype.verify = function (functionCall, times) {
@@ -118,7 +134,9 @@ var moqJS;
             for (var i = 0; i < propertyNames.length; i++) {
                 try  {
                     var propertyName = propertyNames[i];
-                    var propertyValue = this.object[propertyName];
+                    var descriptor = this._getPropertyDescriptor(this.object, propertyName);
+
+                    var propertyValue = descriptor.value;
 
                     if (typeof (propertyValue) != "function") {
                         continue;
@@ -199,17 +217,7 @@ var moqJS;
         };
 
         Mole.prototype._setProperty = function (obj, propertyName, propertyDescriptor) {
-            var descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
-            if (descriptor) {
-                Object.defineProperty(obj, propertyName, propertyDescriptor);
-                return;
-            }
-
-            if (!obj.__proto__) {
-                return;
-            }
-
-            return this._setProperty(obj.__proto__, propertyName, propertyDescriptor);
+            Object.defineProperty(obj, propertyName, propertyDescriptor);
         };
 
         Mole.prototype._setPropertyGetterProxy = function (propertyName, descriptor) {
