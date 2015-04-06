@@ -3,8 +3,6 @@
 module moqJS {
     // TODO: Implement:
     //  Mock wrapping mole
-    //  setup get
-    //  setup set
     // Get the mock by the object instace...
     // from all the created mocks get the one that behaves like this:( mock => boolean )
     export class Mole<T> {
