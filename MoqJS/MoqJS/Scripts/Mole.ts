@@ -67,6 +67,14 @@ module moqJS {
             this._FunctionProxyConfigurations.isStrict = value;
         }
 
+        public get moleReturnValue() {
+            return this._FunctionProxyConfigurations.moleReturnValue;
+        }
+
+        public set moleReturnValue(value: boolean) {
+            this._FunctionProxyConfigurations.moleReturnValue = value;
+        }
+
         public setup(functionCall: (object: T) => any): IFunctionSetup {
             return new FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         }

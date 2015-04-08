@@ -44,7 +44,8 @@ var moqJS;
 
             var matchingOverrides = this._getMatchingOverrides(actualArguments);
             if (matchingOverrides.length > 0) {
-                return this._executeOverrides(matchingOverrides, actualArguments);
+                var returnValue = this._executeOverrides(matchingOverrides, actualArguments);
+                return this._moleReturnValueIfNeeded(returnValue);
             }
 
             if (this.functionProxyConfigurations.isStrict) {
@@ -52,7 +53,8 @@ var moqJS;
             }
 
             if (this.functionProxyConfigurations.callBase) {
-                return this.originalFunction.apply(this.thisObject, actualArguments);
+                var returnValue = this.originalFunction.apply(this.thisObject, actualArguments);
+                return this._moleReturnValueIfNeeded(returnValue);
             }
         };
 
@@ -149,6 +151,15 @@ var moqJS;
             var argumentsWithOverrides = new ArgumentsWithOverrides(expectedArguments, overrideMode);
 
             this._argumentsWithOverridesList.push(argumentsWithOverrides);
+        };
+
+        FunctionProxy.prototype._moleReturnValueIfNeeded = function (returnValue) {
+            if (this.functionProxyConfigurations.moleReturnValue) {
+                var mole = new moqJS.Mole(returnValue);
+                mole.moleReturnValue = true;
+            }
+
+            return returnValue;
         };
         return FunctionProxy;
     })();

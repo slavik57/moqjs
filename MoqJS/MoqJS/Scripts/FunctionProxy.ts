@@ -46,7 +46,8 @@ module moqJS {
 
             var matchingOverrides: OverrideFunctionCallMode[] = this._getMatchingOverrides(actualArguments);
             if (matchingOverrides.length > 0) {
-                return this._executeOverrides(matchingOverrides, actualArguments);
+                var returnValue = this._executeOverrides(matchingOverrides, actualArguments);
+                return this._moleReturnValueIfNeeded(returnValue);
             }
 
             if (this.functionProxyConfigurations.isStrict) {
@@ -54,7 +55,8 @@ module moqJS {
             }
 
             if (this.functionProxyConfigurations.callBase) {
-                return this.originalFunction.apply(this.thisObject, actualArguments);
+                var returnValue = this.originalFunction.apply(this.thisObject, actualArguments);
+                return this._moleReturnValueIfNeeded(returnValue);
             }
         }
 
@@ -152,6 +154,15 @@ module moqJS {
                 new ArgumentsWithOverrides(expectedArguments, overrideMode);
 
             this._argumentsWithOverridesList.push(argumentsWithOverrides);
+        }
+
+        private _moleReturnValueIfNeeded<T>(returnValue: T) : T {
+            if (this.functionProxyConfigurations.moleReturnValue) {
+                var mole = new Mole(returnValue);
+                mole.moleReturnValue = true;
+            }
+
+            return returnValue;
         }
     }
 }

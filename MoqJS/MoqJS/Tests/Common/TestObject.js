@@ -10,6 +10,18 @@ var Tests;
     var TestObject = (function () {
         function TestObject() {
         }
+        TestObject.prototype.complexReturnFunction = function () {
+            return new TestObject();
+        };
+
+        Object.defineProperty(TestObject.prototype, "complexGetterFunction", {
+            get: function () {
+                return new TestObject();
+            },
+            enumerable: true,
+            configurable: true
+        });
+
         Object.defineProperty(TestObject.prototype, "getter", {
             get: function () {
                 if (this.onGetterCalled) {

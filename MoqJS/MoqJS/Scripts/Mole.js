@@ -68,6 +68,18 @@ var moqJS;
         });
 
 
+        Object.defineProperty(Mole.prototype, "moleReturnValue", {
+            get: function () {
+                return this._FunctionProxyConfigurations.moleReturnValue;
+            },
+            set: function (value) {
+                this._FunctionProxyConfigurations.moleReturnValue = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+
         Mole.prototype.setup = function (functionCall) {
             return new moqJS.FunctionSetup(functionCall, this.object, this._FunctionProxyConfigurations);
         };

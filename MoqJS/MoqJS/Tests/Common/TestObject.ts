@@ -32,6 +32,14 @@ module Tests {
         public privateSetterValue: any;
         public privateGetterAndSetterValue: any;
 
+        public complexReturnFunction(): TestObject {
+            return new TestObject();
+        }
+
+        public get complexGetterFunction(): TestObject {
+            return new TestObject();
+        }
+
         public get getter() {
             if (this.onGetterCalled) {
                 this.onGetterCalled();

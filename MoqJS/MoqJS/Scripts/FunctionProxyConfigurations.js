@@ -5,6 +5,7 @@ var moqJS;
         function FunctionProxyConfigurations() {
             this.callBase = true;
             this.isStrict = false;
+            this.moleReturnValue = false;
             this.functionCallMode = new moqJS.InvokeFunctionCallMode();
         }
         return FunctionProxyConfigurations;

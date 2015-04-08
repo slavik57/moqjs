@@ -10103,5 +10103,189 @@ var Tests;
         assert.strictEqual(result3, context.mole, 'should return correct mole');
         assert.strictEqual(result4, mole3, 'should return correct mole');
     });
+
+    QUnit.test('moleReturnValue - should be false', 1, function (assert) {
+        // Attange
+        var context = this;
+
+        // Assert
+        assert.strictEqual(context.mole.moleReturnValue, false, 'moleReturnValue should be false');
+    });
+
+    QUnit.test('moleReturnValue - should not create mole of the return value by default', 1, function (assert) {
+        // Attange
+        var context = this;
+
+        // Act
+        var result = context.testObject.complexReturnFunction();
+        var mole = Mole.findMoleByObject(result);
+
+        // Assert
+        assert.strictEqual(mole, null, 'should not create mole for return value');
+    });
+
+    QUnit.test('moleReturnValue - set to false should not create mole of the return value', 2, function (assert) {
+        // Attange
+        var context = this;
+        context.mole.moleReturnValue = false;
+
+        // Act
+        var result = context.testObject.complexReturnFunction();
+        var mole = Mole.findMoleByObject(result);
+
+        // Assert
+        assert.strictEqual(context.mole.moleReturnValue, false, 'moleReturnValue should be false');
+        assert.strictEqual(mole, null, 'should not create mole for return value');
+    });
+
+    QUnit.test('moleReturnValue - set to true should create mole for the return value', 2, function (assert) {
+        // Attange
+        var context = this;
+        context.mole.moleReturnValue = true;
+
+        // Act
+        var result = context.testObject.complexReturnFunction();
+        var mole = Mole.findMoleByObject(result);
+
+        // Assert
+        assert.strictEqual(context.mole.moleReturnValue, true, 'moleReturnValue should be true');
+        assert.notStrictEqual(mole, null, 'should create mole for return value');
+    });
+
+    QUnit.test('moleReturnValue - set to true should create new mole for the return value', 2, function (assert) {
+        // Attange
+        var context = this;
+        context.mole.moleReturnValue = true;
+
+        var returnValue = context.testObject.complexReturnFunction();
+        var mole = Mole.findMoleByObject(returnValue);
+        mole.setup(function (_) {
+            return _.returning1Function();
+        }).returns(2);
+
+        // Act
+        var result1 = context.testObject.returning1Function();
+        var result2 = returnValue.returning1Function();
+
+        // Assert
+        assert.strictEqual(result1, 1, 'should return the original value');
+        assert.strictEqual(result2, 2, 'should reutrn the setup value');
+    });
+
+    QUnit.test('moleReturnValue - set to true should create mole for the return value return value', 2, function (assert) {
+        // Attange
+        var context = this;
+        context.mole.moleReturnValue = true;
+
+        // Act
+        var result = context.testObject.complexReturnFunction().complexReturnFunction();
+        var mole = Mole.findMoleByObject(result);
+
+        // Assert
+        assert.strictEqual(context.mole.moleReturnValue, true, 'moleReturnValue should be true');
+        assert.notStrictEqual(mole, null, 'should create mole for return value');
+    });
+
+    QUnit.test('moleReturnValue - set to true should create new mole for the return value return value', 2, function (assert) {
+        // Attange
+        var context = this;
+        context.mole.moleReturnValue = true;
+
+        var returnValue = context.testObject.complexReturnFunction().complexReturnFunction();
+        var mole = Mole.findMoleByObject(returnValue);
+        mole.setup(function (_) {
+            return _.returning1Function();
+        }).returns(2);
+
+        // Act
+        var result1 = context.testObject.returning1Function();
+        var result2 = returnValue.returning1Function();
+
+        // Assert
+        assert.strictEqual(result1, 1, 'should return the original value');
+        assert.strictEqual(result2, 2, 'should reutrn the setup value');
+    });
+
+    QUnit.test('moleReturnValue - getter - set to false should not create mole of the return value', 2, function (assert) {
+        // Attange
+        var context = this;
+        context.mole.moleReturnValue = false;
+
+        // Act
+        var result = context.testObject.complexGetterFunction;
+        var mole = Mole.findMoleByObject(result);
+
+        // Assert
+        assert.strictEqual(context.mole.moleReturnValue, false, 'moleReturnValue should be false');
+        assert.strictEqual(mole, null, 'should not create mole for return value');
+    });
+
+    QUnit.test('moleReturnValue - getter - set to true should create mole for the return value', 2, function (assert) {
+        // Attange
+        var context = this;
+        context.mole.moleReturnValue = true;
+
+        // Act
+        var result = context.testObject.complexGetterFunction;
+        var mole = Mole.findMoleByObject(result);
+
+        // Assert
+        assert.strictEqual(context.mole.moleReturnValue, true, 'moleReturnValue should be true');
+        assert.notStrictEqual(mole, null, 'should create mole for return value');
+    });
+
+    QUnit.test('moleReturnValue - getter - set to true should create new mole for the return value', 2, function (assert) {
+        // Attange
+        var context = this;
+        context.mole.moleReturnValue = true;
+
+        var returnValue = context.testObject.complexGetterFunction;
+        var mole = Mole.findMoleByObject(returnValue);
+        mole.setup(function (_) {
+            return _.returning1Function();
+        }).returns(2);
+
+        // Act
+        var result1 = context.testObject.returning1Function();
+        var result2 = returnValue.returning1Function();
+
+        // Assert
+        assert.strictEqual(result1, 1, 'should return the original value');
+        assert.strictEqual(result2, 2, 'should reutrn the setup value');
+    });
+
+    QUnit.test('moleReturnValue - getter - set to true should create mole for the return value return value', 2, function (assert) {
+        // Attange
+        var context = this;
+        context.mole.moleReturnValue = true;
+
+        // Act
+        var result = context.testObject.complexGetterFunction.complexGetterFunction;
+        var mole = Mole.findMoleByObject(result);
+
+        // Assert
+        assert.strictEqual(context.mole.moleReturnValue, true, 'moleReturnValue should be true');
+        assert.notStrictEqual(mole, null, 'should create mole for return value');
+    });
+
+    QUnit.test('moleReturnValue - getter - set to true should create new mole for the return value return value', 2, function (assert) {
+        // Attange
+        var context = this;
+        context.mole.moleReturnValue = true;
+
+        var returnValue = context.testObject.complexGetterFunction.complexGetterFunction;
+        var mole = Mole.findMoleByObject(returnValue);
+        mole.setup(function (_) {
+            return _.returning1Function();
+        }).returns(2);
+
+        // Act
+        var result1 = context.testObject.returning1Function();
+        var result2 = returnValue.returning1Function();
+
+        // Assert
+        assert.strictEqual(result1, 1, 'should return the original value');
+        assert.strictEqual(result2, 2, 'should reutrn the setup value');
+    });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=MoleTest.js.map
