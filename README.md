@@ -17,7 +17,7 @@ A javascript library inspired by the Moq library for .Net
   var result = dog.eat('meat');
 
   // Verify that the given method was indeed called with the expected value exactly once
-  molemo.Verify(_dog => _dog.eat('meat'), Times.exact(1));
+  mole.Verify(_dog => _dog.eat('meat'), Times.exact(1));
 ```
 
 Checkout the [Quickstart](https://github.com/slavik57/moqjs/wiki/Quickstart) for more examples!
