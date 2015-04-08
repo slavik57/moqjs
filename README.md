@@ -8,7 +8,7 @@ A javascript library inspired by the Moq library for .Net
   var dog = new Dog();
   
   // Create a mole for the object
-  var mole = new Mock(dog);
+  var mole = new Mole(dog);
 
   // Setup behaviour
   mole.setup(_dog => _dog.eat('meat')).Returns('Yum yum yum');
@@ -17,7 +17,7 @@ A javascript library inspired by the Moq library for .Net
   var result = dog.eat('meat');
 
   // Verify that the given method was indeed called with the expected value exactly once
-  mock.Verify(_dog => _dog.eat('meat'), Times.exact(1));
+  molemo.Verify(_dog => _dog.eat('meat'), Times.exact(1));
 ```
 
 Checkout the [Quickstart](https://github.com/slavik57/moqjs/wiki/Quickstart) for more examples!
