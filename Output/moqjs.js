@@ -110,7 +110,8 @@ var moqJS;
 
             var matchingOverrides = this._getMatchingOverrides(actualArguments);
             if (matchingOverrides.length > 0) {
-                return this._executeOverrides(matchingOverrides, actualArguments);
+                var returnValue = this._executeOverrides(matchingOverrides, actualArguments);
+                return this._moleReturnValueIfNeeded(returnValue);
             }
 
             if (this.functionProxyConfigurations.isStrict) {
@@ -118,7 +119,8 @@ var moqJS;
             }
 
             if (this.functionProxyConfigurations.callBase) {
-                return this.originalFunction.apply(this.thisObject, actualArguments);
+                var returnValue = this.originalFunction.apply(this.thisObject, actualArguments);
+                return this._moleReturnValueIfNeeded(returnValue);
             }
         };
 
@@ -216,6 +218,15 @@ var moqJS;
 
             this._argumentsWithOverridesList.push(argumentsWithOverrides);
         };
+
+        FunctionProxy.prototype._moleReturnValueIfNeeded = function (returnValue) {
+            if (this.functionProxyConfigurations.moleReturnValue) {
+                var mole = new moqJS.Mole(returnValue);
+                mole.moleReturnValue = true;
+            }
+
+            return returnValue;
+        };
         return FunctionProxy;
     })();
     moqJS.FunctionProxy = FunctionProxy;
@@ -230,6 +241,7 @@ var moqJS;
         function FunctionProxyConfigurations() {
             this.callBase = true;
             this.isStrict = false;
+            this.moleReturnValue = false;
             this.functionCallMode = new moqJS.InvokeFunctionCallMode();
         }
         return FunctionProxyConfigurations;
@@ -465,6 +477,7 @@ var moqJS;
 'use strict';
 var moqJS;
 (function (moqJS) {
+    // TODO: mole the returning value if the behavior is set
     var Mole = (function () {
         function Mole(object) {
             this.object = object;
@@ -525,6 +538,18 @@ var moqJS;
             },
             set: function (value) {
                 this._FunctionProxyConfigurations.isStrict = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+
+        Object.defineProperty(Mole.prototype, "moleReturnValue", {
+            get: function () {
+                return this._FunctionProxyConfigurations.moleReturnValue;
+            },
+            set: function (value) {
+                this._FunctionProxyConfigurations.moleReturnValue = value;
             },
             enumerable: true,
             configurable: true
