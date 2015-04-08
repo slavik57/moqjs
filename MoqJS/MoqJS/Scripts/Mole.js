@@ -1,6 +1,7 @@
 ﻿'use strict';
 var moqJS;
 (function (moqJS) {
+    // TODO: mole the returning value if the behavior is set
     var Mole = (function () {
         function Mole(object) {
             this.object = object;

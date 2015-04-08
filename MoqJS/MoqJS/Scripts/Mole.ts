@@ -1,6 +1,7 @@
 ﻿'use strict';
 
 module moqJS {
+    // TODO: mole the returning value if the behavior is set
     export class Mole<T> {
         private static _moles = [];
 
