@@ -1,10 +1,6 @@
 ﻿'use strict';
 var moqJS;
 (function (moqJS) {
-    // TODO: Implement:
-    //  Mock wrapping mole
-    // Get the mock by the object instace...
-    // from all the created mocks get the one that behaves like this:( mock => boolean )
     var Mole = (function () {
         function Mole(object) {
             this.object = object;
@@ -13,6 +9,8 @@ var moqJS;
 
             this._setFunctionProxies();
             this._setPropertiesProxies();
+
+            Mole._moles.push(this);
         }
         Mole.prototype.dispose = function () {
             for (var i = 0; i < this._functionProxies.length; i++) {
@@ -40,6 +38,9 @@ var moqJS;
 
                 this._setProperty(this.object, proxy.originalFunctionName, descriptor);
             }
+
+            var thisMoleIndex = Mole._moles.indexOf(this);
+            Mole._moles.splice(thisMoleIndex, 1);
         };
 
         Object.defineProperty(Mole.prototype, "callBase", {
@@ -122,6 +123,22 @@ var moqJS;
             };
 
             return this.verify(functionCall, times);
+        };
+
+        Mole.findMoleByObject = function (object) {
+            if (object === null || object === undefined) {
+                return null;
+            }
+
+            for (var i = 0; i < Mole._moles.length; i++) {
+                var mole = Mole._moles[i];
+
+                if (mole.object === object) {
+                    return mole;
+                }
+            }
+
+            return null;
         };
 
         Mole.prototype._setFunctionProxies = function () {
@@ -235,6 +252,7 @@ var moqJS;
                 return functionProxy.callFunction([value]);
             };
         };
+        Mole._moles = [];
         return Mole;
     })();
     moqJS.Mole = Mole;

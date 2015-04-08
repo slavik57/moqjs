@@ -1,11 +1,9 @@
 ﻿'use strict';
 
 module moqJS {
-    // TODO: Implement:
-    //  Mock wrapping mole
-    // Get the mock by the object instace...
-    // from all the created mocks get the one that behaves like this:( mock => boolean )
     export class Mole<T> {
+        private static _moles = [];
+
         private _functionProxies: FunctionProxy[];
         private _propertyGetterProxies: FunctionProxy[];
         private _propertySetterProxies: FunctionProxy[];
@@ -17,6 +15,8 @@ module moqJS {
 
             this._setFunctionProxies();
             this._setPropertiesProxies();
+
+            Mole._moles.push(this);
         }
 
         public dispose() {
@@ -45,6 +45,9 @@ module moqJS {
 
                 this._setProperty(this.object, proxy.originalFunctionName, descriptor);
             }
+
+            var thisMoleIndex = Mole._moles.indexOf(this);
+            Mole._moles.splice(thisMoleIndex, 1);
         }
 
         public get callBase() {
@@ -116,6 +119,22 @@ module moqJS {
             };
 
             return this.verify(functionCall, times);
+        }
+
+        public static findMoleByObject<T>(object: T): Mole<T> {
+            if (object === null || object === undefined) {
+                return null;
+            }
+
+            for (var i = 0; i < Mole._moles.length; i++) {
+                var mole : Mole<T> = Mole._moles[i];
+
+                if (mole.object === object) {
+                    return mole;
+                }
+            }
+
+            return null;
         }
 
         private _setFunctionProxies() {

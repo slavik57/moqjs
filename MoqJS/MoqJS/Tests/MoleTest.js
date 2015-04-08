@@ -10021,5 +10021,87 @@ var Tests;
         mole.dispose();
         testObject.getterAndSetter = 1;
     });
+
+    QUnit.test('findMoleByObject - if null should return null', 1, function (assert) {
+        // Act
+        var result = Mole.findMoleByObject(null);
+
+        // Assert
+        assert.strictEqual(result, null, 'should return null');
+    });
+
+    QUnit.test('findMoleByObject - if undefined should return null', 1, function (assert) {
+        // Act
+        var result = Mole.findMoleByObject(undefined);
+
+        // Assert
+        assert.strictEqual(result, null, 'should return null');
+    });
+
+    QUnit.test('findMoleByObject - object without mole should return null', 1, function (assert) {
+        // Act
+        var result = Mole.findMoleByObject({});
+
+        // Assert
+        assert.strictEqual(result, null, 'should return null');
+    });
+
+    QUnit.test('findMoleByObject - object with mole should return the mole', 1, function (assert) {
+        // Arrange
+        var context = this;
+
+        // Act
+        var result = Mole.findMoleByObject(context.testObject);
+
+        // Assert
+        assert.strictEqual(result, context.mole, 'should return correct mole');
+    });
+
+    QUnit.test('findMoleByObject - objects with moles should return correct moles', 3, function (assert) {
+        // Arrange
+        var context = this;
+
+        var obj1 = {};
+        var obj2 = {};
+
+        var mole1 = new Mole(obj1);
+        var mole2 = new Mole(obj2);
+
+        // Act
+        var result1 = Mole.findMoleByObject(obj1);
+        var result2 = Mole.findMoleByObject(obj2);
+        var result3 = Mole.findMoleByObject(context.testObject);
+
+        // Assert
+        assert.strictEqual(result1, mole1, 'should return correct mole');
+        assert.strictEqual(result2, mole2, 'should return correct mole');
+        assert.strictEqual(result3, context.mole, 'should return correct mole');
+    });
+
+    QUnit.test('findMoleByObject - after dispose on mole should not return the mole for the object', 4, function (assert) {
+        // Arrange
+        var context = this;
+
+        var obj1 = {};
+        var obj2 = {};
+        var obj3 = {};
+
+        var mole1 = new Mole(obj1);
+        var mole2 = new Mole(obj2);
+
+        // Act
+        mole2.dispose();
+        var mole3 = new Mole(obj3);
+        var result1 = Mole.findMoleByObject(obj1);
+        var result2 = Mole.findMoleByObject(obj2);
+        var result3 = Mole.findMoleByObject(context.testObject);
+        var result4 = Mole.findMoleByObject(obj3);
+
+        // Assert
+        assert.strictEqual(result1, mole1, 'should return correct mole');
+        assert.strictEqual(result2, null, 'should return null after dispose');
+        assert.strictEqual(result3, context.mole, 'should return correct mole');
+        assert.strictEqual(result4, mole3, 'should return correct mole');
+    });
 })(Tests || (Tests = {}));
 //# sourceMappingURL=MoleTest.js.map
