@@ -20,6 +20,8 @@ A javascript library inspired by the Moq library for .Net
   mock.Verify(_dog => _dog.eat('meat'), Times.exact(1));
 ```
 
+Checkout the [Quickstart](https://github.com/slavik57/moqjs/wiki/Quickstart) for more examples!
+
 ## Why?
 
 The library was created mainly for developers who are used to the .Net library Moq or as a basic mocking library.
