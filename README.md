@@ -10,7 +10,7 @@ A javascript library inspired by the Moq library for .Net
   // Create a mole for the object
   var mole = new Mole(dog);
 
-  // Setup behaviour
+  // Setup behavior
   mole.setup(_dog => _dog.eat('meat')).Returns('Yum yum yum');
 
   // Invoke
