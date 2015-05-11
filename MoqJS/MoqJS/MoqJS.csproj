@@ -20,7 +20,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
-    <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.4</TypeScriptToolsVersion>
     <WebGreaseLibPath>..\packages\WebGrease.1.5.2\lib</WebGreaseLibPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -120,6 +120,84 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <Content Include="Scripts\FunctionCallMode.js">
+      <DependentUpon>FunctionCallMode.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionCallMode.min.js">
+      <DependentUpon>FunctionCallMode.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionProxy.js">
+      <DependentUpon>FunctionProxy.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionProxy.min.js">
+      <DependentUpon>FunctionProxy.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionProxyConfigurations.js">
+      <DependentUpon>FunctionProxyConfigurations.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionProxyConfigurations.min.js">
+      <DependentUpon>FunctionProxyConfigurations.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionSetup.js">
+      <DependentUpon>FunctionSetup.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionSetup.min.js">
+      <DependentUpon>FunctionSetup.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\It.js">
+      <DependentUpon>It.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\It.min.js">
+      <DependentUpon>It.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\Mole.js">
+      <DependentUpon>Mole.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\Mole.min.js">
+      <DependentUpon>Mole.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\Times.js">
+      <DependentUpon>Times.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\Times.min.js">
+      <DependentUpon>Times.js</DependentUpon>
+    </Content>
+    <Content Include="Tests\Common\TestObject.js">
+      <DependentUpon>TestObject.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\Common\TestObject.js.map">
+      <DependentUpon>TestObject.js</DependentUpon>
+    </Content>
+    <Content Include="Tests\FunctionProxyTest.js">
+      <DependentUpon>FunctionProxyTest.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\FunctionProxyTest.js.map">
+      <DependentUpon>FunctionProxyTest.js</DependentUpon>
+    </Content>
+    <Content Include="Tests\FunctionSetupTest.js">
+      <DependentUpon>FunctionSetupTest.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\FunctionSetupTest.js.map">
+      <DependentUpon>FunctionSetupTest.js</DependentUpon>
+    </Content>
+    <Content Include="Tests\ItTest.js">
+      <DependentUpon>ItTest.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\ItTest.js.map">
+      <DependentUpon>ItTest.js</DependentUpon>
+    </Content>
+    <Content Include="Tests\MoleTest.js">
+      <DependentUpon>MoleTest.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\MoleTest.js.map">
+      <DependentUpon>MoleTest.js</DependentUpon>
+    </Content>
+    <Content Include="Tests\TimesTest.js">
+      <DependentUpon>TimesTest.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\TimesTest.js.map">
+      <DependentUpon>TimesTest.js</DependentUpon>
+    </Content>
     <Content Include="Vendor\qunit\qunit-1.17.1.css" />
     <Content Include="Vendor\qunit\qunit-1.17.1.js" />
     <Content Include="Web.config">
@@ -144,6 +222,48 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="packages.config" />
+    <Content Include="Scripts\Times.js.map">
+      <DependentUpon>Times.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\Times.min.js.map">
+      <DependentUpon>Times.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\Mole.js.map">
+      <DependentUpon>Mole.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\Mole.min.js.map">
+      <DependentUpon>Mole.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionCallMode.js.map">
+      <DependentUpon>FunctionCallMode.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionCallMode.min.js.map">
+      <DependentUpon>FunctionCallMode.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionProxy.js.map">
+      <DependentUpon>FunctionProxy.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionProxy.min.js.map">
+      <DependentUpon>FunctionProxy.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionProxyConfigurations.js.map">
+      <DependentUpon>FunctionProxyConfigurations.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionProxyConfigurations.min.js.map">
+      <DependentUpon>FunctionProxyConfigurations.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionSetup.js.map">
+      <DependentUpon>FunctionSetup.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\FunctionSetup.min.js.map">
+      <DependentUpon>FunctionSetup.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\It.js.map">
+      <DependentUpon>It.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\It.min.js.map">
+      <DependentUpon>It.min.js</DependentUpon>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -68,19 +68,19 @@ module moqJS {
     }
 
     export class It {
-        public static isAny(type: Function): ItIsBase {
+        public static isAny(type: Function): any {
             return new ItIsAny(type);
         }
 
-        public static is<T>(predicate: (argument: T) => boolean): ItIsBase {
+        public static is<T>(predicate: (argument: T) => boolean): any {
             return new ItIs(predicate);
         }
 
-        public static isInRange(minimumValue: number, maximumValue: number): ItIsBase {
+        public static isInRange(minimumValue: number, maximumValue: number): any {
             return new ItIsInRange(minimumValue, maximumValue);
         }
 
-        public static isRegExp(regExp: RegExp): ItIsBase {
+        public static isRegExp(regExp: RegExp): any {
             return new ItIsRegex(regExp);
         }
     }
