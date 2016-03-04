@@ -3,7 +3,7 @@ MoqJS
 
 ## Installation
 ```
-$ npm install moqjs
+npm install moqjs
 ```
 ===
 A javascript library inspired by the Moq library for .Net
