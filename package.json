@@ -1,8 +1,8 @@
 {
   "name": "moqjs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A mock library for javascript",
-  "main": "MoqJS.min.js",
+  "main": "MoqJS.js",
   "scripts": {
   },
   "repository": {
