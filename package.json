@@ -2,8 +2,9 @@
   "name": "moqjs",
   "version": "1.0.4",
   "description": "A mock library for javascript",
-  "main": "MoqJS.js",
+  "main": "index.js",
   "scripts": {
+    "test": "mocha tests --recursive -c -b"
   },
   "repository": {
     "type": "git",
@@ -19,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/slavik57/moqjs/issues"
   },
-  "homepage": "https://github.com/slavik57/moqjs#readme"
+  "homepage": "https://github.com/slavik57/moqjs#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "sinon": "^1.17.3"
+  }
 }
