@@ -1,1048 +1,1037 @@
-﻿'use strict';
+import { expect } from 'chai';
+import { TestObject} from '../testsCommon/TestObject';
+import { FunctionProxyConfigurations } from '../../src/functionProxy/FunctionProxyConfigurations';
+import { FunctionSetup } from '../../src/functionSetup/FunctionSetup';
+import { ReturnsOverrideFunctionCallMode } from '../../src/functionCallMode/ReturnsOverrideFunctionCallMode';
+import { OverrideFunctionCallMode } from '../../src/functionCallMode/OverrideFunctionCallMode';
+import { InvokeFunctionCallMode } from '../../src/functionCallMode/InvokeFunctionCallMode';
+import { CallbackOverrideFunctionCallMode } from '../../src/functionCallMode/CallbackOverrideFunctionCallMode';
+import { ThrowsOverrideFunctionCallMode } from '../../src/functionCallMode/ThrowsOverrideFunctionCallMode';
 
-module Tests {
-    import FunctionSetup = moqJS.FunctionSetup;
-    import FunctionProxyConfigurations = moqJS.FunctionProxyConfigurations;
-    import IFunctionCallMode = moqJS.IFunctionCallMode;
-    import OverrideFunctionCallMode = moqJS.OverrideFunctionCallMode;
-    import InvokeFunctionCallMode = moqJS.InvokeFunctionCallMode;
-    import CallbackOverrideFunctionCallMode = moqJS.CallbackOverrideFunctionCallMode;
-    import ReturnsOverrideFunctionCallMode = moqJS.ReturnsOverrideFunctionCallMode;
-    import ThrowsOverrideFunctionCallMode = moqJS.ThrowsOverrideFunctionCallMode;
+describe('FunctionSetup', () => {
+  var argument;
+  var testObject: TestObject;
+  var functionProxyConfigurations: FunctionProxyConfigurations;
+  var oneArgumentFunctionSetup: FunctionSetup<TestObject>;
+  var returning1FunctionSetup: FunctionSetup<TestObject>;
 
-    class FunctionSetupLyfecycleObject implements LifecycleObject {
-        public argument: any;
-        public testObject: TestObject;
-        public functionProxyConfigurations: FunctionProxyConfigurations;
+  beforeEach(() => {
+    argument = {};
+    testObject = new TestObject();
+    functionProxyConfigurations = new FunctionProxyConfigurations();
 
-        public oneArgumentFunctionSetup: FunctionSetup<TestObject>;
-        public returning1FunctionSetup: FunctionSetup<TestObject>;
+    oneArgumentFunctionSetup = new FunctionSetup((object: TestObject) => object.oneArgumentsFunction(argument),
+      testObject,
+      functionProxyConfigurations);
 
-        public beforeEach = function () {
-            var context: FunctionSetupLyfecycleObject = this;
+    returning1FunctionSetup = new FunctionSetup((object: TestObject) => object.returning1Function(),
+      testObject,
+      functionProxyConfigurations);
+  });
 
-            context.argument = {};
-            context.testObject = new TestObject();
-            context.functionProxyConfigurations = new FunctionProxyConfigurations();
+  describe('constructor', () => {
 
-            context.oneArgumentFunctionSetup = new FunctionSetup((object: TestObject) => object.oneArgumentsFunction(context.argument),
-                context.testObject,
-                context.functionProxyConfigurations);
+    it('should initialize correctly', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var functionCall = (object: TestObject) => object.returning1Function();
+      var functionProxyConfigurations = new FunctionProxyConfigurations();
 
-            context.returning1FunctionSetup = new FunctionSetup((object: TestObject) => object.returning1Function(),
-                context.testObject,
-                context.functionProxyConfigurations);
-        }
+      // Act
+      var functionSetup = new FunctionSetup(functionCall, testObject, functionProxyConfigurations);
 
-        public afterEach = function () {
-        }
-    }
-
-    QUnit.module('FunctionSetup', new FunctionSetupLyfecycleObject());
-
-    QUnit.test('constructor - should initialize correctly', 3, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var functionCall = (object: TestObject) => object.returning1Function();
-        var functionProxyConfigurations = new FunctionProxyConfigurations();
-
-        // Act
-        var functionSetup = new FunctionSetup(functionCall, testObject, functionProxyConfigurations);
-
-        // Assert
-        assert.strictEqual(functionSetup.object, testObject, 'testObject should be same');
-        assert.strictEqual(functionSetup.functionCall, functionCall, 'functionCall should be same');
-        assert.strictEqual(functionSetup.functionProxyConfigurations, functionProxyConfigurations, 'functionProxyConfigurations should be same');
+      // Assert
+      expect(functionSetup.object).to.be.equal(testObject);
+      expect(functionSetup.functionCall).to.be.equal(functionCall);
+      expect(functionSetup.functionProxyConfigurations).to.be.equal(functionProxyConfigurations);
     });
 
-    QUnit.test('returns - should call functionCall', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+  });
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(true, 'should be called');
-        }
+  describe('returns', () => {
 
-        // Act
-        context.returning1FunctionSetup.returns(4);
+    it('should call functionCall', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      // Act
+      returning1FunctionSetup.returns(4);
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
     });
 
-    QUnit.test('returns - should call when the override type is returns', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override type is returns', () => {
+      // Arrange
+      var newReturnValue = {};
 
-        var newReturnValue = {};
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.returns(newReturnValue);
 
-            // Assert
-            assert.ok(functionCallMode instanceof ReturnsOverrideFunctionCallMode, 'functionCallMode should be returns');
-        };
-
-        // Act
-        context.returning1FunctionSetup.returns(newReturnValue);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(ReturnsOverrideFunctionCallMode);
     });
 
-    QUnit.test('returns - should call when the override contains function that returns the new value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override contains function that returns the new value', () => {
+      // Arrange
+      var newReturnValue = {};
 
-        var newReturnValue = {};
+      var actualResult;
+      testObject.onReturnung1FunctionCalled = () => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
+        actualResult = functionCallMode.override();
+      };
 
-            var result = functionCallMode.override();
+      // Act
+      returning1FunctionSetup.returns(newReturnValue);
 
-            // Assert
-            assert.strictEqual(result, newReturnValue, 'should return the setup value');
-        };
-
-        // Act
-        context.returning1FunctionSetup.returns(newReturnValue);
+      // Assert
+      expect(actualResult).to.be.equal(newReturnValue);
     });
 
-    QUnit.test('returns - should call when the override contains function that returns the new value 2', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override contains function that returns the new value 2', () => {
+      // Arrange
+      var newReturnValue = {};
 
-        var newReturnValue = {};
+      var actualResult;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        actualResult = functionCallMode.override();
+      };
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            var result = functionCallMode.override();
+      // Act
+      oneArgumentFunctionSetup.returns(newReturnValue);
 
-            // Assert
-            assert.strictEqual(result, newReturnValue, 'should return the setup value');
-        };
-
-        // Act
-        context.oneArgumentFunctionSetup.returns(newReturnValue);
+      // Assert
+      expect(actualResult).to.be.equal(newReturnValue);
     });
 
-    QUnit.test('returns - should not call other function', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should not call other function', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call other function');
-        };
+      var newReturnValue = {};
 
-        var newReturnValue = {};
+      // Act
+      oneArgumentFunctionSetup.returns(newReturnValue);
 
-        // Act
-        context.oneArgumentFunctionSetup.returns(newReturnValue);
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    QUnit.test('returns - should call functionCall with same parameter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call functionCall with same parameter', () => {
+      // Arrange
+      var actualArg;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        actualArg = _arg;
+      }
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, context.argument, 'should be called with same argument');
-        }
+      // Act
+      oneArgumentFunctionSetup.returns(4);
 
-        // Act
-        context.oneArgumentFunctionSetup.returns(4);
+      // Assert
+      expect(actualArg).to.be.equal(argument);
     });
 
-    QUnit.test('returns - after returns functionCallMode should be InvokeFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('after returns functionCallMode should be InvokeFunctionCallMode', () => {
+      // Act
+      oneArgumentFunctionSetup.returns(4);
 
-        // Act
-        context.oneArgumentFunctionSetup.returns(4);
-
-        // Assert
-        assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
+      // Assert
+      expect(functionProxyConfigurations.functionCallMode).to.be.an.instanceof(InvokeFunctionCallMode);
     });
 
-    QUnit.test('returns - should return the same function setup object', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should return the same function setup object', () => {
+      // Act
+      var functionSetup = oneArgumentFunctionSetup.returns(4);
 
-        // Act
-        var functionSetup = context.oneArgumentFunctionSetup.returns(4);
-
-        // Assert
-        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should return the same setup');
+      // Assert
+      expect(functionSetup).to.be.equal(oneArgumentFunctionSetup);
     });
 
-    QUnit.test('returnsInOrder - should call functionCall', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+  });
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(true, 'should be called');
-        }
+  describe('returnsInOrder', () => {
 
-        // Act
-        context.returning1FunctionSetup.returnsInOrder([4, 5]);
+    it('should call functionCall', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      // Act
+      returning1FunctionSetup.returnsInOrder([4, 5]);
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
     });
 
-    QUnit.test('returnsInOrder - should call when the override type is returns', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override type is returns', () => {
+      // Arrange
+      var newReturnValue1 = {};
+      var newReturnValue2 = {};
+      var newReturnValue3 = {};
 
-        var newReturnValue1 = {};
-        var newReturnValue2 = {};
-        var newReturnValue3 = {};
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.returnsInOrder([newReturnValue1, newReturnValue2, newReturnValue3]);
 
-            // Assert
-            assert.ok(functionCallMode instanceof ReturnsOverrideFunctionCallMode, 'functionCallMode should be returns');
-        };
-
-        // Act
-        context.returning1FunctionSetup.returnsInOrder([newReturnValue1, newReturnValue2, newReturnValue3]);
+      // Assert
+      expect(actualFunctionCallMode).to.be.equal(ReturnsOverrideFunctionCallMode);
     });
 
-    QUnit.test('returnsInOrder - should call when the override contains function that returns the new values', 4, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override contains function that returns the new values', () => {
+      // Arrange
+      var newReturnValue1 = {};
+      var newReturnValue2 = {};
+      var newReturnValue3 = {};
 
-        var newReturnValue1 = {};
-        var newReturnValue2 = {};
-        var newReturnValue3 = {};
+      var actualResult1;
+      var actualResult2;
+      var actualResult3;
+      var actualResult4;
+      testObject.onReturnung1FunctionCalled = () => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
+        actualResult1 = functionCallMode.override();
+        actualResult2 = functionCallMode.override();
+        actualResult3 = functionCallMode.override();
+        actualResult4 = functionCallMode.override();
+      };
 
-            var result1 = functionCallMode.override();
-            var result2 = functionCallMode.override();
-            var result3 = functionCallMode.override();
-            var result4 = functionCallMode.override();
+      // Act
+      returning1FunctionSetup.returnsInOrder([newReturnValue1, newReturnValue2, newReturnValue3]);
 
-            // Assert
-            assert.strictEqual(result1, newReturnValue1, 'should return the setup value1');
-            assert.strictEqual(result2, newReturnValue2, 'should return the setup value2');
-            assert.strictEqual(result3, newReturnValue3, 'should return the setup value3');
-            assert.strictEqual(result4, undefined, 'should return undefined');
-        };
-
-        // Act
-        context.returning1FunctionSetup.returnsInOrder([newReturnValue1, newReturnValue2, newReturnValue3]);
+      // Assert
+      expect(actualResult1).to.be.equal(newReturnValue1);
+      expect(actualResult2).to.be.equal(newReturnValue2);
+      expect(actualResult3).to.be.equal(newReturnValue3);
+      expect(actualResult4).to.be.equal(undefined);
     });
 
-    QUnit.test('returnsInOrder - should call when the override contains function that returns the new values 2', 4, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override contains function that returns the new values 2', () => {
+      // Arrange
+      var newReturnValue1 = {};
+      var newReturnValue2 = {};
+      var newReturnValue3 = {};
 
-        var newReturnValue1 = {};
-        var newReturnValue2 = {};
-        var newReturnValue3 = {};
+      var actualResult1;
+      var actualResult2;
+      var actualResult3;
+      var actualResult4;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        actualResult1 = functionCallMode.override();
+        actualResult2 = functionCallMode.override();
+        actualResult3 = functionCallMode.override();
+        actualResult4 = functionCallMode.override();
+      };
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            var result1 = functionCallMode.override();
-            var result2 = functionCallMode.override();
-            var result3 = functionCallMode.override();
-            var result4 = functionCallMode.override();
+      // Act
+      oneArgumentFunctionSetup.returnsInOrder([newReturnValue1, newReturnValue2, newReturnValue3]);
 
-            // Assert
-            assert.strictEqual(result1, newReturnValue1, 'should return the setup value1');
-            assert.strictEqual(result2, newReturnValue2, 'should return the setup value2');
-            assert.strictEqual(result3, newReturnValue3, 'should return the setup value3');
-            assert.strictEqual(result4, undefined, 'should return undefined');
-        };
-
-        // Act
-        context.oneArgumentFunctionSetup.returnsInOrder([newReturnValue1, newReturnValue2, newReturnValue3]);
+      // Assert
+      expect(actualResult1).to.be.equal(newReturnValue1);
+      expect(actualResult2).to.be.equal(newReturnValue2);
+      expect(actualResult3).to.be.equal(newReturnValue3);
+      expect(actualResult4).to.be.equal(undefined);
     });
 
-    QUnit.test('returnsInOrder - should not call other function', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should not call other function', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call other function');
-        };
+      var newReturnValue = {};
 
-        var newReturnValue = {};
+      // Act
+      oneArgumentFunctionSetup.returnsInOrder([newReturnValue]);
 
-        // Act
-        context.oneArgumentFunctionSetup.returnsInOrder([newReturnValue]);
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    QUnit.test('returnsInOrder - should call functionCall with same parameter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call functionCall with same parameter', () => {
+      // Arrange
+      var actualArg = 0;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        actualArg = _arg;
+      }
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, context.argument, 'should be called with same argument');
-        }
+      // Act
+      oneArgumentFunctionSetup.returnsInOrder([4]);
 
-        // Act
-        context.oneArgumentFunctionSetup.returnsInOrder([4]);
+      // Assert
+      expect(actualArg).to.be.equal(argument);
     });
 
-    QUnit.test('returnsInOrder - after returns functionCallMode should be InvokeFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('after returns functionCallMode should be InvokeFunctionCallMode', () => {
+      // Act
+      oneArgumentFunctionSetup.returnsInOrder([4]);
 
-        // Act
-        context.oneArgumentFunctionSetup.returnsInOrder([4]);
-
-        // Assert
-        assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
+      // Assert
+      expect(functionProxyConfigurations.functionCallMode).to.be.an.instanceof(InvokeFunctionCallMode);
     });
 
-    QUnit.test('returnsInOrder - should return the same function setup object', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should return the same function setup object', () => {
+      // Act
+      var functionSetup = oneArgumentFunctionSetup.returnsInOrder([4]);
 
-        // Act
-        var functionSetup = context.oneArgumentFunctionSetup.returnsInOrder([4]);
-
-        // Assert
-        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should return the same setup');
+      // Assert
+      expect(functionSetup).to.be.equal(oneArgumentFunctionSetup);
     });
 
-    QUnit.test('lazyReturns - should call functionCall', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+  });
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(true, 'should be called');
-        }
+  describe('lazyReturns', () => {
 
-        // Act
-        context.returning1FunctionSetup.lazyReturns(() => 4);
+    it('lazyshould call functionCall', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      // Act
+      returning1FunctionSetup.lazyReturns(() => 4);
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
     });
 
-    QUnit.test('lazyReturns - should call when the functionCallMode is OverrideFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the functionCallMode is OverrideFunctionCallMode', () => {
+      // Arrange
+      var returnValue = {};
 
-        var returnValue = {};
+      var returnFunction = () => {
+        return returnValue;
+      };
 
-        var returnFunction = () => {
-            return returnValue;
-        };
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode: IFunctionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.lazyReturns(returnFunction);
 
-            // Assert
-            assert.ok(functionCallMode instanceof OverrideFunctionCallMode, 'functionCallMode should be should OverrideFunctionCallMode');
-        };
-
-        // Act
-        context.returning1FunctionSetup.lazyReturns(returnFunction);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(OverrideFunctionCallMode);
     });
 
-    QUnit.test('lazyReturns - should call when the override type is returns', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the override type is returns', () => {
+      // Arrange
+      var returnValue = {};
 
-        var returnValue = {};
+      var returnFunction = () => {
+        return returnValue;
+      };
 
-        var returnFunction = () => {
-            return returnValue;
-        };
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.lazyReturns(returnFunction);
 
-            // Assert
-            assert.ok(functionCallMode instanceof ReturnsOverrideFunctionCallMode, 'functionCallMode should be returns');
-        };
-
-        // Act
-        context.returning1FunctionSetup.lazyReturns(returnFunction);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(ReturnsOverrideFunctionCallMode);
     });
 
-    QUnit.test('lazyReturns - should call when the override contains function that returns the new value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the override contains function that returns the new value', () => {
+      // Arrange
+      var returnValue = {};
 
-        var returnValue = {};
+      var returnFunction = () => {
+        return returnValue;
+      };
 
-        var returnFunction = () => {
-            return returnValue;
-        };
+      var actualResult;
+      testObject.onReturnung1FunctionCalled = () => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        actualResult = functionCallMode.override();
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            var result = functionCallMode.override();
+      // Act
+      returning1FunctionSetup.lazyReturns(returnFunction);
 
-            // Assert
-            assert.strictEqual(result, returnValue, 'should return the setup value');
-        };
-
-        // Act
-        context.returning1FunctionSetup.lazyReturns(returnFunction);
+      // Assert
+      expect(actualResult).to.be.equal(returnValue);
     });
 
-    QUnit.test('lazyReturns - should call when the override contains function that returns the new value 2', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the override contains function that returns the new value 2', () => {
+      // Arrange
+      var newReturnValue = {};
+      var returnFunction = () => {
+        return newReturnValue;
+      }
 
-        var newReturnValue = {};
-        var returnFunction = () => {
-            return newReturnValue;
-        }
+      var actualResult;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        actualResult = functionCallMode.override();
+      };
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            var result = functionCallMode.override();
+      // Act
+      oneArgumentFunctionSetup.lazyReturns(returnFunction);
 
-            // Assert
-            assert.strictEqual(result, newReturnValue, 'should return the setup value');
-        };
-
-        // Act
-        context.oneArgumentFunctionSetup.lazyReturns(returnFunction);
+      // Assert
+      expect(actualResult).to.be.equal(newReturnValue);
     });
 
-    QUnit.test('lazyReturns - should not call other function', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould not call other function', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call other function');
-        };
+      var returnFrunction = () => { };
 
-        var returnFrunction = () => { };
+      // Act
+      oneArgumentFunctionSetup.lazyReturns(returnFrunction);
 
-        // Act
-        context.oneArgumentFunctionSetup.lazyReturns(returnFrunction);
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    QUnit.test('lazyReturns - should call functionCall with same parameter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call functionCall with same parameter', () => {
+      // Arrange
+      var actualArg;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        actualArg = _arg;
+      }
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, context.argument, 'should be called with same argument');
-        }
+      // Act
+      oneArgumentFunctionSetup.lazyReturns(() => 4);
 
-        // Act
-        context.oneArgumentFunctionSetup.lazyReturns(() => 4);
+      // Assert
+      expect(actualArg).to.be.equal(argument);
     });
 
-    QUnit.test('lazyReturns - after returns functionCallMode should be InvokeFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyafter returns functionCallMode should be InvokeFunctionCallMode', () => {
+      // Act
+      oneArgumentFunctionSetup.lazyReturns(() => 4);
 
-        // Act
-        context.oneArgumentFunctionSetup.lazyReturns(() => 4);
-
-        // Assert
-        assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
+      // Assert
+      expect(functionProxyConfigurations.functionCallMode).to.be.instanceof(InvokeFunctionCallMode);
     });
 
-    QUnit.test('lazyReturns - should return same function setup object', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould return same function setup object', () => {
+      // Act
+      var functionSetup = oneArgumentFunctionSetup.lazyReturns(() => 4);
 
-        // Act
-        var functionSetup = context.oneArgumentFunctionSetup.lazyReturns(() => 4);
-
-        // Assert
-        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
+      // Assert
+      expect(functionSetup).to.be.equal(oneArgumentFunctionSetup);
     });
 
-    QUnit.test('lazyReturnsInOrder - should call functionCall', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+  });
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(true, 'should be called');
-        }
+  describe('lazyReturnsInOrder', () => {
 
-        // Act
-        context.returning1FunctionSetup.lazyReturnsInOrder([() => 4, () => 5]);
+    it('lazyshould call functionCall', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      // Act
+      returning1FunctionSetup.lazyReturnsInOrder([() => 4, () => 5]);
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
     });
 
-    QUnit.test('lazyReturnsInOrder - should call when the functionCallMode is OverrideFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the functionCallMode is OverrideFunctionCallMode', () => {
+      // Arrange
+      var returnValue = {};
 
-        var returnValue = {};
+      var returnFunction = () => {
+        return returnValue;
+      };
 
-        var returnFunction = () => {
-            return returnValue;
-        };
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode: IFunctionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.lazyReturnsInOrder([returnFunction]);
 
-            // Assert
-            assert.ok(functionCallMode instanceof OverrideFunctionCallMode, 'functionCallMode should be should OverrideFunctionCallMode');
-        };
-
-        // Act
-        context.returning1FunctionSetup.lazyReturnsInOrder([returnFunction]);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(OverrideFunctionCallMode);
     });
 
-    QUnit.test('lazyReturnsInOrder - should call when the override type is returns', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the override type is returns', () => {
+      // Arrange
+      var returnValue = {};
 
-        var returnValue = {};
+      var returnFunction = () => {
+        return returnValue;
+      };
 
-        var returnFunction = () => {
-            return returnValue;
-        };
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.lazyReturnsInOrder([returnFunction]);
 
-            // Assert
-            assert.ok(functionCallMode instanceof ReturnsOverrideFunctionCallMode, 'functionCallMode should be returns');
-        };
-
-        // Act
-        context.returning1FunctionSetup.lazyReturnsInOrder([returnFunction]);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(ReturnsOverrideFunctionCallMode);
     });
 
-    QUnit.test('lazyReturnsInOrder - should call when the override contains function that returns the new values', 4, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the override contains function that returns the new values', () => {
+      // Arrange
+      var returnValue1 = {};
+      var returnValue2 = {};
+      var returnValue3 = {};
 
-        var returnValue1 = {};
-        var returnValue2 = {};
-        var returnValue3 = {};
+      var returnFunction1 = () => {
+        return returnValue1;
+      };
+      var returnFunction2 = () => {
+        return returnValue2;
+      };
+      var returnFunction3 = () => {
+        return returnValue3;
+      };
 
-        var returnFunction1 = () => {
-            return returnValue1;
-        };
-        var returnFunction2 = () => {
-            return returnValue2;
-        };
-        var returnFunction3 = () => {
-            return returnValue3;
-        };
+      var actualResult1;
+      var actualResult2;
+      var actualResult3;
+      var actualResult4;
+      testObject.onReturnung1FunctionCalled = () => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        actualResult1 = functionCallMode.override();
+        actualResult2 = functionCallMode.override();
+        actualResult3 = functionCallMode.override();
+        actualResult4 = functionCallMode.override();
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            var result1 = functionCallMode.override();
-            var result2 = functionCallMode.override();
-            var result3 = functionCallMode.override();
-            var result4 = functionCallMode.override();
+      // Act
+      returning1FunctionSetup.lazyReturnsInOrder([returnFunction1, returnFunction2, returnFunction3]);
 
-            // Assert
-            assert.strictEqual(result1, returnValue1, 'should return the setup value1');
-            assert.strictEqual(result2, returnValue2, 'should return the setup value2');
-            assert.strictEqual(result3, returnValue3, 'should return the setup value3');
-            assert.strictEqual(result4, undefined, 'should return undefined');
-        };
-
-        // Act
-        context.returning1FunctionSetup.lazyReturnsInOrder([returnFunction1, returnFunction2, returnFunction3]);
+      // Assert
+      expect(actualResult1).to.be.equal(returnValue1);
+      expect(actualResult2).to.be.equal(returnValue2);
+      expect(actualResult3).to.be.equal(returnValue3);
+      expect(actualResult4).to.be.equal(undefined);
     });
 
-    QUnit.test('lazyReturnsInOrder - should call when the override contains function that returns the new values 2', 4, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the override contains function that returns the new values 2', () => {
+      // Arrange
+      var newReturnValue1 = {};
+      var newReturnValue2 = {};
+      var newReturnValue3 = {};
 
-        var newReturnValue1 = {};
-        var newReturnValue2 = {};
-        var newReturnValue3 = {};
+      var returnFunction1 = () => newReturnValue1;
+      var returnFunction2 = () => newReturnValue2;
+      var returnFunction3 = () => newReturnValue3;
 
-        var returnFunction1 = () => newReturnValue1;
-        var returnFunction2 = () => newReturnValue2;
-        var returnFunction3 = () => newReturnValue3;
+      var actualResult1;
+      var actualResult2;
+      var actualResult3;
+      var actualResult4;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        actualResult1 = functionCallMode.override();
+        actualResult2 = functionCallMode.override();
+        actualResult3 = functionCallMode.override();
+        actualResult4 = functionCallMode.override();
+      };
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            var result1 = functionCallMode.override();
-            var result2 = functionCallMode.override();
-            var result3 = functionCallMode.override();
-            var result4 = functionCallMode.override();
+      // Act
+      oneArgumentFunctionSetup.lazyReturnsInOrder([returnFunction1, returnFunction2, returnFunction3]);
 
-            // Assert
-            assert.strictEqual(result1, newReturnValue1, 'should return the setup value1');
-            assert.strictEqual(result2, newReturnValue2, 'should return the setup value2');
-            assert.strictEqual(result3, newReturnValue3, 'should return the setup value3');
-            assert.strictEqual(result4, undefined, 'should return the setup value');
-        };
-
-        // Act
-        context.oneArgumentFunctionSetup.lazyReturnsInOrder([returnFunction1, returnFunction2, returnFunction3]);
+      // Assert
+      expect(actualResult1).to.be.equal(newReturnValue1);
+      expect(actualResult2).to.be.equal(newReturnValue2);
+      expect(actualResult3).to.be.equal(newReturnValue3);
+      expect(actualResult4).to.be.equal(undefined);
     });
 
-    QUnit.test('lazyReturnsInOrder - should not call other function', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould not call other function', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call other function');
-        };
+      var returnFrunction = () => { };
 
-        var returnFrunction = () => { };
+      // Act
+      oneArgumentFunctionSetup.lazyReturnsInOrder([returnFrunction]);
 
-        // Act
-        context.oneArgumentFunctionSetup.lazyReturnsInOrder([returnFrunction]);
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    QUnit.test('lazyReturnsInOrder - should call functionCall with same parameter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call functionCall with same parameter', () => {
+      // Arrange
+      var actualArg;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        actualArg = _arg;
+      }
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, context.argument, 'should be called with same argument');
-        }
+      // Act
+      oneArgumentFunctionSetup.lazyReturnsInOrder([() => 4]);
 
-        // Act
-        context.oneArgumentFunctionSetup.lazyReturnsInOrder([() => 4]);
+      // Assert
+      expect(actualArg).to.be.equal(argument);
     });
 
-    QUnit.test('lazyReturnsInOrder - after returns functionCallMode should be InvokeFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyafter returns functionCallMode should be InvokeFunctionCallMode', () => {
+      // Act
+      oneArgumentFunctionSetup.lazyReturnsInOrder([() => 4]);
 
-        // Act
-        context.oneArgumentFunctionSetup.lazyReturnsInOrder([() => 4]);
-
-        // Assert
-        assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
+      // Assert
+      expect(functionProxyConfigurations.functionCallMode).to.be.an.instanceof(InvokeFunctionCallMode);
     });
 
-    QUnit.test('lazyReturnsInOrder - should return same function setup object', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould return same function setup object', () => {
+      // Act
+      var functionSetup = oneArgumentFunctionSetup.lazyReturnsInOrder([() => 4]);
 
-        // Act
-        var functionSetup = context.oneArgumentFunctionSetup.lazyReturnsInOrder([() => 4]);
-
-        // Assert
-        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
+      // Assert
+      expect(functionSetup).to.be.equal(oneArgumentFunctionSetup);
     });
 
-    QUnit.test('callback - should call functionCall', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+  });
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(true, 'should be called');
-        }
+  describe('callback', () => {
 
-        var callback = () => { };
+    it('should call functionCall', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
 
-        // Act
-        context.returning1FunctionSetup.callback(callback);
+      var callback = () => { };
+
+      // Act
+      returning1FunctionSetup.callback(callback);
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
     });
 
-    QUnit.test('callback - should call when the functionCallMode type is OverrideFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the functionCallMode type is OverrideFunctionCallMode', () => {
+      // Arrange
+      var callback = () => { };
 
-        var callback = () => { };
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode: IFunctionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.callback(callback);
 
-            // Assert
-            assert.ok(functionCallMode instanceof OverrideFunctionCallMode, 'functionCallMode should be OverrideFunctionCallMode');
-        };
-
-        // Act
-        context.returning1FunctionSetup.callback(callback);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(OverrideFunctionCallMode);
     });
 
-    QUnit.test('callback - should call when the override type is Callback', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override type is Callback', () => {
+      // Arrange
+      var callback = () => { };
 
-        var callback = () => { };
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.callback(callback);
 
-            // Assert
-            assert.ok(functionCallMode instanceof CallbackOverrideFunctionCallMode, 'functionCallMode should be callback');
-        };
-
-        // Act
-        context.returning1FunctionSetup.callback(callback);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(CallbackOverrideFunctionCallMode);
     });
 
-    QUnit.test('callback - should call when the override contains the callback', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override contains the callback', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      var callback = () => {
+        numberOfTimesCalled++;
+      };
 
-        var callback = () => {
-            // Assert
-            assert.ok(true, 'callback was called');
-        };
+      testObject.onReturnung1FunctionCalled = () => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        functionCallMode.override();
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            functionCallMode.override();
-        };
+      // Act
+      returning1FunctionSetup.callback(callback);
 
-        // Act
-        context.returning1FunctionSetup.callback(callback);
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
     });
 
-    QUnit.test('callback - should call when the override contains the callback with same parameter', 2, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override contains the callback with same parameter', () => {
+      // Arrange
+      var actualArg;
+      var callback = (_arg) => {
+        actualArg = _arg;
+      };
 
-        var callback = (_arg) => {
-            // Assert
-            assert.ok(true, 'callback was called');
-            assert.strictEqual(_arg, context.argument, 'should be the same parameter');
-        };
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        functionCallMode.override(_arg);
+      };
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            functionCallMode.override(_arg);
-        };
+      // Act
+      oneArgumentFunctionSetup.callback(callback);
 
-        // Act
-        context.oneArgumentFunctionSetup.callback(callback);
+      // Assert
+      expect(actualArg).to.be.equal(argument);
     });
 
-    QUnit.test('callback - should not call other function', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should not call other function', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call other function');
-        };
+      var callback = () => { };
 
-        var callback = () => { };
+      // Act
+      oneArgumentFunctionSetup.callback(callback);
 
-        // Act
-        context.oneArgumentFunctionSetup.callback(callback);
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    QUnit.test('callback - should call functionCall with same parameter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call functionCall with same parameter', () => {
+      // Arrange
+      var actualArg;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        actualArg = _arg;
+      }
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, context.argument, 'should be called with same argument');
-        }
+      var callback = () => { };
 
-        var callback = () => { };
+      // Act
+      oneArgumentFunctionSetup.callback(callback);
 
-        // Act
-        context.oneArgumentFunctionSetup.callback(callback);
+      // Assert
+      expect(actualArg).to.be.equal(argument);
     });
 
-    QUnit.test('callback - should return same function setup object', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should return same function setup object', () => {
+      // Act
+      var functionSetup = oneArgumentFunctionSetup.callback(() => { });
 
-        var callback = () => { };
-
-        // Act
-        var functionSetup = context.oneArgumentFunctionSetup.callback(callback);
-
-        // Assert
-        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
+      // Assert
+      expect(functionSetup).to.be.equal(oneArgumentFunctionSetup);
     });
 
-    QUnit.test('callback - after callback functionCallMode should be InvokeFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('after callback functionCallMode should be InvokeFunctionCallMode', () => {
+      // Act
+      oneArgumentFunctionSetup.callback(() => { });
 
-        // Act
-        context.oneArgumentFunctionSetup.callback(() => { });
-
-        // Assert
-        assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
+      // Assert
+      expect(functionProxyConfigurations.functionCallMode).to.be.an.instanceof(InvokeFunctionCallMode);
     });
 
-    QUnit.test('throws - should call functionCall', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+  });
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(true, 'should be called');
-        }
+  describe('throws', () => {
 
-        // Act
-        context.returning1FunctionSetup.throws(4);
+    it('should call functionCall', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      // Act
+      returning1FunctionSetup.throws(4);
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
     });
 
-    QUnit.test('throws - should call when the functionCallMode is OverrideFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the functionCallMode is OverrideFunctionCallMode', () => {
+      // Arrange
+      var error = {};
 
-        var error = {};
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode: IFunctionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.throws(error);
 
-            // Assert
-            assert.ok(functionCallMode instanceof OverrideFunctionCallMode, 'functionCallMode should be OverrideFunctionCallMode');
-        };
-
-        // Act
-        context.returning1FunctionSetup.throws(error);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(OverrideFunctionCallMode);
     });
 
-    QUnit.test('throws - should call when the override type is Throws', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override type is Throws', () => {
+      // Arrange
+      var error = {};
 
-        var error = {};
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.throws(error);
 
-            // Assert
-            assert.ok(functionCallMode instanceof ThrowsOverrideFunctionCallMode, 'functionCallMode should be throws');
-        };
-
-        // Act
-        context.returning1FunctionSetup.throws(error);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(ThrowsOverrideFunctionCallMode);
     });
 
-    QUnit.test('throws - should call when the override contains function that returns the error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override contains function that returns the error', () => {
+      // Arrange
+      var error = {};
 
-        var error = {};
+      var actualError;
+      testObject.onReturnung1FunctionCalled = () => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        actualError = functionCallMode.override();
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            var actualError = functionCallMode.override();
+      // Act
+      returning1FunctionSetup.throws(error);
 
-            // Assert
-            assert.strictEqual(actualError, error, 'should throw the error');
-        };
-
-        // Act
-        context.returning1FunctionSetup.throws(error);
+      // Assert
+      expect(actualError).to.be.equal(error);
     });
 
-    QUnit.test('throws - should call when the override contains function that throws the error 2', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call when the override contains function that throws the error 2', () => {
+      // Arrange
+      var error = {};
 
-        var error = {};
+      var actualError;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        actualError = functionCallMode.override();
+      };
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            var actualError = functionCallMode.override();
-            assert.strictEqual(actualError, error, 'should throw the error');
-        };
+      // Act
+      oneArgumentFunctionSetup.throws(error);
 
-        // Act
-        context.oneArgumentFunctionSetup.throws(error);
+      // Assert
+      expect(actualError).to.be.equal(error);
     });
 
-    QUnit.test('throws - should not call other function', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should not call other function', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call other function');
-        };
+      var error = {};
 
-        var error = {};
+      // Act
+      oneArgumentFunctionSetup.throws(error);
 
-        // Act
-        context.oneArgumentFunctionSetup.throws(error);
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    QUnit.test('throws - should call functionCall with same parameter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should call functionCall with same parameter', () => {
+      // Arrange
+      var actualArg;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        actualArg = _arg;
+      }
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, context.argument, 'should be called with same argument');
-        }
+      // Act
+      oneArgumentFunctionSetup.throws(4);
 
-        // Act
-        context.oneArgumentFunctionSetup.throws(4);
+      // Assert
+      expect(actualArg).to.be.equal(argument);
     });
 
-    QUnit.test('throws - after callback functionCallMode should be InvokeFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('after callback functionCallMode should be InvokeFunctionCallMode', () => {
+      // Act
+      oneArgumentFunctionSetup.throws({});
 
-        // Act
-        context.oneArgumentFunctionSetup.throws({});
-
-        // Assert
-        assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
+      // Assert
+      expect(functionProxyConfigurations.functionCallMode).to.be.instanceof(InvokeFunctionCallMode);
     });
 
-    QUnit.test('throws - should return same function setup object', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('should return same function setup object', () => {
+      // Act
+      var functionSetup = oneArgumentFunctionSetup.throws({});
 
-        // Act
-        var functionSetup = context.oneArgumentFunctionSetup.throws({});
-
-        // Assert
-        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
+      // Assert
+      expect(functionSetup).to.be.equal(oneArgumentFunctionSetup);
     });
 
-    QUnit.test('lazyThrows - should call functionCall', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+  });
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(true, 'should be called');
-        }
+  describe('lazyThrows', () => {
 
-        // Act
-        context.returning1FunctionSetup.lazyThrows(() => 'error');
+    it('lazyshould call functionCall', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      // Act
+      returning1FunctionSetup.lazyThrows(() => 'error');
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
     });
 
-    QUnit.test('lazyThrows - should call when the functionCallMode is OverrideFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the functionCallMode is OverrideFunctionCallMode', () => {
+      // Arrange
+      var error = {};
 
-        var error = {};
+      var errorReturningFunction = () => {
+        return error;
+      };
 
-        var errorReturningFunction = () => {
-            return error;
-        };
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode: IFunctionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.lazyThrows(errorReturningFunction);
 
-            // Assert
-            assert.ok(functionCallMode instanceof OverrideFunctionCallMode, 'functionCallMode should be should OverrideFunctionCallMode');
-        };
-
-        // Act
-        context.returning1FunctionSetup.lazyThrows(errorReturningFunction);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(OverrideFunctionCallMode);
     });
 
-    QUnit.test('lazyThrows - should call when the override type is throws', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the override type is throws', () => {
+      // Arrange
+      var error = {};
 
-        var error = {};
+      var errorReturningFunction = () => {
+        return error;
+      };
 
-        var errorReturningFunction = () => {
-            return error;
-        };
+      var actualFunctionCallMode;
+      testObject.onReturnung1FunctionCalled = () => {
+        actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = context.functionProxyConfigurations.functionCallMode;
+      // Act
+      returning1FunctionSetup.lazyThrows(errorReturningFunction);
 
-            // Assert
-            assert.ok(functionCallMode instanceof ThrowsOverrideFunctionCallMode, 'functionCallMode should be throws');
-        };
-
-        // Act
-        context.returning1FunctionSetup.lazyThrows(errorReturningFunction);
+      // Assert
+      expect(actualFunctionCallMode).to.be.an.instanceof(ThrowsOverrideFunctionCallMode);
     });
 
-    QUnit.test('lazyThrows - should call when the override contains function that returns the error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the override contains function that returns the error', () => {
+      // Arrange
+      var error = {};
 
-        var error = {};
+      var errorReturningFunction = () => {
+        return error;
+      };
 
-        var errorReturningFunction = () => {
-            return error;
-        };
+      var actualError;
+      testObject.onReturnung1FunctionCalled = () => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        actualError = functionCallMode.override();
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            var actualError = functionCallMode.override();
+      // Act
+      returning1FunctionSetup.lazyThrows(errorReturningFunction);
 
-            // Assert
-            assert.strictEqual(actualError, error, 'should throw the setup error');
-        };
-
-        // Act
-        context.returning1FunctionSetup.lazyThrows(errorReturningFunction);
+      // Assert
+      expect(actualError).to.be.equal(error);
     });
 
-    QUnit.test('lazyThrows - should call when the override contains function that throws the error 2', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call when the override contains function that throws the error 2', () => {
+      // Arrange
+      var error = {};
+      var errorReturningFunction = () => {
+        return error;
+      }
 
-        var error = {};
-        var errorReturningFunction = () => {
-            return error;
-        }
+      var actualError;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        var functionCallMode = <OverrideFunctionCallMode>functionProxyConfigurations.functionCallMode;
+        actualError = functionCallMode.override();
+      };
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            var functionCallMode = <OverrideFunctionCallMode>context.functionProxyConfigurations.functionCallMode;
-            var actualError = functionCallMode.override();
+      // Act
+      oneArgumentFunctionSetup.lazyThrows(errorReturningFunction);
 
-            // Assert
-            assert.strictEqual(actualError, error, 'should return the setup value');
-        };
-
-        // Act
-        context.oneArgumentFunctionSetup.lazyThrows(errorReturningFunction);
+      // Assert
+      expect(actualError).to.be.equal(error);
     });
 
-    QUnit.test('lazyThrows - should not call other function', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould not call other function', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      testObject.onReturnung1FunctionCalled = () => {
+        numberOfTimesCalled++;
+      };
 
-        context.testObject.onReturnung1FunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call other function');
-        };
+      var errorReturningFunction = () => { };
 
-        var errorReturningFunction = () => { };
+      // Act
+      oneArgumentFunctionSetup.lazyThrows(errorReturningFunction);
 
-        // Act
-        context.oneArgumentFunctionSetup.lazyThrows(errorReturningFunction);
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    QUnit.test('lazyThrows - should call functionCall with same parameter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould call functionCall with same parameter', () => {
+      // Arrange
+      var actualArg;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        actualArg = _arg;
+      }
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, context.argument, 'should be called with same argument');
-        }
+      // Act
+      oneArgumentFunctionSetup.lazyThrows(() => 4);
 
-        // Act
-            context.oneArgumentFunctionSetup.lazyThrows(() => 4);
+      // Assert
+      expect(actualArg).to.be.equal(argument);
     });
 
-    QUnit.test('lazyThrows - after returns functionCallMode should be InvokeFunctionCallMode', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyafter returns functionCallMode should be InvokeFunctionCallMode', () => {
+      // Act
+      oneArgumentFunctionSetup.lazyThrows(() => 4);
 
-        // Act
-        context.oneArgumentFunctionSetup.lazyThrows(() => 4);
-
-        // Assert
-        assert.ok(context.functionProxyConfigurations.functionCallMode instanceof InvokeFunctionCallMode, 'functionCallMode should be InvokeFunctionCallMode');
+      // Assert
+      expect(functionProxyConfigurations.functionCallMode).to.be.an.instanceof(InvokeFunctionCallMode);
     });
 
-    QUnit.test('lazyThrows - should return same function setup object', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: FunctionSetupLyfecycleObject = this;
+    it('lazyshould return same function setup object', () => {
+      // Act
+      var functionSetup = oneArgumentFunctionSetup.lazyThrows(() => 4);
 
-        // Act
-        var functionSetup = context.oneArgumentFunctionSetup.lazyThrows(() => 4);
-
-        // Assert
-        assert.strictEqual(functionSetup, context.oneArgumentFunctionSetup, 'should rerturn same function setup');
+      // Assert
+      expect(functionSetup).to.be.equal(oneArgumentFunctionSetup);
     });
-}
+
+  });
+
+});

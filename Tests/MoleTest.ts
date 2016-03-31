@@ -4329,7 +4329,7 @@ module Tests {
         mole.callBase = true;
 
         var getterAndSetterValue = {};
-        
+
         // Act
         testObject.getterAndSetter = getterAndSetterValue;
 

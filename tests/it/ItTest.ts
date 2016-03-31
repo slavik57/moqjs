@@ -1,497 +1,483 @@
-﻿'use strict';
+import { expect } from 'chai';
+import { ItIsBase } from '../../src/it/ItIsBase';
+import { It }from '../../src/it/It';
 
-module Tests {
-    import ItIsBase = moqJS.ItIsBase;
-    import It = moqJS.It;
+describe('It', () => {
+  class Parent {
+  }
 
-    class Parent {
-    }
+  class Son extends Parent {
+  }
 
-    class Son extends Parent {
-    }
+  describe('isAny', () => {
 
-    class ItIsLyfecycleObject implements LifecycleObject {
-        public beforeEach = function () {
-            var context: ItIsLyfecycleObject = this;
-        };
+    it('expect number check number should return true', () => {
+      // Arrange
+      var expectedType: Function = Number;
+      var actual = 1;
 
-        public afterEach = function () {
-        };
-    }
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-    QUnit.module('It', new ItIsLyfecycleObject());
+      // Act
+      var result = isAny.match(actual);
 
-    QUnit.test('isAny - expect number check number should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Number;
-        var actual = 1;
-
-        var isAny: ItIsBase = It.isAny(expectedType);
-
-        // Act
-        var result = isAny.match(actual);
-
-        // Assert
-        assert.strictEqual(result, true, 'should match the type');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isAny - expect number check string should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Number;
-        var actual = '';
+    it('expect number check string should return false', () => {
+      // Arrange
+      var expectedType: Function = Number;
+      var actual = '';
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect string check number should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = String;
-        var actual = 1;
+    it('expect string check number should return false', () => {
+      // Arrange
+      var expectedType: Function = String;
+      var actual = 1;
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect string check empty string should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = String;
-        var actual = '';
+    it('expect string check empty string should return true', () => {
+      // Arrange
+      var expectedType: Function = String;
+      var actual = '';
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, true, 'should match the type');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isAny - expect string check string should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = String;
-        var actual = 'some text';
+    it('expect string check string should return true', () => {
+      // Arrange
+      var expectedType: Function = String;
+      var actual = 'some text';
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, true, 'should match the type');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isAny - expect string check null should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = String;
-        var actual = null;
+    it('expect string check null should return false', () => {
+      // Arrange
+      var expectedType: Function = String;
+      var actual = null;
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect string check undefined should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = String;
-        var actual = undefined;
+    it('expect string check undefined should return false', () => {
+      // Arrange
+      var expectedType: Function = String;
+      var actual = undefined;
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect number check null should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Number;
-        var actual = null;
+    it('expect number check null should return false', () => {
+      // Arrange
+      var expectedType: Function = Number;
+      var actual = null;
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect number check undefined should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Number;
-        var actual = undefined;
+    it('expect number check undefined should return false', () => {
+      // Arrange
+      var expectedType: Function = Number;
+      var actual = undefined;
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect parent check son should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Parent;
-        var actual = new Son();
+    it('expect parent check son should return true', () => {
+      // Arrange
+      var expectedType: Function = Parent;
+      var actual = new Son();
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, true, 'should match the type');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isAny - expect parent check parent should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Parent;
-        var actual = new Parent();
+    it('expect parent check parent should return true', () => {
+      // Arrange
+      var expectedType: Function = Parent;
+      var actual = new Parent();
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, true, 'should match the type');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isAny - expect son check parent should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Son;
-        var actual = new Parent();
+    it('expect son check parent should return false', () => {
+      // Arrange
+      var expectedType: Function = Son;
+      var actual = new Parent();
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect son check son should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Son;
-        var actual = new Son();
+    it('expect son check son should return true', () => {
+      // Arrange
+      var expectedType: Function = Son;
+      var actual = new Son();
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, true, 'should match the type');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isAny - expect son check null should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Son;
-        var actual = null;
+    it('expect son check null should return false', () => {
+      // Arrange
+      var expectedType: Function = Son;
+      var actual = null;
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect son check undefined should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Son;
-        var actual = undefined;
+    it('expect son check undefined should return false', () => {
+      // Arrange
+      var expectedType: Function = Son;
+      var actual = undefined;
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect number check [] should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Number;
-        var actual = [];
+    it('expect number check [] should return false', () => {
+      // Arrange
+      var expectedType: Function = Number;
+      var actual = [];
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect number check Array should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Number;
-        var actual = new Array();
+    it('expect number check Array should return false', () => {
+      // Arrange
+      var expectedType: Function = Number;
+      var actual = new Array();
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect array check number should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Array;
-        var actual = 1;
+    it('expect array check number should return false', () => {
+      // Arrange
+      var expectedType: Function = Array;
+      var actual = 1;
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, false, 'should not match the type');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isAny - expect array check [] should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Array;
-        var actual = [];
+    it('expect array check [] should return true', () => {
+      // Arrange
+      var expectedType: Function = Array;
+      var actual = [];
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, true, 'should match the type');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isAny - expect array check array should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Array;
-        var actual = new Array();
+    it('expect array check array should return true', () => {
+      // Arrange
+      var expectedType: Function = Array;
+      var actual = new Array();
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, true, 'should match the type');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isAny - expect array check not empty [] should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Array;
-        var actual = [1, '', {}];
+    it('expect array check not empty [] should return true', () => {
+      // Arrange
+      var expectedType: Function = Array;
+      var actual = [1, '', {}];
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, true, 'should match the type');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isAny - expect array check not empty array should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var expectedType: Function = Array;
-        var actual = new Array(1, '', {});
+    it('expect array check not empty array should return true', () => {
+      // Arrange
+      var expectedType: Function = Array;
+      var actual = new Array(1, '', {});
 
-        var isAny: ItIsBase = It.isAny(expectedType);
+      var isAny: ItIsBase = It.isAny(expectedType);
 
-        // Act
-        var result = isAny.match(actual);
+      // Act
+      var result = isAny.match(actual);
 
-        // Assert
-        assert.strictEqual(result, true, 'should match the type');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('is - should call the function passed with the argument', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+  });
 
-        var arg = {};
+  describe('is', () => {
 
-        var itIs: ItIsBase = It.is(_arg => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'Should pass the argument');
-            return true;
-        });
+    it('should call the function passed with the argument', () => {
+      // Arrange
+      var arg = {};
 
-        // Act
-        itIs.match(arg);
+      var actualArg;
+      var itIs: ItIsBase = It.is(_arg => {
+        actualArg = _arg;
+        return true;
+      });
+
+      // Act
+      itIs.match(arg);
+
+      // Assert
+      expect(actualArg).to.be.equal(arg);
     });
 
-    QUnit.test('is - function returns true should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+    it('function returns true should return true', () => {
+      // Arrange
+      var arg = {};
 
-        var arg = {};
+      var itIs: ItIsBase = It.is(_arg => {
+        return true;
+      });
 
-        var itIs: ItIsBase = It.is(_arg => {
-            return true;
-        });
+      // Act
+      var result = itIs.match(arg);
 
-        // Act
-        var result = itIs.match(arg);
-
-        // Assert
-        assert.strictEqual(result, true, 'when passed function returns true should return true');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('is - function returns false should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+    it('function returns false should return false', () => {
+      // Arrange
+      var arg = {};
 
-        var arg = {};
+      var itIs: ItIsBase = It.is(_arg => {
+        return false;
+      });
 
-        var itIs: ItIsBase = It.is(_arg => {
-            return false;
-        });
+      // Act
+      var result = itIs.match(arg);
 
-        // Act
-        var result = itIs.match(arg);
-
-        // Assert
-        assert.strictEqual(result, false, 'when passed function returns false should return false');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isInRange - not a number should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+  });
 
-        var arg = {};
+  describe('isInRange', () => {
 
-        var itIs: ItIsBase = It.isInRange(1, 2);
+    it('not a number should return false', () => {
+      // Arrange
+      var arg = {};
 
-        // Act
-        var result = itIs.match(arg);
+      var itIs: ItIsBase = It.isInRange(1, 2);
 
-        // Assert
-        assert.strictEqual(result, false, 'when passed not a number should return false');
+      // Act
+      var result = itIs.match(arg);
+
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isInRange - min range number should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+    it('min range number should return true', () => {
+      // Arrange
+      var min = 1;
+      var max = 3;
 
-        var min = 1;
-        var max = 3;
+      var itIs: ItIsBase = It.isInRange(min, max);
 
-        var itIs: ItIsBase = It.isInRange(min, max);
+      // Act
+      var result = itIs.match(min);
 
-        // Act
-        var result = itIs.match(min);
-
-        // Assert
-        assert.strictEqual(result, true, 'when passed min range number should return true');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isInRange - max range number should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+    it('max range number should return true', () => {
+      // Arrange
+      var min = 1;
+      var max = 3;
 
-        var min = 1;
-        var max = 3;
+      var itIs: ItIsBase = It.isInRange(min, max);
 
-        var itIs: ItIsBase = It.isInRange(min, max);
+      // Act
+      var result = itIs.match(max);
 
-        // Act
-        var result = itIs.match(max);
-
-        // Assert
-        assert.strictEqual(result, true, 'when passed max range number should return true');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isInRange - middle number should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+    it('middle number should return true', () => {
+      // Arrange
+      var min = 1;
+      var middle = 2;
+      var max = 3;
 
-        var min = 1;
-        var middle = 2;
-        var max = 3;
+      var itIs: ItIsBase = It.isInRange(min, max);
 
-        var itIs: ItIsBase = It.isInRange(min, max);
+      // Act
+      var result = itIs.match(middle);
 
-        // Act
-        var result = itIs.match(middle);
-
-        // Assert
-        assert.strictEqual(result, true, 'when passed middle range number should return true');
+      // Assert
+      expect(result).to.be.true;
     });
 
-    QUnit.test('isRegExp - not string should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+  });
 
-        var itIs: ItIsBase = It.isRegExp(new RegExp('[1-8]'));
+  describe('isRegExp', () => {
 
-        // Act
-        var result = itIs.match(1);
+    it('isRegExp - not string should return false', () => {
+      // Arrange
+      var itIs: ItIsBase = It.isRegExp(new RegExp('[1-8]'));
 
-        // Assert
-        assert.strictEqual(result, false, 'on not a string should return false');
+      // Act
+      var result = itIs.match(1);
+
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isRegExp - not string should return false 2', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+    it('isRegExp - not string should return false 2', () => {
+      // Arrange
+      var itIs: ItIsBase = It.isRegExp(new RegExp('[1-8]'));
 
-        var itIs: ItIsBase = It.isRegExp(new RegExp('[1-8]'));
+      // Act
+      var result = itIs.match({});
 
-        // Act
-        var result = itIs.match({});
-
-        // Assert
-        assert.strictEqual(result, false, 'on not a string should return false');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isRegExp - not matching should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+    it('isRegExp - not matching should return false', () => {
+      // Arrange
+      var itIs: ItIsBase = It.isRegExp(new RegExp('[1-8]'));
 
-        var itIs: ItIsBase = It.isRegExp(new RegExp('[1-8]'));
+      // Act
+      var result = itIs.match('9');
 
-        // Act
-        var result = itIs.match('9');
-
-        // Assert
-        assert.strictEqual(result, false, 'on not matching should return false');
+      // Assert
+      expect(result).to.be.false;
     });
 
-    QUnit.test('isRegExp - matching should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: ItIsLyfecycleObject = this;
+    it('isRegExp - matching should return true', () => {
+      // Arrange
+      var itIs: ItIsBase = It.isRegExp(new RegExp('[1-8]'));
 
-        var itIs: ItIsBase = It.isRegExp(new RegExp('[1-8]'));
+      // Act
+      var result = itIs.match('8');
 
-        // Act
-        var result = itIs.match('8');
-
-        // Assert
-        assert.strictEqual(result, true, 'on matching should return false');
+      // Assert
+      expect(result).to.be.true;
     });
-}
+
+  });
+
+});

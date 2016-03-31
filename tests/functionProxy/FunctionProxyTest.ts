@@ -1,4 +1,4 @@
-import { expect, AssertionError } from 'chai';
+import { expect } from 'chai';
 import { FunctionProxy } from '../../src/functionProxy/FunctionProxy';
 import { FunctionProxyConfigurations } from '../../src/functionProxy/FunctionProxyConfigurations';
 import { TestObject } from '../testsCommon/TestObject';
