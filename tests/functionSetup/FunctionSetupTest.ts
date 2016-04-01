@@ -194,7 +194,7 @@ describe('FunctionSetup', () => {
       returning1FunctionSetup.returnsInOrder([newReturnValue1, newReturnValue2, newReturnValue3]);
 
       // Assert
-      expect(actualFunctionCallMode).to.be.equal(ReturnsOverrideFunctionCallMode);
+      expect(actualFunctionCallMode).to.be.instanceof(ReturnsOverrideFunctionCallMode);
     });
 
     it('should call when the override contains function that returns the new values', () => {

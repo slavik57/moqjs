@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { TestObject } from './testsCommon/TestObject';
+import { TestObjectSon } from './testsCommon/TestObjectSon';
 import { Mole, Times, It } from '../index';
 import { ItIsBase } from '../src/it/ItIsBase';
 import { ITimes } from '../src/times/ITimes';
@@ -10,7 +11,6 @@ describe('Mole', () => {
 
   beforeEach(() => {
     testObject = new TestObject();
-
     mole = new Mole(testObject);
   });
 
@@ -406,8 +406,8 @@ describe('Mole', () => {
       expect(verifyManyArguments).to.be.false;
       expect(verifyGetter).to.be.false;
       expect(verifySetter).to.be.false;
-      expect(verifyGetterAndSetterSetter).to.be.true;
-      expect(verifyGetterAndSetterGetter).to.be.false;
+      expect(verifyGetterAndSetterGetter).to.be.true;
+      expect(verifyGetterAndSetterSetter).to.be.false;
     });
 
     it('should verify only the setter of getter and setter', () => {
@@ -433,8 +433,8 @@ describe('Mole', () => {
       expect(verifyManyArguments).to.be.false;
       expect(verifyGetter).to.be.false;
       expect(verifySetter).to.be.false;
-      expect(verifyGetterAndSetterSetter).to.be.false;
-      expect(verifyGetterAndSetterGetter).to.be.true;
+      expect(verifyGetterAndSetterGetter).to.be.false;
+      expect(verifyGetterAndSetterSetter).to.be.true;
     });
 
     it('after setups should count ok', () => {
@@ -4083,159 +4083,223 @@ describe('Mole', () => {
 
       it('should not call callback if function is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callback if getter is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.getter).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callback if setter is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.setter = 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callback if getter of getter and setter is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.getterAndSetter).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callback if setter of getter and setter is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should call callback when function is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should call callback when getter is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.getter).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.getter;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should call callback when setter is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.setter = 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.setter = 1;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should call callback when getter of getter and setter is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.getterAndSetter).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.getterAndSetter;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should call callback when setter of getter and setter is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.getterAndSetter = 1;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should not call the original function', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onNoArgumentsFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call the original getter', () => {
         // Arrange
         mole.setup(_ => _.getter).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onGetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.getter;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call the original setter', () => {
         // Arrange
         mole.setup(_ => _.setter = 1).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onSetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.setter = 1;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call the original getter of getter and setter', () => {
         // Arrange
         mole.setup(_ => _.getterAndSetter).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onGetterOfGetterAndSetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.getterAndSetter;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call the original setter of getter and setter', () => {
         // Arrange
         mole.setup(_ => _.getterAndSetter = 1).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onSetterOfGetterAndSetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.getterAndSetter = 1;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should pass the same parameters', () => {
         // Arrange
         var arg = 1;
 
+        var actualArg;
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback((_arg) => {
           actualArg = _arg;
         });
 
         // Act
         testObject.oneArgumentsFunction(arg);
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
       it('should pass the same parameters 2', () => {
@@ -4244,6 +4308,9 @@ describe('Mole', () => {
         var arg2 = 2;
         var arg3 = 3;
 
+        var actualArg1;
+        var actualArg2;
+        var actualArg3;
         mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
           .callback((_arg1, _arg2, _arg3) => {
             actualArg1 = _arg1;
@@ -4253,38 +4320,52 @@ describe('Mole', () => {
 
         // Act
         testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Assert
+        expect(actualArg1).to.be.equal(arg1);
+        expect(actualArg2).to.be.equal(arg2);
+        expect(actualArg3).to.be.equal(arg3);
       });
 
       it('should pass the same parameters to setter', () => {
         // Arrange
         var arg = 1;
 
+        var actualArg;
         mole.setup(_ => _.setter = It.isAny(Number)).callback((_arg) => {
           actualArg = arg;
         });
 
         // Act
         testObject.setter = arg;
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
       it('should pass the same parameters to setter of getter and setter', () => {
         // Arrange
         var arg = 1;
 
+        var actualArg;
         mole.setup(_ => _.getterAndSetter = It.isAny(Number)).callback((_arg) => {
           actualArg = arg;
         });
 
         // Act
         testObject.getterAndSetter = arg;
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
       it('should not call other original functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -4297,14 +4378,18 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call other original functions 2', () => {
         // Arrange
         mole.setup(_ => _.getterAndSetter).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -4317,14 +4402,18 @@ describe('Mole', () => {
 
         // Act
         testObject.getterAndSetter;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call other original functions 3', () => {
         // Arrange
         mole.setup(_ => _.setter = 1).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -4337,14 +4426,18 @@ describe('Mole', () => {
 
         // Act
         testObject.setter = 1;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callbacks on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -4364,14 +4457,18 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call lazyReturns on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -4383,6 +4480,9 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not return the callback return value', () => {
@@ -4400,88 +4500,139 @@ describe('Mole', () => {
 
       it('should call all the callbacks when function is called', () => {
         // Arrange
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled1++;
         }).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled2++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled3++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled4++;
       		});
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('should call all the callbacks when function is called for getter', () => {
         // Arrange
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setup(_ => _.getter).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled1++;
         }).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled2++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled3++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled4++;
       		});
 
         // Act
         testObject.getter;
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('should call all the callbacks when function is called for setter', () => {
         // Arrange
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setup(_ => _.setter = 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled1++;
         }).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled2++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled3++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled4++;
       		});
 
         // Act
         testObject.setter = 1;
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('should call all the callbacks when function is called for getter of getter and setter', () => {
         // Arrange
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setup(_ => _.getterAndSetter).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled1++;
         }).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled2++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled3++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled4++;
       		});
 
         // Act
         testObject.getterAndSetter;
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('should call all the callbacks when function is called for setter of getter and setter', () => {
         // Arrange
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled1++;
         }).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled2++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled3++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled4++;
       		});
 
         // Act
         testObject.getterAndSetter = 1;
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('should pass teh same parameters to all the callbacks when function is called', () => {
         // Arrange
         var arg = 12;
 
+        var actualArg;
         var checkArgument = (_arg) => {
           actualArg = _arg;
         };
@@ -4494,6 +4645,9 @@ describe('Mole', () => {
 
         // Act
         testObject.oneArgumentsFunction(arg);
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
       it('should pass teh same parameters to all the callbacks when function is called 2', () => {
@@ -4502,6 +4656,9 @@ describe('Mole', () => {
         var arg2 = 12;
         var arg3 = 13;
 
+        var actualArg1;
+        var actualArg2;
+        var actualArg3;
         var checkArgument = (_arg1, _arg2, _arg3) => {
           actualArg1 = _arg1;
           actualArg2 = _arg2;
@@ -4516,6 +4673,11 @@ describe('Mole', () => {
 
         // Act
         testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Assert
+        expect(actualArg1).to.be.equal(arg1);
+        expect(actualArg2).to.be.equal(arg2);
+        expect(actualArg3).to.be.equal(arg3);
       });
 
       it('should not affect verify', () => {
@@ -4590,12 +4752,16 @@ describe('Mole', () => {
         mole.setup(_ => _.oneArgumentsFunction(1)).callback(() => { });
 
         var arg = {};
+        var actualArg;
         testObject.onOneArgumentsFunctionCalled = (_arg) => {
           actualArg = arg;
         };
 
         // Act
         testObject.oneArgumentsFunction(arg);
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
       it('calling setter with not matching value should call the original setter', () => {
@@ -4603,12 +4769,16 @@ describe('Mole', () => {
         mole.setup(_ => _.setter = 1).callback(() => { });
 
         var arg = {};
+        var actualArg;
         testObject.onSetterCalled = (_arg) => {
           actualArg = arg;
         };
 
         // Act
         testObject.setter = arg;
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
     });
@@ -4619,44 +4789,57 @@ describe('Mole', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
+        var numberOfTimesCalled = 0;
         testObject.onNoArgumentsFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call the original getter', () => {
         // Arrange
         mole.setup(_ => _.getter).returns(111);
 
+        var numberOfTimesCalled = 0;
         testObject.onGetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.getter;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call the original getter of getter and setter', () => {
         // Arrange
         mole.setup(_ => _.getterAndSetter).returns(111);
 
+        var numberOfTimesCalled = 0;
         testObject.onGetterOfGetterAndSetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.getterAndSetter;
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call other original functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -4665,14 +4848,18 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callbacks on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -4684,14 +4871,18 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call lazyReturns on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -4703,6 +4894,9 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should return the value', () => {
@@ -4801,20 +4995,25 @@ describe('Mole', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
 
+        var numberOfTimesCalled = 0;
         testObject.onNoArgumentsFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call other original functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -4823,14 +5022,18 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callbacks on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -4842,14 +5045,18 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call lazyReturns on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).returns([111]);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -4861,6 +5068,9 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should return the values', () => {
@@ -4877,9 +5087,9 @@ describe('Mole', () => {
         var result4 = testObject.returning1Function();
 
         // Assert
-        expect(result1).to.not.be.equal(returnValue1);
-        expect(result2).to.not.be.equal(returnValue2);
-        expect(result3).to.not.be.equal(returnValue3);
+        expect(result1).to.be.equal(returnValue1);
+        expect(result2).to.be.equal(returnValue2);
+        expect(result3).to.be.equal(returnValue3);
         expect(result4).to.be.undefined;
       });
 
@@ -4903,9 +5113,9 @@ describe('Mole', () => {
         var result4 = testObject.returning1Function();
 
         // Assert
-        expect(result1).to.not.be.equal(returnValue5);
-        expect(result2).to.not.be.equal(returnValue6);
-        expect(result3).to.not.be.equal(returnValue7);
+        expect(result1).to.be.equal(returnValue5);
+        expect(result2).to.be.equal(returnValue6);
+        expect(result3).to.be.equal(returnValue7);
         expect(result4).to.be.undefined;
       });
 
@@ -4937,9 +5147,9 @@ describe('Mole', () => {
         var result4 = testObject.getter;
 
         // Assert
-        expect(result1).to.not.be.equal(returnValue5);
-        expect(result2).to.not.be.equal(returnValue6);
-        expect(result3).to.not.be.equal(returnValue7);
+        expect(result1).to.be.equal(returnValue5);
+        expect(result2).to.be.equal(returnValue6);
+        expect(result3).to.be.equal(returnValue7);
         expect(result4).to.be.undefined;
       });
 
@@ -4949,43 +5159,60 @@ describe('Mole', () => {
 
       it('should not call returnFunction if function is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should call returnFunction when function is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should not call the original function', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onNoArgumentsFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should pass the same parameters', () => {
         // Arrange
         var arg = 1;
 
+        var actualArg;
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns((_arg) => {
           actualArg = _arg;
         });
 
         // Act
         testObject.oneArgumentsFunction(arg);
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
       it('should pass the same parameters 2', () => {
@@ -4994,6 +5221,9 @@ describe('Mole', () => {
         var arg2 = 2;
         var arg3 = 3;
 
+        var actualArg1;
+        var actualArg2;
+        var actualArg3;
         mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
           .lazyReturns((_arg1, _arg2, _arg3) => {
             actualArg1 = _arg1;
@@ -5003,14 +5233,20 @@ describe('Mole', () => {
 
         // Act
         testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Assert
+        expect(actualArg1).to.be.equal(arg1);
+        expect(actualArg2).to.be.equal(arg2);
+        expect(actualArg3).to.be.equal(arg3);
       });
 
       it('should not call other original functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -5019,14 +5255,18 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callbacks on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -5038,14 +5278,18 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call lazyReturns on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -5057,6 +5301,9 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should return the returnFunction return value', () => {
@@ -5128,9 +5375,13 @@ describe('Mole', () => {
 
       it('should not call returnFunction if function is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         }]);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should call returnFunction when function is called', () => {
@@ -5158,12 +5409,16 @@ describe('Mole', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
 
+        var numberOfTimesCalled = 0;
         testObject.onNoArgumentsFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should pass the same parameters', () => {
@@ -5171,6 +5426,8 @@ describe('Mole', () => {
         var arg1 = 1;
         var arg2 = 2;
 
+        var actualArg1;
+        var actualArg2;
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturnsInOrder([(_arg1) => {
           actualArg1 = _arg1;
         }, (_arg2) => {
@@ -5180,6 +5437,10 @@ describe('Mole', () => {
         // Act
         testObject.oneArgumentsFunction(arg1);
         testObject.oneArgumentsFunction(arg2);
+
+        // Assert
+        expect(actualArg1).to.be.equal(arg1);
+        expect(actualArg2).to.be.equal(arg2);
       });
 
       it('should pass the same parameters 2', () => {
@@ -5191,6 +5452,12 @@ describe('Mole', () => {
         var arg22 = 5;
         var arg23 = 6;
 
+        var actualArg11;
+        var actualArg12;
+        var actualArg13;
+        var actualArg21;
+        var actualArg22;
+        var actualArg23;
         mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
           .lazyReturnsInOrder([(_arg11, _arg12, _arg13) => {
             actualArg11 = _arg11;
@@ -5206,14 +5473,23 @@ describe('Mole', () => {
         // Act
         testObject.manyArgumentsFunction(arg11, arg12, arg13);
         testObject.manyArgumentsFunction(arg21, arg22, arg23);
+
+        // Assert
+        expect(actualArg11).to.be.equal(arg11);
+        expect(actualArg12).to.be.equal(arg12);
+        expect(actualArg13).to.be.equal(arg13);
+        expect(actualArg21).to.be.equal(arg21);
+        expect(actualArg22).to.be.equal(arg22);
+        expect(actualArg23).to.be.equal(arg23);
       });
 
       it('should not call other original functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -5222,14 +5498,18 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callbacks on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -5241,14 +5521,18 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call lazyReturns on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -5260,6 +5544,9 @@ describe('Mole', () => {
 
         // Act
         testObject.noArgumentsFunction();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should return the returnFunction return values', () => {
@@ -5310,9 +5597,9 @@ describe('Mole', () => {
         var result4 = testObject.returning1Function();
 
         // Assert
-        expect(result1).to.not.be.equal(returnValue5);
-        expect(result2).to.not.be.equal(returnValue6);
-        expect(result3).to.not.be.equal(returnValue7);
+        expect(result1).to.be.equal(returnValue5);
+        expect(result2).to.be.equal(returnValue6);
+        expect(result3).to.be.equal(returnValue7);
         expect(result4).to.be.undefined;
       });
 
@@ -5347,9 +5634,9 @@ describe('Mole', () => {
         var result4 = testObject.getterAndSetter;
 
         // Assert
-        expect(result1).to.not.be.equal(returnValue5);
-        expect(result2).to.not.be.equal(returnValue6);
-        expect(result3).to.not.be.equal(returnValue7);
+        expect(result1).to.be.equal(returnValue5);
+        expect(result2).to.be.equal(returnValue6);
+        expect(result3).to.be.equal(returnValue7);
         expect(result4).to.be.undefined;
       });
 
@@ -5361,8 +5648,9 @@ describe('Mole', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
+        var numberOfTimesCalled = 0;
         testObject.onNoArgumentsFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
@@ -5370,14 +5658,18 @@ describe('Mole', () => {
           testObject.noArgumentsFunction();
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call other original functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -5389,14 +5681,18 @@ describe('Mole', () => {
           testObject.noArgumentsFunction();
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callbacks on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -5411,14 +5707,18 @@ describe('Mole', () => {
           testObject.noArgumentsFunction();
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call lazyReturns on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -5433,6 +5733,9 @@ describe('Mole', () => {
           testObject.noArgumentsFunction();
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should throw the error', () => {
@@ -5441,11 +5744,15 @@ describe('Mole', () => {
         mole.setup(_ => _.returning1Function()).throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.returning1Function();
         } catch (error) {
           actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('should throw the last error', () => {
@@ -5461,11 +5768,15 @@ describe('Mole', () => {
           .throws(thrownError4);
 
         // Act
+        var actualError;
         try {
           testObject.returning1Function();
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError4);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError4);
       });
 
       it('should throw the last error for getter', () => {
@@ -5481,11 +5792,15 @@ describe('Mole', () => {
           .throws(thrownError4);
 
         // Act
+        var actualError;
         try {
           testObject.getter;
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError4);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError4);
       });
 
       it('should throw the last error for setter', () => {
@@ -5501,11 +5816,15 @@ describe('Mole', () => {
           .throws(thrownError4);
 
         // Act
+        var actualError;
         try {
           testObject.setter = 1;
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError4);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError4);
       });
 
       it('should throw the last error for getter of getter and setter', () => {
@@ -5521,11 +5840,15 @@ describe('Mole', () => {
           .throws(thrownError4);
 
         // Act
+        var actualError;
         try {
           testObject.getterAndSetter;
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError4);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError4);
       });
 
       it('should throw the last error for setter of getter and setter', () => {
@@ -5541,11 +5864,15 @@ describe('Mole', () => {
           .throws(thrownError4);
 
         // Act
+        var actualError;
         try {
           testObject.getterAndSetter = 1;
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError4);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError4);
       });
 
       it('should not affect verify', () => {
@@ -5569,11 +5896,15 @@ describe('Mole', () => {
           .throws(thrownError4);
 
         // Act
+        var numberOfTimesThrown = 0;
         try {
           testObject.getterAndSetter = 1;
         } catch (e) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('setting setter should not affect getter', () => {
@@ -5589,11 +5920,15 @@ describe('Mole', () => {
           .throws(thrownError4);
 
         // Act
+        var numberOfTimesThrown = 0;
         try {
           testObject.getterAndSetter;
         } catch (e) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('calling setter with not matching argument should not throw', () => {
@@ -5601,11 +5936,15 @@ describe('Mole', () => {
         mole.setup(_ => _.setter = 1).throws({});
 
         // Act
+        var numberOfTimesThrown = 0;
         try {
           testObject.setter = 2;
         } catch (e) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('calling setter of getter and setter with not matching argument should not throw', () => {
@@ -5613,11 +5952,15 @@ describe('Mole', () => {
         mole.setup(_ => _.getterAndSetter = 1).throws({});
 
         // Act
+        var numberOfTimesThrown = 0;
         try {
           testObject.getterAndSetter = 2;
         } catch (e) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('calling function with not matching argument should not throw', () => {
@@ -5625,11 +5968,15 @@ describe('Mole', () => {
         mole.setup(_ => _.oneArgumentsFunction(1)).throws({});
 
         // Act
+        var numberOfTimesThrown = 0;
         try {
           testObject.oneArgumentsFunction(2);
         } catch (e) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
     });
@@ -5638,15 +5985,20 @@ describe('Mole', () => {
 
       it('should not call returnErrorFunction if function is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should call returnErrorFunction when function is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
@@ -5654,14 +6006,18 @@ describe('Mole', () => {
           testObject.noArgumentsFunction();
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should not call the original function', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onNoArgumentsFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
@@ -5669,12 +6025,16 @@ describe('Mole', () => {
           testObject.noArgumentsFunction();
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should pass the same parameters', () => {
         // Arrange
         var arg = 1;
 
+        var actualArg;
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyThrows((_arg) => {
           actualArg = _arg;
         });
@@ -5684,6 +6044,9 @@ describe('Mole', () => {
           testObject.oneArgumentsFunction(arg);
         } catch (e) {
         }
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
       it('should pass the same parameters 2', () => {
@@ -5692,6 +6055,9 @@ describe('Mole', () => {
         var arg2 = 2;
         var arg3 = 3;
 
+        var actualArg1;
+        var actualArg2;
+        var actualArg3;
         mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
           .lazyThrows((_arg1, _arg2, _arg3) => {
             actualArg1 = _arg1;
@@ -5704,14 +6070,20 @@ describe('Mole', () => {
           testObject.manyArgumentsFunction(arg1, arg2, arg3);
         } catch (e) {
         }
+
+        // Assert
+        expect(actualArg1).to.be.equal(arg1);
+        expect(actualArg2).to.be.equal(arg2);
+        expect(actualArg3).to.be.equal(arg3);
       });
 
       it('should not call other original functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -5723,14 +6095,18 @@ describe('Mole', () => {
           testObject.noArgumentsFunction();
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callbacks on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -5745,14 +6121,18 @@ describe('Mole', () => {
           testObject.noArgumentsFunction();
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call lazyThrows on other functions', () => {
         // Arrange
         mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -5767,6 +6147,9 @@ describe('Mole', () => {
           testObject.noArgumentsFunction();
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should throw the returnErrorFunction error', () => {
@@ -5778,11 +6161,15 @@ describe('Mole', () => {
         });
 
         // Act
+        var actualError;
         try {
           testObject.returning1Function();
-        } catch (actualError) {
-          expect(actualError).to.be.equal(error);
+        } catch (error) {
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(error);
       });
 
       it('should throw the last returnErrorFunction error', () => {
@@ -5799,11 +6186,15 @@ describe('Mole', () => {
           .lazyThrows(() => { return error4; });
 
         // Act
+        var actualError;
         try {
           testObject.returning1Function();
-        } catch (actualError) {
-          expect(actualError).to.be.equal(error4);
+        } catch (error) {
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(error4);
       });
 
       it('should not affect verify', () => {
@@ -5829,11 +6220,15 @@ describe('Mole', () => {
           .throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.returning1Function();
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('should return value if configured after throw', () => {
@@ -5857,21 +6252,25 @@ describe('Mole', () => {
         var returnValue = {};
         var thrownError = {};
 
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setup(_ => _.returning1Function())
           .throws(thrownError)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled1++;
             return 1;
           })
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled2++;
             return 2;
           })
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled3++;
             return 3;
           })
-          .callback(() => assert.ok(true, 'should call callback'))
+          .callback(() => numberOfTimesCalled4++)
           .returns(returnValue);
 
         // Act
@@ -5879,6 +6278,10 @@ describe('Mole', () => {
 
         // Assert
         expect(result).to.be.equal(returnValue);
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('should call all the callbacks and the lazy returns but return last configured one 2', () => {
@@ -5886,28 +6289,36 @@ describe('Mole', () => {
         var returnValue = {};
         var thrownError = {};
 
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setup(_ => _.returning1Function())
           .throws(thrownError)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled1++;
             return 1;
           })
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled2++;
             return 2;
           })
           .returns(3)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled3++;
             return returnValue;
           })
-          .callback(() => assert.ok(true, 'should call callback'));
+          .callback(() => numberOfTimesCalled4++);
 
         // Act
         var result = testObject.returning1Function();
 
         // Assert
         expect(result).to.be.equal(returnValue);
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('should call all the callbacks and the lazy returns but throw last configured error', () => {
@@ -5915,30 +6326,42 @@ describe('Mole', () => {
         var returnValue = {};
         var thrownError = {};
 
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setup(_ => _.returning1Function())
           .throws('asdasd')
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled1++;
             return 1;
           })
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled2++;
             return 2;
           })
           .returns(returnValue)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled3++;
             return 3;
           })
           .throws(thrownError)
-          .callback(() => assert.ok(true, 'should call callback'));
+          .callback(() => numberOfTimesCalled4++);
 
         // Act
+        var actualError;
         try {
           testObject.returning1Function();
         } catch (error) {
           actualError = error;
         }
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('should not affect the verify', () => {
@@ -5957,37 +6380,43 @@ describe('Mole', () => {
           .callback(() => { });
 
         // Assert
-        assert.ok(mole.verify(_ => _.returning1Function(), Times.exact(0)), 'should be called once');
+        expect(mole.verify(_ => _.returning1Function(), Times.exact(0))).to.be.true;
       });
 
       it('should call only the matching set', () => {
         // Arrange
         var returnValue = {};
 
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
+        var numberOfTimesCalled5 = 0;
+        var numberOfTimesCalled6 = 0;
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(0);
+            numberOfTimesCalled1++;
           })
           .returns('return value')
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(0);
+            numberOfTimesCalled2++;
           });
 
         mole.setup(_ => _.oneArgumentsFunction('aaa'))
           .throws('error')
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(0);
+            numberOfTimesCalled3++;
           })
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(0);
+            numberOfTimesCalled4++;
           });
 
         mole.setup(_ => _.oneArgumentsFunction('bbb'))
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled5++;
           })
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled6++;
           })
           .returns(returnValue);
 
@@ -5996,30 +6425,46 @@ describe('Mole', () => {
 
         // Assert
         expect(result).to.be.equal(returnValue);
+        expect(numberOfTimesCalled1).to.be.equal(0);
+        expect(numberOfTimesCalled2).to.be.equal(0);
+        expect(numberOfTimesCalled3).to.be.equal(0);
+        expect(numberOfTimesCalled4).to.be.equal(0);
+        expect(numberOfTimesCalled5).to.be.equal(1);
+        expect(numberOfTimesCalled6).to.be.equal(1);
       });
 
       it('if both setups match should call both', () => {
         // Arrange
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled1++;
           })
           .returns('return value')
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled2++;
           });
 
         mole.setup(_ => _.oneArgumentsFunction(1))
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled3++;
           })
           .returns('return value')
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled4++;
           });
 
         // Act
         testObject.oneArgumentsFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('if both setups match should return from the last', () => {
@@ -6074,11 +6519,15 @@ describe('Mole', () => {
           .throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.oneArgumentsFunction(1);
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('if both setups match should throw from the last 2', () => {
@@ -6095,11 +6544,15 @@ describe('Mole', () => {
           .throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.oneArgumentsFunction(1);
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('setup for one object should not affect other', () => {
@@ -6113,22 +6566,26 @@ describe('Mole', () => {
         var arg1 = 10;
         var returnsValue = 1;
         mole1.setup(_ => _.getter).returns(returnsValue);
+
+        var actualArg1;
         mole1.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback((_arg) => {
-          actualArg = _arg;
+          actualArg1 = _arg;
         });
 
         var arg2 = 20;
+        var actualArg2;
         testObject2.onOneArgumentsFunctionCalled = (_arg) => {
           actualArg2 = _arg;
         };
 
+        var numberOfTimesCalled1 = 0;
         testObject1.onGetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled1++;
         };
 
+        var numberOfTimesCalled2 = 0;
         testObject2.onGetterCalled = () => {
-          // Assert
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled2++;
         };
 
         var value = {};
@@ -6142,6 +6599,10 @@ describe('Mole', () => {
         // Assert
         expect(result1).to.be.equal(returnsValue);
         expect(result2).to.be.equal(value);
+        expect(numberOfTimesCalled1).to.be.equal(0);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(actualArg1).to.be.equal(arg1);
+        expect(actualArg2).to.be.equal(arg2);
       });
 
     });
@@ -6154,209 +6615,290 @@ describe('Mole', () => {
 
       it('should not call callback if function is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callback if getter is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callback if setter is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callback if getter of geter&setter is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callback if setter of geter&setter is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should call callback when function is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateFunction(null);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should call callback when getter is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateGetter();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should call callback when setter is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateSetter(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should not call callback when setter is called with wrong parameter', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateSetter(2);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should call callback when getter of getter&setter is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateGetterOfGetterAndSetter();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should call callback when setter of getter&setter is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateSetterOfGetterAndSetter(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should not call callback when setter of getter&setter is called with wrong parameter', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateSetterOfGetterAndSetter(2);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call the original function', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onPrivateFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.callPrivateFunction(null);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call the original getter', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onPrivateGetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.callPrivateGetter();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call the original setter', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onPrivateSetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.callPrivateSetter(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should call the original setter if called with other argument', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onPrivateSetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.callPrivateSetter(2);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should not call the original getter of getter and setter', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onPrivateGetterOfGetterAndSetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.callPrivateGetterOfGetterAndSetter();
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call the original setter of getter and setter', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onPrivateSetterOfGetterAndSetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.callPrivateSetterOfGetterAndSetter(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should call the original setter of getter and setter if called with other argument', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onPrivateSetterOfGetterAndSetterCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.callPrivateSetterOfGetterAndSetter(2);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should pass the same parameters', () => {
         // Arrange
         var arg = 1;
 
+        var actualArg;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).callback((_arg) => {
           actualArg = _arg;
         });
 
         // Act
         testObject.callPrivateFunction(arg);
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
       it('should pass the same parameters 2', () => {
         // Arrange
         var arg1 = 2;
 
+        var actualArg1;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 2)
           .callback((_arg1) => {
             actualArg1 = _arg1;
@@ -6364,12 +6906,16 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(arg1);
+
+        // Assert
+        expect(actualArg1).to.be.equal(arg1);
       });
 
       it('should pass the same parameters to setter', () => {
         // Arrange
         var arg1 = 2;
 
+        var actualArg1;
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 2)
           .callback((_arg1) => {
             actualArg1 = _arg1;
@@ -6377,12 +6923,16 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateSetter(arg1);
+
+        // Assert
+        expect(actualArg1).to.be.equal(arg1);
       });
 
       it('should pass the same parameters to setter of getter&setter', () => {
         // Arrange
         var arg1 = 2;
 
+        var actualArg1;
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 2)
           .callback((_arg1) => {
             actualArg1 = _arg1;
@@ -6390,76 +6940,100 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateSetterOfGetterAndSetter(arg1);
+
+        // Assert
+        expect(actualArg1).to.be.equal(arg1);
       });
 
       it('should not call if not matching', () => {
         // Arrange
         var arg = 'some text';
 
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateFunction(arg);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call if not matching 2', () => {
         // Arrange
         var arg1 = 3;
 
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 2)
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(0);
+            numberOfTimesCalled++;
           });
 
         // Act
         testObject.callPrivateFunction(arg1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call if not matching 3', () => {
         // Arrange
         var arg1 = 3;
 
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME)
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(0);
+            numberOfTimesCalled++;
           });
 
         // Act
         testObject.callPrivateFunction(undefined);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call setter if not matching', () => {
         // Arrange
         var arg = 'some text';
 
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, It.isAny(Number)).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateSetter(arg);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call setter of getter&setter if not matching', () => {
         // Arrange
         var arg = 'some text';
 
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, It.isAny(Number)).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateSetterOfGetterAndSetter(arg);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call other original functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -6468,14 +7042,18 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(null);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callbacks on other functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -6487,14 +7065,18 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(null);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call lazyReturns on other functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -6506,6 +7088,9 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not return the callback return value', () => {
@@ -6523,24 +7108,35 @@ describe('Mole', () => {
 
       it('should call all the callbacks when function is called', () => {
         // Arrange
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled1++;
         }).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled2++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled3++;
       		}).callback(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled4++;
       		});
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('should pass the same parameters to all the callbacks when function is called', () => {
         // Arrange
         var arg = 12;
 
+        var actualArg;
         var checkArgument = (_arg) => {
           actualArg = _arg;
         };
@@ -6553,6 +7149,9 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(arg);
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
     });
@@ -6564,20 +7163,25 @@ describe('Mole', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
 
+        var numberOfTimesCalled = 0;
         testObject.onPrivateFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('returns - should not call other original functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -6586,14 +7190,18 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('returns - should not call callbacks on other functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -6605,14 +7213,18 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('returns - should not call lazyReturns on other functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -6624,6 +7236,9 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('returns - should return the value', () => {
@@ -6698,49 +7313,66 @@ describe('Mole', () => {
 
       it('should not call returnFunction if function is not called', () => {
         // Act
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         });
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should call returnFunction when function is called', () => {
         // Arrange
+        var numberOfTimesCalled = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
-          expect(numberOfTimesCalled).to.be.equal(1);
+          numberOfTimesCalled++;
         });
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
       });
 
       it('should not call the original function', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
 
+        var numberOfTimesCalled = 0;
         testObject.onPrivateFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should pass the same parameters', () => {
         // Arrange
         var arg = 1;
 
+        var actualArg;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).lazyReturns((_arg) => {
           actualArg = _arg;
         });
 
         // Act
         testObject.callPrivateFunction(arg);
+
+        // Assert
+        expect(actualArg).to.be.equal(arg);
       });
 
       it('should pass the same parameters 2', () => {
         // Arrange
         var arg1 = 1;
 
+        var actualArg1;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, arg1)
           .lazyReturns((_arg1, _arg2, _arg3) => {
             actualArg1 = _arg1;
@@ -6748,14 +7380,18 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(arg1);
+
+        // Assert
+        expect(actualArg1).to.be.equal(arg1);
       });
 
       it('should not call other original functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -6764,14 +7400,18 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callbacks on other functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -6783,14 +7423,18 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call lazyReturns on other functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -6802,6 +7446,9 @@ describe('Mole', () => {
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should return the returnFunction return value', () => {
@@ -6837,6 +7484,8 @@ describe('Mole', () => {
 
         // Assert
         expect(result).to.be.equal(returnValue4);
+
+        // Assert
       });
 
       it('setup getter should not affect setter', () => {
@@ -6853,7 +7502,6 @@ describe('Mole', () => {
         expect(testObject.privateGetterAndSetterValue).to.be.equal(value);
       });
 
-
     });
 
     describe('throws', () => {
@@ -6862,8 +7510,9 @@ describe('Mole', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
 
+        var numberOfTimesCalled = 0;
         testObject.onNoArgumentsFunctionCalled = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         // Act
@@ -6871,14 +7520,18 @@ describe('Mole', () => {
           testObject.callPrivateFunction(1);
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call other original functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
@@ -6890,14 +7543,18 @@ describe('Mole', () => {
           testObject.callPrivateFunction(1);
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call callbacks on other functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
@@ -6912,14 +7569,18 @@ describe('Mole', () => {
           testObject.callPrivateFunction(1);
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should not call lazyReturns on other functions', () => {
         // Arrange
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
 
+        var numberOfTimesCalled = 0;
         var shouldNotHappen = () => {
-          expect(numberOfTimesCalled).to.be.equal(0);
+          numberOfTimesCalled++;
         };
 
         mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
@@ -6934,6 +7595,9 @@ describe('Mole', () => {
           testObject.callPrivateFunction(1);
         } catch (e) {
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(0);
       });
 
       it('should throw the error', () => {
@@ -6942,11 +7606,15 @@ describe('Mole', () => {
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.callPrivateFunction(1);
         } catch (error) {
           actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('should throw the error for getter', () => {
@@ -6955,11 +7623,15 @@ describe('Mole', () => {
         mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.callPrivateGetter();
         } catch (error) {
           actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('should throw the error for setter', () => {
@@ -6968,11 +7640,15 @@ describe('Mole', () => {
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.callPrivateSetter(1);
         } catch (error) {
           actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('should not throw the error for setter if arguments dont match', () => {
@@ -6981,11 +7657,15 @@ describe('Mole', () => {
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).throws(thrownError);
 
         // Act
+        var numberOfTimesThrown = 0;
         try {
           testObject.callPrivateSetter(2);
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('should throw the error for getter of getter&setter', () => {
@@ -6994,11 +7674,15 @@ describe('Mole', () => {
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.callPrivateGetterOfGetterAndSetter();
         } catch (error) {
           actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('should throw the error for setter of getter&setter', () => {
@@ -7007,11 +7691,15 @@ describe('Mole', () => {
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.callPrivateSetterOfGetterAndSetter(1);
         } catch (error) {
           actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('should not throw the error for setter of getter&setter if arguments dont match', () => {
@@ -7020,11 +7708,15 @@ describe('Mole', () => {
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
 
         // Act
+        var numberOfTimesThrown = 0;
         try {
           testObject.callPrivateSetterOfGetterAndSetter(2);
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('setup getter should not throw on setter', () => {
@@ -7033,11 +7725,15 @@ describe('Mole', () => {
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).throws(thrownError);
 
         // Act
+        var numberOfTimesThrown = 0;
         try {
           testObject.callPrivateSetterOfGetterAndSetter(2);
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('setup setter should not throw on getter', () => {
@@ -7046,11 +7742,15 @@ describe('Mole', () => {
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
 
         // Act
+        var numberOfTimesThrown = 0;
         try {
           testObject.callPrivateGetterOfGetterAndSetter();
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('should throw the last error', () => {
@@ -7066,11 +7766,15 @@ describe('Mole', () => {
           .throws(thrownError4);
 
         // Act
+        var actualError;
         try {
           testObject.callPrivateFunction(1);
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError4);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError4);
       });
 
     });
@@ -7087,11 +7791,15 @@ describe('Mole', () => {
           .throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.callPrivateFunction(1);
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('should return value if configured after throw', () => {
@@ -7115,21 +7823,25 @@ describe('Mole', () => {
         var returnValue = {};
         var thrownError = {};
 
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
           .throws(thrownError)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled1++;
             return 1;
           })
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled2++;
             return 2;
           })
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled3++;
             return 3;
           })
-          .callback(() => assert.ok(true, 'should call callback'))
+          .callback(() => numberOfTimesCalled4++)
           .returns(returnValue);
 
         // Act
@@ -7137,6 +7849,10 @@ describe('Mole', () => {
 
         // Assert
         expect(result).to.be.equal(returnValue);
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('should call all the callbacks and the lazy returns but return last configured one 2', () => {
@@ -7144,28 +7860,36 @@ describe('Mole', () => {
         var returnValue = {};
         var thrownError = {};
 
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
           .throws(thrownError)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled1++;
             return 1;
           })
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled2++;
             return 2;
           })
           .returns(3)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled3++;
             return returnValue;
           })
-          .callback(() => assert.ok(true, 'should call callback'));
+          .callback(() => numberOfTimesCalled4++);
 
         // Act
         var result = testObject.callPrivateFunction(1);
 
         // Assert
         expect(result).to.be.equal(returnValue);
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('should call all the callbacks and the lazy returns but throw last configured error', () => {
@@ -7173,60 +7897,78 @@ describe('Mole', () => {
         var returnValue = {};
         var thrownError = {};
 
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
           .throws('asdasd')
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled1++;
             return 1;
           })
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled2++;
             return 2;
           })
           .returns(returnValue)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled3++;
             return 3;
           })
           .throws(thrownError)
-          .callback(() => assert.ok(true, 'should call callback'));
+          .callback(() => numberOfTimesCalled4++);
 
         // Act
+        var actualError;
         try {
           testObject.callPrivateFunction(1);
         } catch (error) {
           actualError = error;
         }
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('should call only the matching set', () => {
         // Arrange
         var returnValue = {};
 
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
+        var numberOfTimesCalled5 = 0;
+        var numberOfTimesCalled6 = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(0);
+            numberOfTimesCalled1++;
           })
           .returns('return value')
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(0);
+            numberOfTimesCalled2++;
           });
 
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 'aaa')
           .throws('error')
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(0);
+            numberOfTimesCalled3++;
           })
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(0);
+            numberOfTimesCalled4++;
           });
 
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 'bbb')
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled5++;
           })
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled6++;
           })
           .returns(returnValue);
 
@@ -7235,78 +7977,115 @@ describe('Mole', () => {
 
         // Assert
         expect(result).to.be.equal(returnValue);
+        expect(numberOfTimesCalled1).to.be.equal(0);
+        expect(numberOfTimesCalled2).to.be.equal(0);
+        expect(numberOfTimesCalled3).to.be.equal(0);
+        expect(numberOfTimesCalled4).to.be.equal(0);
+        expect(numberOfTimesCalled5).to.be.equal(1);
+        expect(numberOfTimesCalled6).to.be.equal(1);
       });
 
       it('if both setups match should call both', () => {
         // Arrange
+
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled1++;
           })
           .returns('return value')
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled2++;
           });
 
         mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled3++;
           })
           .returns('return value')
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled4++;
           });
 
         // Act
         testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('if both setups match should call both for setter', () => {
         // Arrange
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, It.isAny(Number))
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled1++;
           })
           .returns('return value')
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled2++;
           });
 
         mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled3++;
           })
           .returns('return value')
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled4++;
           });
 
         // Act
         testObject.callPrivateSetter(1);
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('if both setups match should call both for setter of getter and setter', () => {
         // Arrange
+        var numberOfTimesCalled1 = 0;
+        var numberOfTimesCalled2 = 0;
+        var numberOfTimesCalled3 = 0;
+        var numberOfTimesCalled4 = 0;
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, It.isAny(Number))
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled1++;
           })
           .returns('return value')
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled2++;
           });
 
         mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1)
           .lazyReturns(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled3++;
           })
           .returns('return value')
           .callback(() => {
-            expect(numberOfTimesCalled).to.be.equal(1);
+            numberOfTimesCalled4++;
           });
 
         // Act
         testObject.callPrivateSetterOfGetterAndSetter(1);
+
+        // Assert
+        expect(numberOfTimesCalled1).to.be.equal(1);
+        expect(numberOfTimesCalled2).to.be.equal(1);
+        expect(numberOfTimesCalled3).to.be.equal(1);
+        expect(numberOfTimesCalled4).to.be.equal(1);
       });
 
       it('if both setups match should return from the last', () => {
@@ -7361,11 +8140,15 @@ describe('Mole', () => {
           .throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.callPrivateFunction(1);
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
       it('if both setups match should throw from the last 2', () => {
@@ -7382,11 +8165,15 @@ describe('Mole', () => {
           .throws(thrownError);
 
         // Act
+        var actualError;
         try {
           testObject.callPrivateFunction(1);
         } catch (error) {
-          expect(actualError).to.be.equal(thrownError);
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
     });
@@ -7398,183 +8185,261 @@ describe('Mole', () => {
     describe('true', () => {
 
       it('isStrict - true - no setup should throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.noArgumentsFunction();
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(1);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(1);
       });
 
       it('isStrict - true - no setup for getter should throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.getter;
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(1);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(1);
       });
 
       it('isStrict - true - no setup for setter should throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.setter = 1;
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(1);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(1);
       });
 
       it('isStrict - true - no setup for getter of getter and setter should throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.getterAndSetter;
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(1);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(1);
       });
 
       it('isStrict - true - no setup for setter of getter and setter should throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.getterAndSetter = 1;
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(1);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(1);
       });
 
       it('isStrict - true - has callback setup should call the callback and not throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-          assert.ok(true, 'should call the setup');
+          numberOfTimesCalled++;
         });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.noArgumentsFunction();
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - true - getter has callback setup should call the callback and not throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.getter).callback(() => {
-          assert.ok(true, 'should call the setup');
+          numberOfTimesCalled++;
         });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.getter;
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - true - setter has callback setup should call the callback and not throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.setter = 1).callback(() => {
-          assert.ok(true, 'should call the setup');
+          numberOfTimesCalled++;
         });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.setter = 1;
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - true - getter of getter&setter has callback setup should call the callback and not throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.getterAndSetter).callback(() => {
-          assert.ok(true, 'should call the setup');
+          numberOfTimesCalled++;
         });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.getterAndSetter;
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - true - setter of getter&setter has callback setup should call the callback and not throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-          assert.ok(true, 'should call the setup');
+          numberOfTimesCalled++;
         });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.getterAndSetter = 1;
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - true - has callback setup  for other argument should throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
         mole.setup(_ => _.oneArgumentsFunction(1)).callback(() => { });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.oneArgumentsFunction(2);
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(1);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(1);
       });
 
       it('isStrict - true - setter has callback setup for other argument should throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
         mole.setup(_ => _.setter = 1).callback(() => { });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.setter = 2;
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(1);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(1);
       });
 
       it('isStrict - true - setter of getter&setter has callback setup for other argument should throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
         mole.setup(_ => _.getterAndSetter = 1).callback(() => { });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.getterAndSetter = 2;
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(1);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(1);
       });
 
       it('isStrict - true - has lazyReturns setup should call the lazyReturns and not throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
         var returnValue = {};
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
-          assert.ok(true, 'should call the lazyReturns');
+          numberOfTimesCalled++;
           return returnValue;
         });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           var result = testObject.noArgumentsFunction();
@@ -7582,16 +8447,22 @@ describe('Mole', () => {
           // Assert
           expect(result).to.be.equal(returnValue);
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - true - has returns setup should return the returnValue and not throw error', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
         var returnValue = {};
         mole.setup(_ => _.noArgumentsFunction()).returns(returnValue);
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           var result = testObject.noArgumentsFunction();
@@ -7599,23 +8470,30 @@ describe('Mole', () => {
           // Assert
           expect(result).to.be.equal(returnValue);
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - true - has throws setup should throw the thrownError', () => {
-        // Arrangemole.isStrict = true;
+        // Arrange
+        mole.isStrict = true;
 
         var thrownError = {};
         mole.setup(_ => _.noArgumentsFunction()).throws(thrownError);
 
+        var actualError;
         try {
           // Act
           testObject.noArgumentsFunction();
         } catch (error) {
-          // Assert
-          expect(error, thrownError, 'should throw the thrown error');
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
     });
@@ -7623,40 +8501,55 @@ describe('Mole', () => {
     describe('false', () => {
 
       it('isStrict - false - no setup should not throw error', () => {
-        // Arrangemole.isStrict = false;
+        // Arrange
+        mole.isStrict = false;
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.noArgumentsFunction();
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - false - has callbeck setup should call the callback and not throw error', () => {
-        // Arrangemole.isStrict = false;
+        // Arrange
+        mole.isStrict = false;
 
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-          assert.ok(true, 'should call the setup');
+          numberOfTimesCalled++;
         });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           testObject.noArgumentsFunction();
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - false - has lazyReturns setup should call the lazyReturns and not throw error', () => {
-        // Arrangemole.isStrict = false;
+        // Arrange
+        mole.isStrict = false;
 
         var returnValue = {};
+        var numberOfTimesCalled = 0;
         mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
-          assert.ok(true, 'should call the lazyReturns');
+          numberOfTimesCalled++;
           return returnValue;
         });
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           var result = testObject.noArgumentsFunction();
@@ -7664,16 +8557,22 @@ describe('Mole', () => {
           // Assert
           expect(result).to.be.equal(returnValue);
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesCalled).to.be.equal(1);
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - false - has returns setup should return the returnValue and not throw error', () => {
-        // Arrangemole.isStrict = false;
+        // Arrange
+        mole.isStrict = false;
 
         var returnValue = {};
         mole.setup(_ => _.noArgumentsFunction()).returns(returnValue);
 
+        var numberOfTimesThrown = 0;
         try {
           // Act
           var result = testObject.noArgumentsFunction();
@@ -7681,23 +8580,30 @@ describe('Mole', () => {
           // Assert
           expect(result).to.be.equal(returnValue);
         } catch (error) {
-          expect(numberOfTimesThrown).to.be.equal(0);
+          numberOfTimesThrown++;
         }
+
+        // Assert
+        expect(numberOfTimesThrown).to.be.equal(0);
       });
 
       it('isStrict - false - has throws setup should throw the thrownError', () => {
-        // Arrangemole.isStrict = false;
+        // Arrange
+        mole.isStrict = false;
 
         var thrownError = {};
         mole.setup(_ => _.noArgumentsFunction()).throws(thrownError);
 
+        var actualError;
         try {
           // Act
           testObject.noArgumentsFunction();
         } catch (error) {
-          // Assert
-          expect(error, thrownError, 'should throw the thrown error');
+          actualError = error;
         }
+
+        // Assert
+        expect(actualError).to.be.equal(thrownError);
       });
 
     });
@@ -7711,11 +8617,15 @@ describe('Mole', () => {
       var mole = new Mole<any>(TestObject);
 
       // Act
+      var numberOfTimesCalled = 0;
       mole.setup(_ => { TestObject.staticFunction(); }).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled++;
       });
 
       TestObject.staticFunction();
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
     });
 
   });
@@ -7728,11 +8638,15 @@ describe('Mole', () => {
       var mole = new Mole<TestObjectSon>(testObjectSon);
 
       // Act
+      var numberOfTimesCalled = 0;
       mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled++;
       });
 
       testObjectSon.noArgumentsFunction();
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
     });
 
   });
@@ -7744,16 +8658,22 @@ describe('Mole', () => {
       var testObject = new TestObject();
       var mole = new Mole<TestObject>(testObject);
 
+      var numberOfTimesCalled1 = 0;
       testObject.onNoArgumentsFunctionCalled = () => {
-        expect(numberOfTimesCalled).to.be.equal(0);
+        numberOfTimesCalled1++;
       };
 
+      var numberOfTimesCalled2 = 0;
       mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled2++;
       });
 
       // Act
       testObject.noArgumentsFunction();
+
+      // Assert
+      expect(numberOfTimesCalled1).to.be.equal(0);
+      expect(numberOfTimesCalled2).to.be.equal(1);
     });
 
     it('before dispose should not call the original getter', () => {
@@ -7761,16 +8681,22 @@ describe('Mole', () => {
       var testObject = new TestObject();
       var mole = new Mole<TestObject>(testObject);
 
+      var numberOfTimesCalled1 = 0;
       testObject.onGetterCalled = () => {
-        expect(numberOfTimesCalled).to.be.equal(0);
+        numberOfTimesCalled1++;
       };
 
+      var numberOfTimesCalled2 = 0;
       mole.setup(_ => _.getter).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled2++;
       });
 
       // Act
       testObject.getter;
+
+      // Assert
+      expect(numberOfTimesCalled1).to.be.equal(0);
+      expect(numberOfTimesCalled2).to.be.equal(1);
     });
 
     it('before dispose should not call the original setter', () => {
@@ -7778,16 +8704,22 @@ describe('Mole', () => {
       var testObject = new TestObject();
       var mole = new Mole<TestObject>(testObject);
 
+      var numberOfTimesCalled1 = 0;
       testObject.onSetterCalled = () => {
-        expect(numberOfTimesCalled).to.be.equal(0);
+        numberOfTimesCalled1++;
       };
 
+      var numberOfTimesCalled2 = 0;
       mole.setup(_ => _.setter = 1).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled2++;
       });
 
       // Act
       testObject.setter = 1;
+
+      // Assert
+      expect(numberOfTimesCalled1).to.be.equal(0);
+      expect(numberOfTimesCalled2).to.be.equal(1);
     });
 
     it('before dispose should not call the original getter of getter and setter', () => {
@@ -7795,16 +8727,22 @@ describe('Mole', () => {
       var testObject = new TestObject();
       var mole = new Mole<TestObject>(testObject);
 
+      var numberOfTimesCalled1 = 0;
       testObject.onGetterOfGetterAndSetterCalled = () => {
-        expect(numberOfTimesCalled).to.be.equal(0);
+        numberOfTimesCalled1++;
       };
 
+      var numberOfTimesCalled2 = 0;
       mole.setup(_ => _.getterAndSetter).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled2++;
       });
 
       // Act
       testObject.getterAndSetter;
+
+      // Assert
+      expect(numberOfTimesCalled1).to.be.equal(0);
+      expect(numberOfTimesCalled2).to.be.equal(1);
     });
 
     it('before dispose should not call the original setter of getter and setter', () => {
@@ -7812,16 +8750,22 @@ describe('Mole', () => {
       var testObject = new TestObject();
       var mole = new Mole<TestObject>(testObject);
 
+      var numberOfTimesCalled1 = 0;
       testObject.onSetterOfGetterAndSetterCalled = () => {
-        expect(numberOfTimesCalled).to.be.equal(0);
+        numberOfTimesCalled1++;
       };
 
+      var numberOfTimesCalled2 = 0;
       mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled2++;
       });
 
       // Act
       testObject.getterAndSetter = 1;
+
+      // Assert
+      expect(numberOfTimesCalled1).to.be.equal(0);
+      expect(numberOfTimesCalled2).to.be.equal(1);
     });
 
     it('should call the original function', () => {
@@ -7829,17 +8773,23 @@ describe('Mole', () => {
       var testObject = new TestObject();
       var mole = new Mole<TestObject>(testObject);
 
+      var numberOfTimesCalled1 = 0;
       testObject.onNoArgumentsFunctionCalled = () => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled1++;
       };
 
+      var numberOfTimesCalled2 = 0;
       mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(0);
+        numberOfTimesCalled2++;
       });
 
       // Act
       mole.dispose();
       testObject.noArgumentsFunction();
+
+      // Assert
+      expect(numberOfTimesCalled1).to.be.equal(1);
+      expect(numberOfTimesCalled2).to.be.equal(0);
     });
 
     it('should call the original getter', () => {
@@ -7847,17 +8797,23 @@ describe('Mole', () => {
       var testObject = new TestObject();
       var mole = new Mole<TestObject>(testObject);
 
+      var numberOfTimesCalled1 = 0;
       testObject.onGetterCalled = () => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled1++;
       };
 
+      var numberOfTimesCalled2 = 0;
       mole.setup(_ => _.getter).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(0);
+        numberOfTimesCalled2++;
       });
 
       // Act
       mole.dispose();
       testObject.getter;
+
+      // Assert
+      expect(numberOfTimesCalled1).to.be.equal(1);
+      expect(numberOfTimesCalled2).to.be.equal(0);
     });
 
     it('should call the original setter', () => {
@@ -7865,17 +8821,23 @@ describe('Mole', () => {
       var testObject = new TestObject();
       var mole = new Mole<TestObject>(testObject);
 
+      var numberOfTimesCalled1 = 0;
       testObject.onSetterCalled = () => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled1++;
       };
 
+      var numberOfTimesCalled2 = 0;
       mole.setup(_ => _.setter = 1).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(0);
+        numberOfTimesCalled2++;
       });
 
       // Act
       mole.dispose();
       testObject.setter = 1;
+
+      // Assert
+      expect(numberOfTimesCalled1).to.be.equal(1);
+      expect(numberOfTimesCalled2).to.be.equal(0);
     });
 
     it('should call the original getter of getter and setter', () => {
@@ -7883,17 +8845,23 @@ describe('Mole', () => {
       var testObject = new TestObject();
       var mole = new Mole<TestObject>(testObject);
 
+      var numberOfTimesCalled1 = 0;
       testObject.onGetterOfGetterAndSetterCalled = () => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled1++;
       };
 
+      var numberOfTimesCalled2 = 0;
       mole.setup(_ => _.getterAndSetter).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(0);
+        numberOfTimesCalled2++;
       });
 
       // Act
       mole.dispose();
       testObject.getterAndSetter;
+
+      // Assert
+      expect(numberOfTimesCalled1).to.be.equal(1);
+      expect(numberOfTimesCalled2).to.be.equal(0);
     });
 
     it('should call the original setter of getter and setter', () => {
@@ -7901,17 +8869,23 @@ describe('Mole', () => {
       var testObject = new TestObject();
       var mole = new Mole<TestObject>(testObject);
 
+      var numberOfTimesCalled1 = 0;
       testObject.onSetterOfGetterAndSetterCalled = () => {
-        expect(numberOfTimesCalled).to.be.equal(1);
+        numberOfTimesCalled1++;
       };
 
+      var numberOfTimesCalled2 = 0;
       mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-        expect(numberOfTimesCalled).to.be.equal(0);
+        numberOfTimesCalled2++;
       });
 
       // Act
       mole.dispose();
       testObject.getterAndSetter = 1;
+
+      // Assert
+      expect(numberOfTimesCalled1).to.be.equal(1);
+      expect(numberOfTimesCalled2).to.be.equal(0);
     });
 
   });
@@ -8005,10 +8979,10 @@ describe('Mole', () => {
     it('should not create mole of the return value by default', () => {
       // Act
       var result: TestObject = testObject.complexReturnFunction();
-      var mole = Mole.findMoleByObject(result);
+      var objectMole = Mole.findMoleByObject(result);
 
       // Assert
-      expect(mole).to.be.null;
+      expect(objectMole).to.be.null;
     });
 
     it('set to false should not create mole of the return value', () => {
@@ -8017,11 +8991,11 @@ describe('Mole', () => {
 
       // Act
       var result: TestObject = testObject.complexReturnFunction();
-      var mole = Mole.findMoleByObject(result);
+      var objectMole = Mole.findMoleByObject(result);
 
       // Assert
       expect(mole.moleReturnValue).to.be.false;
-      expect(mole).to.be.null;
+      expect(objectMole).to.be.null;
     });
 
     it('set to true should create mole for the return value', () => {
@@ -8030,11 +9004,11 @@ describe('Mole', () => {
 
       // Act
       var result: TestObject = testObject.complexReturnFunction();
-      var mole = Mole.findMoleByObject(result);
+      var objectMole = Mole.findMoleByObject(result);
 
       // Assert
       expect(mole.moleReturnValue).to.be.true;
-      expect(mole).to.not.be.null;
+      expect(objectMole).to.not.be.null;
     });
 
     it('set to true should create new mole for the return value', () => {
@@ -8042,8 +9016,8 @@ describe('Mole', () => {
       mole.moleReturnValue = true;
 
       var returnValue: TestObject = testObject.complexReturnFunction();
-      var mole = Mole.findMoleByObject(returnValue);
-      mole.setup(_ => _.returning1Function()).returns(2);
+      var objectMole = Mole.findMoleByObject(returnValue);
+      objectMole.setup(_ => _.returning1Function()).returns(2);
 
       // Act
       var result1 = testObject.returning1Function();
@@ -8060,11 +9034,11 @@ describe('Mole', () => {
 
       // Act
       var result: TestObject = testObject.complexReturnFunction().complexReturnFunction();
-      var mole = Mole.findMoleByObject(result);
+      var objectMole = Mole.findMoleByObject(result);
 
       // Assert
       expect(mole.moleReturnValue).to.be.true;
-      expect(mole).to.not.be.null;
+      expect(objectMole).to.not.be.null;
     });
 
     it('set to true should create new mole for the return value return value', () => {
@@ -8072,8 +9046,8 @@ describe('Mole', () => {
       mole.moleReturnValue = true;
 
       var returnValue: TestObject = testObject.complexReturnFunction().complexReturnFunction();
-      var mole = Mole.findMoleByObject(returnValue);
-      mole.setup(_ => _.returning1Function()).returns(2);
+      var objectMole = Mole.findMoleByObject(returnValue);
+      objectMole.setup(_ => _.returning1Function()).returns(2);
 
       // Act
       var result1 = testObject.returning1Function();
@@ -8090,11 +9064,11 @@ describe('Mole', () => {
 
       // Act
       var result: TestObject = testObject.complexGetterFunction;
-      var mole = Mole.findMoleByObject(result);
+      var objectMole = Mole.findMoleByObject(result);
 
       // Assert
       expect(mole.moleReturnValue).to.be.false;
-      expect(mole).to.be.null;
+      expect(objectMole).to.be.null;
     });
 
     it('set to true should create mole for the return value', () => {
@@ -8103,11 +9077,11 @@ describe('Mole', () => {
 
       // Act
       var result: TestObject = testObject.complexGetterFunction;
-      var mole = Mole.findMoleByObject(result);
+      var objectMole = Mole.findMoleByObject(result);
 
       // Assert
       expect(mole.moleReturnValue).to.be.true;
-      expect(mole).to.not.be.null;
+      expect(objectMole).to.not.be.null;
     });
 
     it('set to true should create new mole for the return value', () => {
@@ -8115,8 +9089,8 @@ describe('Mole', () => {
       mole.moleReturnValue = true;
 
       var returnValue: TestObject = testObject.complexGetterFunction;
-      var mole = Mole.findMoleByObject(returnValue);
-      mole.setup(_ => _.returning1Function()).returns(2);
+      var objectMole = Mole.findMoleByObject(returnValue);
+      objectMole.setup(_ => _.returning1Function()).returns(2);
 
       // Act
       var result1 = testObject.returning1Function();
@@ -8133,11 +9107,11 @@ describe('Mole', () => {
 
       // Act
       var result: TestObject = testObject.complexGetterFunction.complexGetterFunction;
-      var mole = Mole.findMoleByObject(result);
+      var objectMole = Mole.findMoleByObject(result);
 
       // Assert
       expect(mole.moleReturnValue).to.be.true;
-      expect(mole).to.not.be.null;
+      expect(objectMole).to.not.be.null;
     });
 
     it('set to true should create new mole for the return value return value', () => {
@@ -8145,8 +9119,8 @@ describe('Mole', () => {
       mole.moleReturnValue = true;
 
       var returnValue: TestObject = testObject.complexGetterFunction.complexGetterFunction;
-      var mole = Mole.findMoleByObject(returnValue);
-      mole.setup(_ => _.returning1Function()).returns(2);
+      var objectMole = Mole.findMoleByObject(returnValue);
+      objectMole.setup(_ => _.returning1Function()).returns(2);
 
       // Act
       var result1 = testObject.returning1Function();

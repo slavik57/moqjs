@@ -1,9 +1,8 @@
 {
   "devDependencies": {
-    "chai": "github:typed-typings/npm-chai#0b70226aa4ea9c3b37fe1c709db0423f11ed30d8",
-    "sinon": "github:typed-typings/npm-sinon#661f2077a206b669bcb5d2a568cc2e3c85818aec"
   },
   "ambientDevDependencies": {
+    "chai": "github:DefinitelyTyped/DefinitelyTyped/chai/chai.d.ts#7de6c3dd94feaeb21f20054b9f30d5dabc5efabd",
     "mocha": "github:DefinitelyTyped/DefinitelyTyped/mocha/mocha.d.ts#7de6c3dd94feaeb21f20054b9f30d5dabc5efabd"
   }
 }

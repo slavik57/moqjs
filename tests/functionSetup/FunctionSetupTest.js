@@ -114,7 +114,7 @@ describe('FunctionSetup', function () {
                 actualFunctionCallMode = functionProxyConfigurations.functionCallMode;
             };
             returning1FunctionSetup.returnsInOrder([newReturnValue1, newReturnValue2, newReturnValue3]);
-            chai_1.expect(actualFunctionCallMode).to.be.equal(ReturnsOverrideFunctionCallMode_1.ReturnsOverrideFunctionCallMode);
+            chai_1.expect(actualFunctionCallMode).to.be.instanceof(ReturnsOverrideFunctionCallMode_1.ReturnsOverrideFunctionCallMode);
         });
         it('should call when the override contains function that returns the new values', function () {
             var newReturnValue1 = {};

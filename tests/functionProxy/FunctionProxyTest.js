@@ -76,11 +76,12 @@ describe('FunctionProxy', function () {
         });
     });
     describe('callFunction - unknown mode', function () {
-        it('should throw error', function () { });
-        var unknownFunctionCallMode = {};
-        functionProxyConfigurations.functionCallMode = unknownFunctionCallMode;
-        var action = function () { return noArgsFunctionProxy.callFunction([]); };
-        chai_1.expect(action).to.throw();
+        it('should throw error', function () {
+            var unknownFunctionCallMode = {};
+            functionProxyConfigurations.functionCallMode = unknownFunctionCallMode;
+            var action = function () { return noArgsFunctionProxy.callFunction([]); };
+            chai_1.expect(action).to.throw();
+        });
     });
     describe('callFunction - invoke mode', function () {
         it('no arguments should call only the original function', function () {
@@ -307,7 +308,7 @@ describe('FunctionProxy', function () {
         });
     });
     describe('callFunction - verify mode many arguments', function () {
-        it('callFunction - verify mode many arguments -  was not called should not find a match', function () {
+        it('was not called should not find a match', function () {
             var verifyMode = setVerifyMode();
             var arg1 = {};
             var arg2 = {};
@@ -315,7 +316,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(0);
         });
-        it('callFunction - verify mode many arguments -  was called should find a match', function () {
+        it('was called should find a match', function () {
             var arg1 = {};
             var arg2 = {};
             var arg3 = {};
@@ -324,7 +325,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(1);
         });
-        it('callFunction - verify mode many arguments -  was called twice should find a match', function () {
+        it('was called twice should find a match', function () {
             var arg1 = {};
             var arg2 = {};
             var arg3 = {};
@@ -332,9 +333,9 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
             var verifyMode = setVerifyMode();
             manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
-            chai_1.expect(verifyMode.numberOfMatches).to.be.equal(1);
+            chai_1.expect(verifyMode.numberOfMatches).to.be.equal(2);
         });
-        it('callFunction - verify mode many arguments -  was called twice with different sets should find a match for first set', function () {
+        it('was called twice with different sets should find a match for first set', function () {
             var argSet1 = [{}, {}, {}];
             var argSet2 = [{}, {}, {}];
             manyArgsFunctionProxy.callFunction(argSet1);
@@ -343,7 +344,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction(argSet1);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(1);
         });
-        it('callFunction - verify mode many arguments -  was called twice with different sets should find a match for second set', function () {
+        it('was called twice with different sets should find a match for second set', function () {
             var argSet1 = [{}, {}, {}];
             var argSet2 = [{}, {}, {}];
             manyArgsFunctionProxy.callFunction(argSet1);
@@ -352,7 +353,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction(argSet2);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(1);
         });
-        it('callFunction - verify mode many arguments -  was called twice with different sets should not find a match for different set', function () {
+        it('was called twice with different sets should not find a match for different set', function () {
             var argSet1 = [{}, {}, {}];
             var argSet2 = [{}, {}, {}];
             var argSet3 = [{}, {}, {}];
@@ -372,28 +373,28 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction(argSet3);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(0);
         });
-        it('callFunction - verify mode many arguments -  was called with less parameters should find a match', function () {
+        it('was called with less parameters should find a match', function () {
             var argSet = [{}, {}];
             manyArgsFunctionProxy.callFunction(argSet);
             var verifyMode = setVerifyMode();
             manyArgsFunctionProxy.callFunction(argSet);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(1);
         });
-        it('callFunction - verify mode many arguments -  was called with more parameters should find a match', function () {
+        it('was called with more parameters should find a match', function () {
             var argSet = [{}, {}, {}, {}];
             manyArgsFunctionProxy.callFunction(argSet);
             var verifyMode = setVerifyMode();
             manyArgsFunctionProxy.callFunction(argSet);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(1);
         });
-        it('callFunction - verify mode many arguments -  was called with more parameters should not find a match with less parameters', function () {
+        it('was called with more parameters should not find a match with less parameters', function () {
             var argSet = [{}, {}, {}, {}];
             manyArgsFunctionProxy.callFunction(argSet);
             var verifyMode = setVerifyMode();
             manyArgsFunctionProxy.callFunction([argSet[0], argSet[1], argSet[2]]);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(0);
         });
-        it('callFunction - verify mode many arguments -  was called with ItIs that returns false should not find a match with less parameters', function () {
+        it('was called with ItIs that returns false should not find a match with less parameters', function () {
             var argSet = [{}, {}, {}];
             manyArgsFunctionProxy.callFunction(argSet);
             var verifyMode = setVerifyMode();
@@ -404,7 +405,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction([argSet[0], argSet[1], itIs]);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(0);
         });
-        it('callFunction - verify mode many arguments -  was called with ItIs that returns true should find a match with less parameters', function () {
+        it('was called with ItIs that returns true should find a match with less parameters', function () {
             var argSet = [{}, {}, {}];
             manyArgsFunctionProxy.callFunction(argSet);
             var verifyMode = setVerifyMode();
@@ -415,7 +416,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction([argSet[0], argSet[1], itIs]);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(1);
         });
-        it('callFunction - verify mode many arguments -  was called with ItIs that returns true 3 times should find a match with less parameters', function () {
+        it('was called with ItIs that returns true 3 times should find a match with less parameters', function () {
             var argSet = [{}, {}, {}];
             manyArgsFunctionProxy.callFunction(argSet);
             manyArgsFunctionProxy.callFunction(argSet);
@@ -433,7 +434,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction([argSet[0], argSet[1], itIs]);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(3);
         });
-        it('callFunction - verify mode many arguments -  was called with 3 ItIs that returns true should find a match with less parameters', function () {
+        it('was called with 3 ItIs that returns true should find a match with less parameters', function () {
             var argSet = [{}, {}, {}];
             manyArgsFunctionProxy.callFunction(argSet);
             var verifyMode = setVerifyMode();
@@ -444,7 +445,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction([itIs, itIs, itIs]);
             chai_1.expect(verifyMode.numberOfMatches).to.be.equal(1);
         });
-        it('callFunction - verify mode many arguments -  was called with 2 ItIs that returns true and one that returns false should find a match with less parameters', function () {
+        it('was called with 2 ItIs that returns true and one that returns false should find a match with less parameters', function () {
             var argSet = [{}, {}, {}];
             manyArgsFunctionProxy.callFunction(argSet);
             var verifyMode = setVerifyMode();
@@ -461,7 +462,7 @@ describe('FunctionProxy', function () {
         });
     });
     describe('callFunction - override mode Callback', function () {
-        it('callFunction - override mode Callback - should not call the original function', function () {
+        it('should not call the original function', function () {
             var numberOfTimesCalled = 0;
             thisObject.onNoArgumentsFunctionCalled = function () {
                 numberOfTimesCalled++;
@@ -472,7 +473,7 @@ describe('FunctionProxy', function () {
             noArgsFunctionProxy.callFunction([]);
             chai_1.expect(numberOfTimesCalled).to.be.equal(0);
         });
-        it('callFunction - override mode Callback - should not call the original function with arguments', function () {
+        it('should not call the original function with arguments', function () {
             var numberOfTimesCalled = 0;
             thisObject.onNoArgumentsFunctionCalled = function () {
                 numberOfTimesCalled++;
@@ -483,7 +484,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction([{}, {}, {}]);
             chai_1.expect(numberOfTimesCalled).to.be.equal(0);
         });
-        it('callFunction - override mode Callback - invoking the function should not call the original function', function () {
+        it('invoking the function should not call the original function', function () {
             var numberOfTimesCalled = 0;
             thisObject.onNoArgumentsFunctionCalled = function () {
                 numberOfTimesCalled++;
@@ -496,7 +497,7 @@ describe('FunctionProxy', function () {
             noArgsFunctionProxy.callFunction([]);
             chai_1.expect(numberOfTimesCalled).to.be.equal(0);
         });
-        it('callFunction - override mode Callback - invoking the function should call the override function', function () {
+        it('invoking the function should call the override function', function () {
             var numberOfTimesCalled = 0;
             var override = function () {
                 numberOfTimesCalled++;
@@ -508,7 +509,7 @@ describe('FunctionProxy', function () {
             noArgsFunctionProxy.callFunction([]);
             chai_1.expect(numberOfTimesCalled).to.be.equal(1);
         });
-        it('callFunction - override mode Callback - calling the function should not call the override function', function () {
+        it('calling the function should not call the override function', function () {
             var numberOfTimesCalled = 0;
             var override = function () {
                 numberOfTimesCalled++;
@@ -518,7 +519,7 @@ describe('FunctionProxy', function () {
             noArgsFunctionProxy.callFunction([]);
             chai_1.expect(numberOfTimesCalled).to.be.equal(0);
         });
-        it('callFunction - override mode Callback - invoking the function should call the override with same parameters', function () {
+        it('invoking the function should call the override with same parameters', function () {
             var args = [{}, {}, {}];
             var actualArgs = [];
             var override = function (_arg1, _arg2, _arg3) {
@@ -538,7 +539,7 @@ describe('FunctionProxy', function () {
             chai_1.expect(actualArgs[0].arg2).to.be.equal(args[1]);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(args[2]);
         });
-        it('callFunction - override mode Callback - invoking the function with other parameters should not call the override', function () {
+        it('invoking the function with other parameters should not call the override', function () {
             var args = [{}, {}, {}];
             var numberOfTimesCalled = 0;
             var override = function (_arg1, _arg2, _arg3) {
@@ -551,7 +552,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction([args[0], args[1], {}]);
             chai_1.expect(numberOfTimesCalled).to.be.equal(0);
         });
-        it('callFunction - override mode Callback - invoking the function with other parameters should call the original function', function () {
+        it('invoking the function with other parameters should call the original function', function () {
             var args1 = [{}, {}, {}];
             var args2 = [args1[0], args1[1], {}];
             var actualArgs = [];
@@ -573,7 +574,7 @@ describe('FunctionProxy', function () {
             chai_1.expect(actualArgs[0].arg2).to.be.equal(args2[1]);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(args2[2]);
         });
-        it('callFunction - override mode Callback - calling the function with ItIs and than invoking should call the override', function () {
+        it('calling the function with ItIs and than invoking should call the override', function () {
             var numberOfTimesManyArgumentsFunctionCalled = 0;
             thisObject.onManyArgumentsFunctionCalled = function (_arg1, _arg2, _arg3) {
                 numberOfTimesManyArgumentsFunctionCalled++;
@@ -600,7 +601,7 @@ describe('FunctionProxy', function () {
             chai_1.expect(actualArgs[0].arg2).to.be.equal(arg2);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(arg3);
         });
-        it('callFunction - override mode Callback - calling the function with ItIs and than invoking with not matching argument should not call the override and call the original', function () {
+        it('calling the function with ItIs and than invoking with not matching argument should not call the override and call the original', function () {
             var actualManyArgumentsFunctionArgs = [];
             thisObject.onManyArgumentsFunctionCalled = function (_arg1, _arg2, _arg3) {
                 actualManyArgumentsFunctionArgs.push({
@@ -701,7 +702,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction(args);
             setInvokeMode();
             manyArgsFunctionProxy.callFunction(args);
-            chai_1.expect(actualArgs.length).to.be.equal(3);
+            chai_1.expect(actualArgs.length).to.be.equal(1);
             chai_1.expect(actualArgs[0].arg1).to.be.equal(args[0]);
             chai_1.expect(actualArgs[0].arg2).to.be.equal(args[1]);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(args[2]);
@@ -736,7 +737,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction(args1);
             setInvokeMode();
             manyArgsFunctionProxy.callFunction(args2);
-            chai_1.expect(actualArgs.length).to.be.equal(3);
+            chai_1.expect(actualArgs.length).to.be.equal(1);
             chai_1.expect(actualArgs[0].arg1).to.be.equal(args2[0]);
             chai_1.expect(actualArgs[0].arg2).to.be.equal(args2[1]);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(args2[2]);
@@ -763,7 +764,7 @@ describe('FunctionProxy', function () {
             setInvokeMode();
             manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
             chai_1.expect(numberOfTimesCalled).to.be.equal(0);
-            chai_1.expect(actualArgs.length).to.be.equal(3);
+            chai_1.expect(actualArgs.length).to.be.equal(1);
             chai_1.expect(actualArgs[0].arg1).to.be.equal(arg1);
             chai_1.expect(actualArgs[0].arg2).to.be.equal(arg2);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(arg3);
@@ -790,7 +791,7 @@ describe('FunctionProxy', function () {
             setInvokeMode();
             manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
             chai_1.expect(numberOfTimesCalled).to.be.equal(0);
-            chai_1.expect(actualArgs.length).to.be.equal(3);
+            chai_1.expect(actualArgs.length).to.be.equal(1);
             chai_1.expect(actualArgs[0].arg1).to.be.equal(arg1);
             chai_1.expect(actualArgs[0].arg2).to.be.equal(arg2);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(arg3);
@@ -881,7 +882,7 @@ describe('FunctionProxy', function () {
             }
             catch (er) {
             }
-            chai_1.expect(actualArgs.length).to.be.equal(3);
+            chai_1.expect(actualArgs.length).to.be.equal(1);
             chai_1.expect(actualArgs[0].arg1).to.be.equal(args[0]);
             chai_1.expect(actualArgs[0].arg2).to.be.equal(args[1]);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(args[2]);
@@ -920,7 +921,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction(args1);
             setInvokeMode();
             manyArgsFunctionProxy.callFunction(args2);
-            chai_1.expect(actualArgs.length).to.be.equal(3);
+            chai_1.expect(actualArgs.length).to.be.equal(1);
             chai_1.expect(actualArgs[0].arg1).to.be.equal(args2[0]);
             chai_1.expect(actualArgs[0].arg2).to.be.equal(args2[1]);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(args2[2]);
@@ -950,7 +951,7 @@ describe('FunctionProxy', function () {
             }
             catch (er) {
             }
-            chai_1.expect(actualArgs.length).to.be.equal(3);
+            chai_1.expect(actualArgs.length).to.be.equal(1);
             chai_1.expect(actualArgs[0].arg1).to.be.equal(arg1);
             chai_1.expect(actualArgs[0].arg2).to.be.equal(arg2);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(arg3);
@@ -977,7 +978,7 @@ describe('FunctionProxy', function () {
             manyArgsFunctionProxy.callFunction([It_1.It.isAny(Number), It_1.It.isAny(Number), arg3]);
             setInvokeMode();
             manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
-            chai_1.expect(actualArgs.length).to.be.equal(3);
+            chai_1.expect(actualArgs.length).to.be.equal(1);
             chai_1.expect(actualArgs[0].arg1).to.be.equal(arg1);
             chai_1.expect(actualArgs[0].arg2).to.be.equal(arg2);
             chai_1.expect(actualArgs[0].arg3).to.be.equal(arg3);
@@ -1115,7 +1116,7 @@ describe('FunctionProxy', function () {
             oneArgsFunctionProxy.callFunction([1]);
             chai_1.expect(numberOfTimesThrowsOverrideWasCalled).to.be.equal(0);
             chai_1.expect(numberOfTimesReturnsValueWasCalled).to.be.equal(0);
-            chai_1.expect(numberOfTimesCallbackOVerrideWasCalled).to.be.equal(0);
+            chai_1.expect(numberOfTimesCallbackOVerrideWasCalled).to.be.equal(1);
         });
         it('with value should call only a returns on invoke', function () {
             var error = {};
@@ -1326,8 +1327,8 @@ describe('FunctionProxy', function () {
             var callbackOverride2 = function (_arg) {
                 numberOfTimesCallbackOverride2WasCalled++;
             };
-            var throwsOverrideCallMode1 = new ReturnsOverrideFunctionCallMode_1.ReturnsOverrideFunctionCallMode(returnsOverride1);
-            var throwsOverrideCallMode2 = new ReturnsOverrideFunctionCallMode_1.ReturnsOverrideFunctionCallMode(returnsOverride2);
+            var throwsOverrideCallMode1 = new ReturnsOverrideFunctionCallMode_1.ReturnsOverrideFunctionCallMode(throwsOverride1);
+            var throwsOverrideCallMode2 = new ReturnsOverrideFunctionCallMode_1.ReturnsOverrideFunctionCallMode(throwsOverride2);
             var returnsOverrideCallMode1 = new ReturnsOverrideFunctionCallMode_1.ReturnsOverrideFunctionCallMode(returnsOverride1);
             var returnsOverrideCallMode2 = new ReturnsOverrideFunctionCallMode_1.ReturnsOverrideFunctionCallMode(returnsOverride2);
             var callbackOverrideCallMode1 = new CallbackOverrideFunctionCallMode_1.CallbackOverrideFunctionCallMode(callbackOverride1);

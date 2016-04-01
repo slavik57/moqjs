@@ -1,12 +1,11 @@
 // Compiled using typings@0.6.6
-// Source: https://raw.githubusercontent.com/typed-typings/npm-sinon/661f2077a206b669bcb5d2a568cc2e3c85818aec/lib/sinon.d.ts
-declare module 'sinon/lib/sinon' {
+// Source: https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/7de6c3dd94feaeb21f20054b9f30d5dabc5efabd/sinon/sinon.d.ts
 // Type definitions for Sinon 1.16.0
 // Project: http://sinonjs.org/
 // Definitions by: William Sears <https://github.com/mrbigdog2u>
-// Definitions: https://github.com/borisyankov/DefinitelyTyped
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
-module Sinon {
+declare namespace Sinon {
     interface SinonSpyCallApi {
         // Properties
         thisValue: any;
@@ -431,11 +430,8 @@ module Sinon {
     }
 }
 
- var Sinon: Sinon.SinonStatic;
+declare var sinon: Sinon.SinonStatic;
 
-export = Sinon;
-}
-declare module 'sinon' {
-import main = require('sinon/lib/sinon');
-export = main;
+declare module "sinon" {
+    export = sinon;
 }

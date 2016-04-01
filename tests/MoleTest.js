@@ -1,6 +1,7 @@
 "use strict";
 var chai_1 = require('chai');
 var TestObject_1 = require('./testsCommon/TestObject');
+var TestObjectSon_1 = require('./testsCommon/TestObjectSon');
 var index_1 = require('../index');
 var ItIsBase_1 = require('../src/it/ItIsBase');
 describe('Mole', function () {
@@ -279,8 +280,8 @@ describe('Mole', function () {
             chai_1.expect(verifyManyArguments).to.be.false;
             chai_1.expect(verifyGetter).to.be.false;
             chai_1.expect(verifySetter).to.be.false;
-            chai_1.expect(verifyGetterAndSetterSetter).to.be.true;
-            chai_1.expect(verifyGetterAndSetterGetter).to.be.false;
+            chai_1.expect(verifyGetterAndSetterGetter).to.be.true;
+            chai_1.expect(verifyGetterAndSetterSetter).to.be.false;
         });
         it('should verify only the setter of getter and setter', function () {
             var arg1 = {};
@@ -299,8 +300,8 @@ describe('Mole', function () {
             chai_1.expect(verifyManyArguments).to.be.false;
             chai_1.expect(verifyGetter).to.be.false;
             chai_1.expect(verifySetter).to.be.false;
-            chai_1.expect(verifyGetterAndSetterSetter).to.be.false;
-            chai_1.expect(verifyGetterAndSetterGetter).to.be.true;
+            chai_1.expect(verifyGetterAndSetterGetter).to.be.false;
+            chai_1.expect(verifyGetterAndSetterSetter).to.be.true;
         });
         it('after setups should count ok', function () {
             mole.setup(function (_) { return _.getter; }).callback(function () { });
@@ -2327,106 +2328,141 @@ describe('Mole', function () {
     describe('setup', function () {
         describe('callback', function () {
             it('should not call callback if function is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callback if getter is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.getter; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callback if setter is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.setter = 1; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callback if getter of getter and setter is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.getterAndSetter; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callback if setter of getter and setter is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.getterAndSetter = 1; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should call callback when function is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should call callback when getter is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.getter; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.getter;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should call callback when setter is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.setter = 1; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.setter = 1;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should call callback when getter of getter and setter is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.getterAndSetter; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.getterAndSetter;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should call callback when setter of getter and setter is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.getterAndSetter = 1; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.getterAndSetter = 1;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should not call the original function', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onNoArgumentsFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call the original getter', function () {
                 mole.setup(function (_) { return _.getter; }).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onGetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.getter;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call the original setter', function () {
                 mole.setup(function (_) { return _.setter = 1; }).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onSetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.setter = 1;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call the original getter of getter and setter', function () {
                 mole.setup(function (_) { return _.getterAndSetter; }).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onGetterOfGetterAndSetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.getterAndSetter;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call the original setter of getter and setter', function () {
                 mole.setup(function (_) { return _.getterAndSetter = 1; }).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onSetterOfGetterAndSetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.getterAndSetter = 1;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should pass the same parameters', function () {
                 var arg = 1;
+                var actualArg;
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(function (_arg) {
                     actualArg = _arg;
                 });
                 testObject.oneArgumentsFunction(arg);
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
             it('should pass the same parameters 2', function () {
                 var arg1 = 1;
                 var arg2 = 2;
                 var arg3 = 3;
+                var actualArg1;
+                var actualArg2;
+                var actualArg3;
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); })
                     .callback(function (_arg1, _arg2, _arg3) {
                     actualArg1 = _arg1;
@@ -2434,25 +2470,33 @@ describe('Mole', function () {
                     actualArg3 = _arg3;
                 });
                 testObject.manyArgumentsFunction(arg1, arg2, arg3);
+                chai_1.expect(actualArg1).to.be.equal(arg1);
+                chai_1.expect(actualArg2).to.be.equal(arg2);
+                chai_1.expect(actualArg3).to.be.equal(arg3);
             });
             it('should pass the same parameters to setter', function () {
                 var arg = 1;
+                var actualArg;
                 mole.setup(function (_) { return _.setter = index_1.It.isAny(Number); }).callback(function (_arg) {
                     actualArg = arg;
                 });
                 testObject.setter = arg;
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
             it('should pass the same parameters to setter of getter and setter', function () {
                 var arg = 1;
+                var actualArg;
                 mole.setup(function (_) { return _.getterAndSetter = index_1.It.isAny(Number); }).callback(function (_arg) {
                     actualArg = arg;
                 });
                 testObject.getterAndSetter = arg;
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
             it('should not call other original functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
@@ -2462,11 +2506,13 @@ describe('Mole', function () {
                 testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
                 testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call other original functions 2', function () {
                 mole.setup(function (_) { return _.getterAndSetter; }).callback(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
@@ -2476,11 +2522,13 @@ describe('Mole', function () {
                 testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
                 testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
                 testObject.getterAndSetter;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call other original functions 3', function () {
                 mole.setup(function (_) { return _.setter = 1; }).callback(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
@@ -2490,11 +2538,13 @@ describe('Mole', function () {
                 testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
                 testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
                 testObject.setter = 1;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callbacks on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -2510,11 +2560,13 @@ describe('Mole', function () {
                 testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
                 testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call lazyReturns on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -2522,6 +2574,7 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not return the callback return value', function () {
                 mole.setup(function (_) { return _.returning1Function(); }).callback(function () {
@@ -2531,67 +2584,108 @@ describe('Mole', function () {
                 chai_1.expect(result).to.be.undefined;
             });
             it('should call all the callbacks when function is called', function () {
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled4++;
                 });
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('should call all the callbacks when function is called for getter', function () {
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setup(function (_) { return _.getter; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled4++;
                 });
                 testObject.getter;
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('should call all the callbacks when function is called for setter', function () {
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setup(function (_) { return _.setter = 1; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled4++;
                 });
                 testObject.setter = 1;
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('should call all the callbacks when function is called for getter of getter and setter', function () {
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setup(function (_) { return _.getterAndSetter; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled4++;
                 });
                 testObject.getterAndSetter;
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('should call all the callbacks when function is called for setter of getter and setter', function () {
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setup(function (_) { return _.getterAndSetter = 1; }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled4++;
                 });
                 testObject.getterAndSetter = 1;
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('should pass teh same parameters to all the callbacks when function is called', function () {
                 var arg = 12;
+                var actualArg;
                 var checkArgument = function (_arg) {
                     actualArg = _arg;
                 };
@@ -2601,11 +2695,15 @@ describe('Mole', function () {
                     .callback(checkArgument)
                     .callback(checkArgument);
                 testObject.oneArgumentsFunction(arg);
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
             it('should pass teh same parameters to all the callbacks when function is called 2', function () {
                 var arg1 = 11;
                 var arg2 = 12;
                 var arg3 = 13;
+                var actualArg1;
+                var actualArg2;
+                var actualArg3;
                 var checkArgument = function (_arg1, _arg2, _arg3) {
                     actualArg1 = _arg1;
                     actualArg2 = _arg2;
@@ -2617,6 +2715,9 @@ describe('Mole', function () {
                     .callback(checkArgument)
                     .callback(checkArgument);
                 testObject.manyArgumentsFunction(arg1, arg2, arg3);
+                chai_1.expect(actualArg1).to.be.equal(arg1);
+                chai_1.expect(actualArg2).to.be.equal(arg2);
+                chai_1.expect(actualArg3).to.be.equal(arg3);
             });
             it('should not affect verify', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () { });
@@ -2654,56 +2755,69 @@ describe('Mole', function () {
             it('calling with not matching value should call the original function', function () {
                 mole.setup(function (_) { return _.oneArgumentsFunction(1); }).callback(function () { });
                 var arg = {};
+                var actualArg;
                 testObject.onOneArgumentsFunctionCalled = function (_arg) {
                     actualArg = arg;
                 };
                 testObject.oneArgumentsFunction(arg);
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
             it('calling setter with not matching value should call the original setter', function () {
                 mole.setup(function (_) { return _.setter = 1; }).callback(function () { });
                 var arg = {};
+                var actualArg;
                 testObject.onSetterCalled = function (_arg) {
                     actualArg = arg;
                 };
                 testObject.setter = arg;
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
         });
         describe('returns', function () {
             it('should not call the original function', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).returns(111);
+                var numberOfTimesCalled = 0;
                 testObject.onNoArgumentsFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call the original getter', function () {
                 mole.setup(function (_) { return _.getter; }).returns(111);
+                var numberOfTimesCalled = 0;
                 testObject.onGetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.getter;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call the original getter of getter and setter', function () {
                 mole.setup(function (_) { return _.getterAndSetter; }).returns(111);
+                var numberOfTimesCalled = 0;
                 testObject.onGetterOfGetterAndSetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.getterAndSetter;
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call other original functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).returns(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callbacks on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).returns(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -2711,11 +2825,13 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call lazyReturns on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).returns(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -2723,6 +2839,7 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should return the value', function () {
                 var returnValue = {};
@@ -2775,25 +2892,30 @@ describe('Mole', function () {
         describe('returnsInOrder', function () {
             it('should not call the original function', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).returnsInOrder([111]);
+                var numberOfTimesCalled = 0;
                 testObject.onNoArgumentsFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call other original functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).returnsInOrder([111]);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callbacks on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).returnsInOrder([111]);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -2801,11 +2923,13 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call lazyReturns on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).returns([111]);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -2813,6 +2937,7 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should return the values', function () {
                 var returnValue1 = {};
@@ -2823,9 +2948,9 @@ describe('Mole', function () {
                 var result2 = testObject.returning1Function();
                 var result3 = testObject.returning1Function();
                 var result4 = testObject.returning1Function();
-                chai_1.expect(result1).to.not.be.equal(returnValue1);
-                chai_1.expect(result2).to.not.be.equal(returnValue2);
-                chai_1.expect(result3).to.not.be.equal(returnValue3);
+                chai_1.expect(result1).to.be.equal(returnValue1);
+                chai_1.expect(result2).to.be.equal(returnValue2);
+                chai_1.expect(result3).to.be.equal(returnValue3);
                 chai_1.expect(result4).to.be.undefined;
             });
             it('should return the last returns values', function () {
@@ -2843,9 +2968,9 @@ describe('Mole', function () {
                 var result2 = testObject.returning1Function();
                 var result3 = testObject.returning1Function();
                 var result4 = testObject.returning1Function();
-                chai_1.expect(result1).to.not.be.equal(returnValue5);
-                chai_1.expect(result2).to.not.be.equal(returnValue6);
-                chai_1.expect(result3).to.not.be.equal(returnValue7);
+                chai_1.expect(result1).to.be.equal(returnValue5);
+                chai_1.expect(result2).to.be.equal(returnValue6);
+                chai_1.expect(result3).to.be.equal(returnValue7);
                 chai_1.expect(result4).to.be.undefined;
             });
             it('should not affect verify', function () {
@@ -2867,42 +2992,54 @@ describe('Mole', function () {
                 var result2 = testObject.getter;
                 var result3 = testObject.getter;
                 var result4 = testObject.getter;
-                chai_1.expect(result1).to.not.be.equal(returnValue5);
-                chai_1.expect(result2).to.not.be.equal(returnValue6);
-                chai_1.expect(result3).to.not.be.equal(returnValue7);
+                chai_1.expect(result1).to.be.equal(returnValue5);
+                chai_1.expect(result2).to.be.equal(returnValue6);
+                chai_1.expect(result3).to.be.equal(returnValue7);
                 chai_1.expect(result4).to.be.undefined;
             });
         });
         describe('lazyReturns', function () {
             it('should not call returnFunction if function is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should call returnFunction when function is called', function () {
+                var numberOfTimesCalled = 0;
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should not call the original function', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturns(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onNoArgumentsFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should pass the same parameters', function () {
                 var arg = 1;
+                var actualArg;
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(function (_arg) {
                     actualArg = _arg;
                 });
                 testObject.oneArgumentsFunction(arg);
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
             it('should pass the same parameters 2', function () {
                 var arg1 = 1;
                 var arg2 = 2;
                 var arg3 = 3;
+                var actualArg1;
+                var actualArg2;
+                var actualArg3;
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); })
                     .lazyReturns(function (_arg1, _arg2, _arg3) {
                     actualArg1 = _arg1;
@@ -2910,21 +3047,27 @@ describe('Mole', function () {
                     actualArg3 = _arg3;
                 });
                 testObject.manyArgumentsFunction(arg1, arg2, arg3);
+                chai_1.expect(actualArg1).to.be.equal(arg1);
+                chai_1.expect(actualArg2).to.be.equal(arg2);
+                chai_1.expect(actualArg3).to.be.equal(arg3);
             });
             it('should not call other original functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturns(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callbacks on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturns(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -2932,11 +3075,13 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call lazyReturns on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturns(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -2944,6 +3089,7 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should return the returnFunction return value', function () {
                 var returnValue = {};
@@ -2986,9 +3132,11 @@ describe('Mole', function () {
         });
         describe('lazyReturnsInOrder', function () {
             it('should not call returnFunction if function is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturnsInOrder([function () {
-                        chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                        numberOfTimesCalled++;
                     }]);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should call returnFunction when function is called', function () {
                 var functionThatWasCalled = [];
@@ -3007,14 +3155,18 @@ describe('Mole', function () {
             });
             it('should not call the original function', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturnsInOrder([function () { }]);
+                var numberOfTimesCalled = 0;
                 testObject.onNoArgumentsFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should pass the same parameters', function () {
                 var arg1 = 1;
                 var arg2 = 2;
+                var actualArg1;
+                var actualArg2;
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturnsInOrder([function (_arg1) {
                         actualArg1 = _arg1;
                     }, function (_arg2) {
@@ -3022,6 +3174,8 @@ describe('Mole', function () {
                     }]);
                 testObject.oneArgumentsFunction(arg1);
                 testObject.oneArgumentsFunction(arg2);
+                chai_1.expect(actualArg1).to.be.equal(arg1);
+                chai_1.expect(actualArg2).to.be.equal(arg2);
             });
             it('should pass the same parameters 2', function () {
                 var arg11 = 1;
@@ -3030,6 +3184,12 @@ describe('Mole', function () {
                 var arg21 = 4;
                 var arg22 = 5;
                 var arg23 = 6;
+                var actualArg11;
+                var actualArg12;
+                var actualArg13;
+                var actualArg21;
+                var actualArg22;
+                var actualArg23;
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); })
                     .lazyReturnsInOrder([function (_arg11, _arg12, _arg13) {
                         actualArg11 = _arg11;
@@ -3042,21 +3202,30 @@ describe('Mole', function () {
                     }]);
                 testObject.manyArgumentsFunction(arg11, arg12, arg13);
                 testObject.manyArgumentsFunction(arg21, arg22, arg23);
+                chai_1.expect(actualArg11).to.be.equal(arg11);
+                chai_1.expect(actualArg12).to.be.equal(arg12);
+                chai_1.expect(actualArg13).to.be.equal(arg13);
+                chai_1.expect(actualArg21).to.be.equal(arg21);
+                chai_1.expect(actualArg22).to.be.equal(arg22);
+                chai_1.expect(actualArg23).to.be.equal(arg23);
             });
             it('should not call other original functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturnsInOrder([function () { }]);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callbacks on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturnsInOrder([function () { }]);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -3064,11 +3233,13 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call lazyReturns on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturnsInOrder([function () { }]);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -3076,6 +3247,7 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.noArgumentsFunction();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should return the returnFunction return values', function () {
                 var returnValue1 = {};
@@ -3112,9 +3284,9 @@ describe('Mole', function () {
                 var result2 = testObject.returning1Function();
                 var result3 = testObject.returning1Function();
                 var result4 = testObject.returning1Function();
-                chai_1.expect(result1).to.not.be.equal(returnValue5);
-                chai_1.expect(result2).to.not.be.equal(returnValue6);
-                chai_1.expect(result3).to.not.be.equal(returnValue7);
+                chai_1.expect(result1).to.be.equal(returnValue5);
+                chai_1.expect(result2).to.be.equal(returnValue6);
+                chai_1.expect(result3).to.be.equal(returnValue7);
                 chai_1.expect(result4).to.be.undefined;
             });
             it('should not affect verify', function () {
@@ -3138,28 +3310,31 @@ describe('Mole', function () {
                 var result2 = testObject.getterAndSetter;
                 var result3 = testObject.getterAndSetter;
                 var result4 = testObject.getterAndSetter;
-                chai_1.expect(result1).to.not.be.equal(returnValue5);
-                chai_1.expect(result2).to.not.be.equal(returnValue6);
-                chai_1.expect(result3).to.not.be.equal(returnValue7);
+                chai_1.expect(result1).to.be.equal(returnValue5);
+                chai_1.expect(result2).to.be.equal(returnValue6);
+                chai_1.expect(result3).to.be.equal(returnValue7);
                 chai_1.expect(result4).to.be.undefined;
             });
         });
         describe('throws', function () {
             it('should not call the original function', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).throws(111);
+                var numberOfTimesCalled = 0;
                 testObject.onNoArgumentsFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 try {
                     testObject.noArgumentsFunction();
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call other original functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).throws(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
@@ -3169,11 +3344,13 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callbacks on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).throws(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -3185,11 +3362,13 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call lazyReturns on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).throws(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -3201,16 +3380,19 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should throw the error', function () {
                 var thrownError = {};
                 mole.setup(function (_) { return _.returning1Function(); }).throws(thrownError);
+                var actualError;
                 try {
                     testObject.returning1Function();
                 }
                 catch (error) {
                     actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('should throw the last error', function () {
                 var thrownError1 = {};
@@ -3222,12 +3404,14 @@ describe('Mole', function () {
                     .throws(thrownError2)
                     .throws(thrownError3)
                     .throws(thrownError4);
+                var actualError;
                 try {
                     testObject.returning1Function();
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError4);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError4);
             });
             it('should throw the last error for getter', function () {
                 var thrownError1 = {};
@@ -3239,12 +3423,14 @@ describe('Mole', function () {
                     .throws(thrownError2)
                     .throws(thrownError3)
                     .throws(thrownError4);
+                var actualError;
                 try {
                     testObject.getter;
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError4);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError4);
             });
             it('should throw the last error for setter', function () {
                 var thrownError1 = {};
@@ -3256,12 +3442,14 @@ describe('Mole', function () {
                     .throws(thrownError2)
                     .throws(thrownError3)
                     .throws(thrownError4);
+                var actualError;
                 try {
                     testObject.setter = 1;
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError4);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError4);
             });
             it('should throw the last error for getter of getter and setter', function () {
                 var thrownError1 = {};
@@ -3273,12 +3461,14 @@ describe('Mole', function () {
                     .throws(thrownError2)
                     .throws(thrownError3)
                     .throws(thrownError4);
+                var actualError;
                 try {
                     testObject.getterAndSetter;
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError4);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError4);
             });
             it('should throw the last error for setter of getter and setter', function () {
                 var thrownError1 = {};
@@ -3290,12 +3480,14 @@ describe('Mole', function () {
                     .throws(thrownError2)
                     .throws(thrownError3)
                     .throws(thrownError4);
+                var actualError;
                 try {
                     testObject.getterAndSetter = 1;
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError4);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError4);
             });
             it('should not affect verify', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).throws('error');
@@ -3311,12 +3503,14 @@ describe('Mole', function () {
                     .throws(thrownError2)
                     .throws(thrownError3)
                     .throws(thrownError4);
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.getterAndSetter = 1;
                 }
                 catch (e) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('setting setter should not affect getter', function () {
                 var thrownError1 = {};
@@ -3328,70 +3522,85 @@ describe('Mole', function () {
                     .throws(thrownError2)
                     .throws(thrownError3)
                     .throws(thrownError4);
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.getterAndSetter;
                 }
                 catch (e) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('calling setter with not matching argument should not throw', function () {
                 mole.setup(function (_) { return _.setter = 1; }).throws({});
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.setter = 2;
                 }
                 catch (e) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('calling setter of getter and setter with not matching argument should not throw', function () {
                 mole.setup(function (_) { return _.getterAndSetter = 1; }).throws({});
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.getterAndSetter = 2;
                 }
                 catch (e) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('calling function with not matching argument should not throw', function () {
                 mole.setup(function (_) { return _.oneArgumentsFunction(1); }).throws({});
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.oneArgumentsFunction(2);
                 }
                 catch (e) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
         });
         describe('lazyThrows', function () {
             it('should not call returnErrorFunction if function is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyThrows(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should call returnErrorFunction when function is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyThrows(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 try {
                     testObject.noArgumentsFunction();
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should not call the original function', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyThrows(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onNoArgumentsFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 try {
                     testObject.noArgumentsFunction();
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should pass the same parameters', function () {
                 var arg = 1;
+                var actualArg;
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyThrows(function (_arg) {
                     actualArg = _arg;
                 });
@@ -3400,11 +3609,15 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
             it('should pass the same parameters 2', function () {
                 var arg1 = 1;
                 var arg2 = 2;
                 var arg3 = 3;
+                var actualArg1;
+                var actualArg2;
+                var actualArg3;
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); })
                     .lazyThrows(function (_arg1, _arg2, _arg3) {
                     actualArg1 = _arg1;
@@ -3416,11 +3629,15 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(actualArg1).to.be.equal(arg1);
+                chai_1.expect(actualArg2).to.be.equal(arg2);
+                chai_1.expect(actualArg3).to.be.equal(arg3);
             });
             it('should not call other original functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyThrows(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
@@ -3430,11 +3647,13 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callbacks on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyThrows(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -3446,11 +3665,13 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call lazyThrows on other functions', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyThrows(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -3462,18 +3683,21 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should throw the returnErrorFunction error', function () {
                 var error = {};
                 mole.setup(function (_) { return _.returning1Function(); }).lazyThrows(function () {
                     return error;
                 });
+                var actualError;
                 try {
                     testObject.returning1Function();
                 }
-                catch (actualError) {
-                    chai_1.expect(actualError).to.be.equal(error);
+                catch (error) {
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(error);
             });
             it('should throw the last returnErrorFunction error', function () {
                 var error1 = {};
@@ -3485,12 +3709,14 @@ describe('Mole', function () {
                     .lazyThrows(function () { return error2; })
                     .lazyThrows(function () { return error3; })
                     .lazyThrows(function () { return error4; });
+                var actualError;
                 try {
                     testObject.returning1Function();
                 }
-                catch (actualError) {
-                    chai_1.expect(actualError).to.be.equal(error4);
+                catch (error) {
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(error4);
             });
             it('should not affect verify', function () {
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyThrows(function () { return 4; });
@@ -3504,12 +3730,14 @@ describe('Mole', function () {
                 mole.setup(function (_) { return _.returning1Function(); })
                     .returns(returnValue)
                     .throws(thrownError);
+                var actualError;
                 try {
                     testObject.returning1Function();
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('should return value if configured after throw', function () {
                 var returnValue = {};
@@ -3523,73 +3751,99 @@ describe('Mole', function () {
             it('should call all the callbacks and the lazy returns but return last configured one', function () {
                 var returnValue = {};
                 var thrownError = {};
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setup(function (_) { return _.returning1Function(); })
                     .throws(thrownError)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                     return 1;
                 })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                     return 2;
                 })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                     return 3;
                 })
-                    .callback(function () { return assert.ok(true, 'should call callback'); })
+                    .callback(function () { return numberOfTimesCalled4++; })
                     .returns(returnValue);
                 var result = testObject.returning1Function();
                 chai_1.expect(result).to.be.equal(returnValue);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('should call all the callbacks and the lazy returns but return last configured one 2', function () {
                 var returnValue = {};
                 var thrownError = {};
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setup(function (_) { return _.returning1Function(); })
                     .throws(thrownError)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                     return 1;
                 })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                     return 2;
                 })
                     .returns(3)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                     return returnValue;
                 })
-                    .callback(function () { return assert.ok(true, 'should call callback'); });
+                    .callback(function () { return numberOfTimesCalled4++; });
                 var result = testObject.returning1Function();
                 chai_1.expect(result).to.be.equal(returnValue);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('should call all the callbacks and the lazy returns but throw last configured error', function () {
                 var returnValue = {};
                 var thrownError = {};
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setup(function (_) { return _.returning1Function(); })
                     .throws('asdasd')
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                     return 1;
                 })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                     return 2;
                 })
                     .returns(returnValue)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                     return 3;
                 })
                     .throws(thrownError)
-                    .callback(function () { return assert.ok(true, 'should call callback'); });
+                    .callback(function () { return numberOfTimesCalled4++; });
+                var actualError;
                 try {
                     testObject.returning1Function();
                 }
                 catch (error) {
                     actualError = error;
                 }
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('should not affect the verify', function () {
                 var returnValue = {};
@@ -3602,55 +3856,75 @@ describe('Mole', function () {
                     .throws(thrownError)
                     .returns(returnValue)
                     .callback(function () { });
-                assert.ok(mole.verify(function (_) { return _.returning1Function(); }, index_1.Times.exact(0)), 'should be called once');
+                chai_1.expect(mole.verify(function (_) { return _.returning1Function(); }, index_1.Times.exact(0))).to.be.true;
             });
             it('should call only the matching set', function () {
                 var returnValue = {};
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
+                var numberOfTimesCalled5 = 0;
+                var numberOfTimesCalled6 = 0;
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled1++;
                 })
                     .returns('return value')
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled2++;
                 });
                 mole.setup(function (_) { return _.oneArgumentsFunction('aaa'); })
                     .throws('error')
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled3++;
                 })
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled4++;
                 });
                 mole.setup(function (_) { return _.oneArgumentsFunction('bbb'); })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled5++;
                 })
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled6++;
                 })
                     .returns(returnValue);
                 var result = testObject.oneArgumentsFunction('bbb');
                 chai_1.expect(result).to.be.equal(returnValue);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(0);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(0);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(0);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(0);
+                chai_1.expect(numberOfTimesCalled5).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled6).to.be.equal(1);
             });
             it('if both setups match should call both', function () {
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                 })
                     .returns('return value')
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 });
                 mole.setup(function (_) { return _.oneArgumentsFunction(1); })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                 })
                     .returns('return value')
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled4++;
                 });
                 testObject.oneArgumentsFunction(1);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('if both setups match should return from the last', function () {
                 var returnValue = {};
@@ -3683,12 +3957,14 @@ describe('Mole', function () {
                 mole.setup(function (_) { return _.oneArgumentsFunction(1); })
                     .lazyReturns(function () { return 3; })
                     .throws(thrownError);
+                var actualError;
                 try {
                     testObject.oneArgumentsFunction(1);
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('if both setups match should throw from the last 2', function () {
                 var thrownError = {};
@@ -3699,12 +3975,14 @@ describe('Mole', function () {
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); })
                     .lazyReturns(function () { return 3; })
                     .throws(thrownError);
+                var actualError;
                 try {
                     testObject.oneArgumentsFunction(1);
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('setup for one object should not affect other', function () {
                 var testObject1 = new TestObject_1.TestObject();
@@ -3714,18 +3992,22 @@ describe('Mole', function () {
                 var arg1 = 10;
                 var returnsValue = 1;
                 mole1.setup(function (_) { return _.getter; }).returns(returnsValue);
+                var actualArg1;
                 mole1.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(function (_arg) {
-                    actualArg = _arg;
+                    actualArg1 = _arg;
                 });
                 var arg2 = 20;
+                var actualArg2;
                 testObject2.onOneArgumentsFunctionCalled = function (_arg) {
                     actualArg2 = _arg;
                 };
+                var numberOfTimesCalled1 = 0;
                 testObject1.onGetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled1++;
                 };
+                var numberOfTimesCalled2 = 0;
                 testObject2.onGetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 };
                 var value = {};
                 testObject2.getterValue = value;
@@ -3735,209 +4017,272 @@ describe('Mole', function () {
                 testObject2.oneArgumentsFunction(arg2);
                 chai_1.expect(result1).to.be.equal(returnsValue);
                 chai_1.expect(result2).to.be.equal(value);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(0);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(actualArg1).to.be.equal(arg1);
+                chai_1.expect(actualArg2).to.be.equal(arg2);
             });
         });
     });
     describe('setupPrivate', function () {
         describe('callback', function () {
             it('should not call callback if function is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callback if getter is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_NAME).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callback if setter is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, 1).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callback if getter of geter&setter is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callback if setter of geter&setter is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should call callback when function is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, null).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateFunction(null);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should call callback when getter is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_NAME).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateGetter();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should call callback when setter is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, 1).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateSetter(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should not call callback when setter is called with wrong parameter', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, 1).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateSetter(2);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should call callback when getter of getter&setter is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateGetterOfGetterAndSetter();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should call callback when setter of getter&setter is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateSetterOfGetterAndSetter(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should not call callback when setter of getter&setter is called with wrong parameter', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateSetterOfGetterAndSetter(2);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call the original function', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, null).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onPrivateFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.callPrivateFunction(null);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call the original getter', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_NAME).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onPrivateGetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.callPrivateGetter();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call the original setter', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, 1).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onPrivateSetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.callPrivateSetter(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should call the original setter if called with other argument', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, 1).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onPrivateSetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 };
                 testObject.callPrivateSetter(2);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should not call the original getter of getter and setter', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onPrivateGetterOfGetterAndSetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.callPrivateGetterOfGetterAndSetter();
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call the original setter of getter and setter', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onPrivateSetterOfGetterAndSetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.callPrivateSetterOfGetterAndSetter(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should call the original setter of getter and setter if called with other argument', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onPrivateSetterOfGetterAndSetterCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 };
                 testObject.callPrivateSetterOfGetterAndSetter(2);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should pass the same parameters', function () {
                 var arg = 1;
+                var actualArg;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, index_1.It.isAny(Number)).callback(function (_arg) {
                     actualArg = _arg;
                 });
                 testObject.callPrivateFunction(arg);
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
             it('should pass the same parameters 2', function () {
                 var arg1 = 2;
+                var actualArg1;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 2)
                     .callback(function (_arg1) {
                     actualArg1 = _arg1;
                 });
                 testObject.callPrivateFunction(arg1);
+                chai_1.expect(actualArg1).to.be.equal(arg1);
             });
             it('should pass the same parameters to setter', function () {
                 var arg1 = 2;
+                var actualArg1;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, 2)
                     .callback(function (_arg1) {
                     actualArg1 = _arg1;
                 });
                 testObject.callPrivateSetter(arg1);
+                chai_1.expect(actualArg1).to.be.equal(arg1);
             });
             it('should pass the same parameters to setter of getter&setter', function () {
                 var arg1 = 2;
+                var actualArg1;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 2)
                     .callback(function (_arg1) {
                     actualArg1 = _arg1;
                 });
                 testObject.callPrivateSetterOfGetterAndSetter(arg1);
+                chai_1.expect(actualArg1).to.be.equal(arg1);
             });
             it('should not call if not matching', function () {
                 var arg = 'some text';
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, index_1.It.isAny(Number)).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateFunction(arg);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call if not matching 2', function () {
                 var arg1 = 3;
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 2)
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateFunction(arg1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call if not matching 3', function () {
                 var arg1 = 3;
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME)
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateFunction(undefined);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call setter if not matching', function () {
                 var arg = 'some text';
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, index_1.It.isAny(Number)).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateSetter(arg);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call setter of getter&setter if not matching', function () {
                 var arg = 'some text';
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, index_1.It.isAny(Number)).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateSetterOfGetterAndSetter(arg);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call other original functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, null).callback(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.callPrivateFunction(null);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callbacks on other functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, null).callback(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -3945,11 +4290,13 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.callPrivateFunction(null);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call lazyReturns on other functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).callback(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -3957,6 +4304,7 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not return the callback return value', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).callback(function () {
@@ -3966,19 +4314,28 @@ describe('Mole', function () {
                 chai_1.expect(result).to.be.undefined;
             });
             it('should call all the callbacks when function is called', function () {
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                 }).callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled4++;
                 });
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('should pass the same parameters to all the callbacks when function is called', function () {
                 var arg = 12;
+                var actualArg;
                 var checkArgument = function (_arg) {
                     actualArg = _arg;
                 };
@@ -3988,30 +4345,36 @@ describe('Mole', function () {
                     .callback(checkArgument)
                     .callback(checkArgument);
                 testObject.callPrivateFunction(arg);
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
         });
         describe('returns', function () {
             it('returns - should not call the original function', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+                var numberOfTimesCalled = 0;
                 testObject.onPrivateFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('returns - should not call other original functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('returns - should not call callbacks on other functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -4019,11 +4382,13 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('returns - should not call lazyReturns on other functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -4031,6 +4396,7 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('returns - should return the value', function () {
                 var returnValue = {};
@@ -4077,52 +4443,65 @@ describe('Mole', function () {
         });
         describe('lazyReturns', function () {
             it('should not call returnFunction if function is not called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 });
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should call returnFunction when function is called', function () {
+                var numberOfTimesCalled = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled++;
                 });
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
             });
             it('should not call the original function', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(function () { });
+                var numberOfTimesCalled = 0;
                 testObject.onPrivateFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should pass the same parameters', function () {
                 var arg = 1;
+                var actualArg;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, index_1.It.isAny(Number)).lazyReturns(function (_arg) {
                     actualArg = _arg;
                 });
                 testObject.callPrivateFunction(arg);
+                chai_1.expect(actualArg).to.be.equal(arg);
             });
             it('should pass the same parameters 2', function () {
                 var arg1 = 1;
+                var actualArg1;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, arg1)
                     .lazyReturns(function (_arg1, _arg2, _arg3) {
                     actualArg1 = _arg1;
                 });
                 testObject.callPrivateFunction(arg1);
+                chai_1.expect(actualArg1).to.be.equal(arg1);
             });
             it('should not call other original functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callbacks on other functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -4130,11 +4509,13 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call lazyReturns on other functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(function () { });
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -4142,6 +4523,7 @@ describe('Mole', function () {
                 testObject.manyArgumentsFunction = shouldNotHappen;
                 testObject.oneArgumentsFunction = shouldNotHappen;
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should return the returnFunction return value', function () {
                 var returnValue = {};
@@ -4175,19 +4557,22 @@ describe('Mole', function () {
         describe('throws', function () {
             it('should not call the original function', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+                var numberOfTimesCalled = 0;
                 testObject.onNoArgumentsFunctionCalled = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 try {
                     testObject.callPrivateFunction(1);
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call other original functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
                 testObject.manyArgumentsFunction = shouldNotHappen;
@@ -4197,11 +4582,13 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call callbacks on other functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).callback(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).callback(shouldNotHappen);
@@ -4213,11 +4600,13 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should not call lazyReturns on other functions', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+                var numberOfTimesCalled = 0;
                 var shouldNotHappen = function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled++;
                 };
                 mole.setup(function (_) { return _.oneArgumentsFunction(index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
                 mole.setup(function (_) { return _.manyArgumentsFunction(index_1.It.isAny(Number), index_1.It.isAny(Number), index_1.It.isAny(Number)); }).lazyReturns(shouldNotHappen);
@@ -4229,96 +4618,115 @@ describe('Mole', function () {
                 }
                 catch (e) {
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
             });
             it('should throw the error', function () {
                 var thrownError = {};
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1).throws(thrownError);
+                var actualError;
                 try {
                     testObject.callPrivateFunction(1);
                 }
                 catch (error) {
                     actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('should throw the error for getter', function () {
                 var thrownError = {};
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_NAME).throws(thrownError);
+                var actualError;
                 try {
                     testObject.callPrivateGetter();
                 }
                 catch (error) {
                     actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('should throw the error for setter', function () {
                 var thrownError = {};
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, 1).throws(thrownError);
+                var actualError;
                 try {
                     testObject.callPrivateSetter(1);
                 }
                 catch (error) {
                     actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('should not throw the error for setter if arguments dont match', function () {
                 var thrownError = {};
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, 1).throws(thrownError);
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.callPrivateSetter(2);
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('should throw the error for getter of getter&setter', function () {
                 var thrownError = {};
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).throws(thrownError);
+                var actualError;
                 try {
                     testObject.callPrivateGetterOfGetterAndSetter();
                 }
                 catch (error) {
                     actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('should throw the error for setter of getter&setter', function () {
                 var thrownError = {};
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
+                var actualError;
                 try {
                     testObject.callPrivateSetterOfGetterAndSetter(1);
                 }
                 catch (error) {
                     actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('should not throw the error for setter of getter&setter if arguments dont match', function () {
                 var thrownError = {};
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.callPrivateSetterOfGetterAndSetter(2);
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('setup getter should not throw on setter', function () {
                 var thrownError = {};
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME).throws(thrownError);
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.callPrivateSetterOfGetterAndSetter(2);
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('setup setter should not throw on getter', function () {
                 var thrownError = {};
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.callPrivateGetterOfGetterAndSetter();
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('should throw the last error', function () {
                 var thrownError1 = {};
@@ -4330,12 +4738,14 @@ describe('Mole', function () {
                     .throws(thrownError2)
                     .throws(thrownError3)
                     .throws(thrownError4);
+                var actualError;
                 try {
                     testObject.callPrivateFunction(1);
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError4);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError4);
             });
         });
         describe('mix', function () {
@@ -4345,12 +4755,14 @@ describe('Mole', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1)
                     .returns(returnValue)
                     .throws(thrownError);
+                var actualError;
                 try {
                     testObject.callPrivateFunction(1);
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('should return value if configured after throw', function () {
                 var returnValue = {};
@@ -4364,159 +4776,221 @@ describe('Mole', function () {
             it('should call all the callbacks and the lazy returns but return last configured one', function () {
                 var returnValue = {};
                 var thrownError = {};
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1)
                     .throws(thrownError)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                     return 1;
                 })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                     return 2;
                 })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                     return 3;
                 })
-                    .callback(function () { return assert.ok(true, 'should call callback'); })
+                    .callback(function () { return numberOfTimesCalled4++; })
                     .returns(returnValue);
                 var result = testObject.callPrivateFunction(1);
                 chai_1.expect(result).to.be.equal(returnValue);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('should call all the callbacks and the lazy returns but return last configured one 2', function () {
                 var returnValue = {};
                 var thrownError = {};
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1)
                     .throws(thrownError)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                     return 1;
                 })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                     return 2;
                 })
                     .returns(3)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                     return returnValue;
                 })
-                    .callback(function () { return assert.ok(true, 'should call callback'); });
+                    .callback(function () { return numberOfTimesCalled4++; });
                 var result = testObject.callPrivateFunction(1);
                 chai_1.expect(result).to.be.equal(returnValue);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('should call all the callbacks and the lazy returns but throw last configured error', function () {
                 var returnValue = {};
                 var thrownError = {};
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1)
                     .throws('asdasd')
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                     return 1;
                 })
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                     return 2;
                 })
                     .returns(returnValue)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                     return 3;
                 })
                     .throws(thrownError)
-                    .callback(function () { return assert.ok(true, 'should call callback'); });
+                    .callback(function () { return numberOfTimesCalled4++; });
+                var actualError;
                 try {
                     testObject.callPrivateFunction(1);
                 }
                 catch (error) {
                     actualError = error;
                 }
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('should call only the matching set', function () {
                 var returnValue = {};
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
+                var numberOfTimesCalled5 = 0;
+                var numberOfTimesCalled6 = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, index_1.It.isAny(Number))
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled1++;
                 })
                     .returns('return value')
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled2++;
                 });
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 'aaa')
                     .throws('error')
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled3++;
                 })
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                    numberOfTimesCalled4++;
                 });
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 'bbb')
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled5++;
                 })
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled6++;
                 })
                     .returns(returnValue);
                 var result = testObject.callPrivateFunction('bbb');
                 chai_1.expect(result).to.be.equal(returnValue);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(0);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(0);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(0);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(0);
+                chai_1.expect(numberOfTimesCalled5).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled6).to.be.equal(1);
             });
             it('if both setups match should call both', function () {
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, index_1.It.isAny(Number))
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                 })
                     .returns('return value')
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 });
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                 })
                     .returns('return value')
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled4++;
                 });
                 testObject.callPrivateFunction(1);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('if both setups match should call both for setter', function () {
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, index_1.It.isAny(Number))
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                 })
                     .returns('return value')
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 });
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_SETTER_NAME, 1)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                 })
                     .returns('return value')
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled4++;
                 });
                 testObject.callPrivateSetter(1);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('if both setups match should call both for setter of getter and setter', function () {
+                var numberOfTimesCalled1 = 0;
+                var numberOfTimesCalled2 = 0;
+                var numberOfTimesCalled3 = 0;
+                var numberOfTimesCalled4 = 0;
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, index_1.It.isAny(Number))
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled1++;
                 })
                     .returns('return value')
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled2++;
                 });
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1)
                     .lazyReturns(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled3++;
                 })
                     .returns('return value')
                     .callback(function () {
-                    chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                    numberOfTimesCalled4++;
                 });
                 testObject.callPrivateSetterOfGetterAndSetter(1);
+                chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled3).to.be.equal(1);
+                chai_1.expect(numberOfTimesCalled4).to.be.equal(1);
             });
             it('if both setups match should return from the last', function () {
                 var returnValue = {};
@@ -4549,12 +5023,14 @@ describe('Mole', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, 1)
                     .lazyReturns(function () { return 3; })
                     .throws(thrownError);
+                var actualError;
                 try {
                     testObject.callPrivateFunction(1);
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
             it('if both setups match should throw from the last 2', function () {
                 var thrownError = {};
@@ -4565,366 +5041,491 @@ describe('Mole', function () {
                 mole.setupPrivate(TestObject_1.TestObject.PRIVATE_FUNCTION_NAME, index_1.It.isAny(Number))
                     .lazyReturns(function () { return 3; })
                     .throws(thrownError);
+                var actualError;
                 try {
                     testObject.callPrivateFunction(1);
                 }
                 catch (error) {
-                    chai_1.expect(actualError).to.be.equal(thrownError);
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
         });
     });
     describe('isStrict', function () {
         describe('true', function () {
             it('isStrict - true - no setup should throw error', function () {
+                mole.isStrict = true;
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.noArgumentsFunction();
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(1);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(1);
             });
             it('isStrict - true - no setup for getter should throw error', function () {
+                mole.isStrict = true;
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.getter;
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(1);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(1);
             });
             it('isStrict - true - no setup for setter should throw error', function () {
+                mole.isStrict = true;
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.setter = 1;
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(1);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(1);
             });
             it('isStrict - true - no setup for getter of getter and setter should throw error', function () {
+                mole.isStrict = true;
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.getterAndSetter;
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(1);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(1);
             });
             it('isStrict - true - no setup for setter of getter and setter should throw error', function () {
+                mole.isStrict = true;
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.getterAndSetter = 1;
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(1);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(1);
             });
             it('isStrict - true - has callback setup should call the callback and not throw error', function () {
+                mole.isStrict = true;
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () {
-                    assert.ok(true, 'should call the setup');
+                    numberOfTimesCalled++;
                 });
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.noArgumentsFunction();
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - true - getter has callback setup should call the callback and not throw error', function () {
+                mole.isStrict = true;
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.getter; }).callback(function () {
-                    assert.ok(true, 'should call the setup');
+                    numberOfTimesCalled++;
                 });
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.getter;
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - true - setter has callback setup should call the callback and not throw error', function () {
+                mole.isStrict = true;
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.setter = 1; }).callback(function () {
-                    assert.ok(true, 'should call the setup');
+                    numberOfTimesCalled++;
                 });
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.setter = 1;
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - true - getter of getter&setter has callback setup should call the callback and not throw error', function () {
+                mole.isStrict = true;
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.getterAndSetter; }).callback(function () {
-                    assert.ok(true, 'should call the setup');
+                    numberOfTimesCalled++;
                 });
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.getterAndSetter;
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - true - setter of getter&setter has callback setup should call the callback and not throw error', function () {
+                mole.isStrict = true;
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.getterAndSetter = 1; }).callback(function () {
-                    assert.ok(true, 'should call the setup');
+                    numberOfTimesCalled++;
                 });
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.getterAndSetter = 1;
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - true - has callback setup  for other argument should throw error', function () {
+                mole.isStrict = true;
                 mole.setup(function (_) { return _.oneArgumentsFunction(1); }).callback(function () { });
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.oneArgumentsFunction(2);
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(1);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(1);
             });
             it('isStrict - true - setter has callback setup for other argument should throw error', function () {
+                mole.isStrict = true;
                 mole.setup(function (_) { return _.setter = 1; }).callback(function () { });
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.setter = 2;
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(1);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(1);
             });
             it('isStrict - true - setter of getter&setter has callback setup for other argument should throw error', function () {
+                mole.isStrict = true;
                 mole.setup(function (_) { return _.getterAndSetter = 1; }).callback(function () { });
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.getterAndSetter = 2;
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(1);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(1);
             });
             it('isStrict - true - has lazyReturns setup should call the lazyReturns and not throw error', function () {
+                mole.isStrict = true;
                 var returnValue = {};
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturns(function () {
-                    assert.ok(true, 'should call the lazyReturns');
+                    numberOfTimesCalled++;
                     return returnValue;
                 });
+                var numberOfTimesThrown = 0;
                 try {
                     var result = testObject.noArgumentsFunction();
                     chai_1.expect(result).to.be.equal(returnValue);
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - true - has returns setup should return the returnValue and not throw error', function () {
+                mole.isStrict = true;
                 var returnValue = {};
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).returns(returnValue);
+                var numberOfTimesThrown = 0;
                 try {
                     var result = testObject.noArgumentsFunction();
                     chai_1.expect(result).to.be.equal(returnValue);
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - true - has throws setup should throw the thrownError', function () {
+                mole.isStrict = true;
                 var thrownError = {};
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).throws(thrownError);
+                var actualError;
                 try {
                     testObject.noArgumentsFunction();
                 }
                 catch (error) {
-                    chai_1.expect(error, thrownError, 'should throw the thrown error');
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
         });
         describe('false', function () {
             it('isStrict - false - no setup should not throw error', function () {
+                mole.isStrict = false;
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.noArgumentsFunction();
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - false - has callbeck setup should call the callback and not throw error', function () {
+                mole.isStrict = false;
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () {
-                    assert.ok(true, 'should call the setup');
+                    numberOfTimesCalled++;
                 });
+                var numberOfTimesThrown = 0;
                 try {
                     testObject.noArgumentsFunction();
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - false - has lazyReturns setup should call the lazyReturns and not throw error', function () {
+                mole.isStrict = false;
                 var returnValue = {};
+                var numberOfTimesCalled = 0;
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).lazyReturns(function () {
-                    assert.ok(true, 'should call the lazyReturns');
+                    numberOfTimesCalled++;
                     return returnValue;
                 });
+                var numberOfTimesThrown = 0;
                 try {
                     var result = testObject.noArgumentsFunction();
                     chai_1.expect(result).to.be.equal(returnValue);
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - false - has returns setup should return the returnValue and not throw error', function () {
+                mole.isStrict = false;
                 var returnValue = {};
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).returns(returnValue);
+                var numberOfTimesThrown = 0;
                 try {
                     var result = testObject.noArgumentsFunction();
                     chai_1.expect(result).to.be.equal(returnValue);
                 }
                 catch (error) {
-                    chai_1.expect(numberOfTimesThrown).to.be.equal(0);
+                    numberOfTimesThrown++;
                 }
+                chai_1.expect(numberOfTimesThrown).to.be.equal(0);
             });
             it('isStrict - false - has throws setup should throw the thrownError', function () {
+                mole.isStrict = false;
                 var thrownError = {};
                 mole.setup(function (_) { return _.noArgumentsFunction(); }).throws(thrownError);
+                var actualError;
                 try {
                     testObject.noArgumentsFunction();
                 }
                 catch (error) {
-                    chai_1.expect(error, thrownError, 'should throw the thrown error');
+                    actualError = error;
                 }
+                chai_1.expect(actualError).to.be.equal(thrownError);
             });
         });
     });
     describe('staticFunction', function () {
         it('Override static function', function () {
             var mole = new index_1.Mole(TestObject_1.TestObject);
+            var numberOfTimesCalled = 0;
             mole.setup(function (_) { TestObject_1.TestObject.staticFunction(); }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled++;
             });
             TestObject_1.TestObject.staticFunction();
+            chai_1.expect(numberOfTimesCalled).to.be.equal(1);
         });
     });
     describe('setup', function () {
         it('inheritence - callback on sons function should call callback', function () {
-            var testObjectSon = new TestObjectSon();
+            var testObjectSon = new TestObjectSon_1.TestObjectSon();
             var mole = new index_1.Mole(testObjectSon);
+            var numberOfTimesCalled = 0;
             mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled++;
             });
             testObjectSon.noArgumentsFunction();
+            chai_1.expect(numberOfTimesCalled).to.be.equal(1);
         });
     });
     describe('dispose', function () {
         it('before dispose should not call the original function', function () {
             var testObject = new TestObject_1.TestObject();
             var mole = new index_1.Mole(testObject);
+            var numberOfTimesCalled1 = 0;
             testObject.onNoArgumentsFunctionCalled = function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                numberOfTimesCalled1++;
             };
+            var numberOfTimesCalled2 = 0;
             mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled2++;
             });
             testObject.noArgumentsFunction();
+            chai_1.expect(numberOfTimesCalled1).to.be.equal(0);
+            chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
         });
         it('before dispose should not call the original getter', function () {
             var testObject = new TestObject_1.TestObject();
             var mole = new index_1.Mole(testObject);
+            var numberOfTimesCalled1 = 0;
             testObject.onGetterCalled = function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                numberOfTimesCalled1++;
             };
+            var numberOfTimesCalled2 = 0;
             mole.setup(function (_) { return _.getter; }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled2++;
             });
             testObject.getter;
+            chai_1.expect(numberOfTimesCalled1).to.be.equal(0);
+            chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
         });
         it('before dispose should not call the original setter', function () {
             var testObject = new TestObject_1.TestObject();
             var mole = new index_1.Mole(testObject);
+            var numberOfTimesCalled1 = 0;
             testObject.onSetterCalled = function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                numberOfTimesCalled1++;
             };
+            var numberOfTimesCalled2 = 0;
             mole.setup(function (_) { return _.setter = 1; }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled2++;
             });
             testObject.setter = 1;
+            chai_1.expect(numberOfTimesCalled1).to.be.equal(0);
+            chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
         });
         it('before dispose should not call the original getter of getter and setter', function () {
             var testObject = new TestObject_1.TestObject();
             var mole = new index_1.Mole(testObject);
+            var numberOfTimesCalled1 = 0;
             testObject.onGetterOfGetterAndSetterCalled = function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                numberOfTimesCalled1++;
             };
+            var numberOfTimesCalled2 = 0;
             mole.setup(function (_) { return _.getterAndSetter; }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled2++;
             });
             testObject.getterAndSetter;
+            chai_1.expect(numberOfTimesCalled1).to.be.equal(0);
+            chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
         });
         it('before dispose should not call the original setter of getter and setter', function () {
             var testObject = new TestObject_1.TestObject();
             var mole = new index_1.Mole(testObject);
+            var numberOfTimesCalled1 = 0;
             testObject.onSetterOfGetterAndSetterCalled = function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                numberOfTimesCalled1++;
             };
+            var numberOfTimesCalled2 = 0;
             mole.setup(function (_) { return _.getterAndSetter = 1; }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled2++;
             });
             testObject.getterAndSetter = 1;
+            chai_1.expect(numberOfTimesCalled1).to.be.equal(0);
+            chai_1.expect(numberOfTimesCalled2).to.be.equal(1);
         });
         it('should call the original function', function () {
             var testObject = new TestObject_1.TestObject();
             var mole = new index_1.Mole(testObject);
+            var numberOfTimesCalled1 = 0;
             testObject.onNoArgumentsFunctionCalled = function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled1++;
             };
+            var numberOfTimesCalled2 = 0;
             mole.setup(function (_) { return _.noArgumentsFunction(); }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                numberOfTimesCalled2++;
             });
             mole.dispose();
             testObject.noArgumentsFunction();
+            chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+            chai_1.expect(numberOfTimesCalled2).to.be.equal(0);
         });
         it('should call the original getter', function () {
             var testObject = new TestObject_1.TestObject();
             var mole = new index_1.Mole(testObject);
+            var numberOfTimesCalled1 = 0;
             testObject.onGetterCalled = function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled1++;
             };
+            var numberOfTimesCalled2 = 0;
             mole.setup(function (_) { return _.getter; }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                numberOfTimesCalled2++;
             });
             mole.dispose();
             testObject.getter;
+            chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+            chai_1.expect(numberOfTimesCalled2).to.be.equal(0);
         });
         it('should call the original setter', function () {
             var testObject = new TestObject_1.TestObject();
             var mole = new index_1.Mole(testObject);
+            var numberOfTimesCalled1 = 0;
             testObject.onSetterCalled = function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled1++;
             };
+            var numberOfTimesCalled2 = 0;
             mole.setup(function (_) { return _.setter = 1; }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                numberOfTimesCalled2++;
             });
             mole.dispose();
             testObject.setter = 1;
+            chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+            chai_1.expect(numberOfTimesCalled2).to.be.equal(0);
         });
         it('should call the original getter of getter and setter', function () {
             var testObject = new TestObject_1.TestObject();
             var mole = new index_1.Mole(testObject);
+            var numberOfTimesCalled1 = 0;
             testObject.onGetterOfGetterAndSetterCalled = function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled1++;
             };
+            var numberOfTimesCalled2 = 0;
             mole.setup(function (_) { return _.getterAndSetter; }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                numberOfTimesCalled2++;
             });
             mole.dispose();
             testObject.getterAndSetter;
+            chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+            chai_1.expect(numberOfTimesCalled2).to.be.equal(0);
         });
         it('should call the original setter of getter and setter', function () {
             var testObject = new TestObject_1.TestObject();
             var mole = new index_1.Mole(testObject);
+            var numberOfTimesCalled1 = 0;
             testObject.onSetterOfGetterAndSetterCalled = function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(1);
+                numberOfTimesCalled1++;
             };
+            var numberOfTimesCalled2 = 0;
             mole.setup(function (_) { return _.getterAndSetter = 1; }).callback(function () {
-                chai_1.expect(numberOfTimesCalled).to.be.equal(0);
+                numberOfTimesCalled2++;
             });
             mole.dispose();
             testObject.getterAndSetter = 1;
+            chai_1.expect(numberOfTimesCalled1).to.be.equal(1);
+            chai_1.expect(numberOfTimesCalled2).to.be.equal(0);
         });
     });
     describe('findMoleByObject', function () {
@@ -4980,28 +5581,28 @@ describe('Mole', function () {
         });
         it('should not create mole of the return value by default', function () {
             var result = testObject.complexReturnFunction();
-            var mole = index_1.Mole.findMoleByObject(result);
-            chai_1.expect(mole).to.be.null;
+            var objectMole = index_1.Mole.findMoleByObject(result);
+            chai_1.expect(objectMole).to.be.null;
         });
         it('set to false should not create mole of the return value', function () {
             mole.moleReturnValue = false;
             var result = testObject.complexReturnFunction();
-            var mole = index_1.Mole.findMoleByObject(result);
+            var objectMole = index_1.Mole.findMoleByObject(result);
             chai_1.expect(mole.moleReturnValue).to.be.false;
-            chai_1.expect(mole).to.be.null;
+            chai_1.expect(objectMole).to.be.null;
         });
         it('set to true should create mole for the return value', function () {
             mole.moleReturnValue = true;
             var result = testObject.complexReturnFunction();
-            var mole = index_1.Mole.findMoleByObject(result);
+            var objectMole = index_1.Mole.findMoleByObject(result);
             chai_1.expect(mole.moleReturnValue).to.be.true;
-            chai_1.expect(mole).to.not.be.null;
+            chai_1.expect(objectMole).to.not.be.null;
         });
         it('set to true should create new mole for the return value', function () {
             mole.moleReturnValue = true;
             var returnValue = testObject.complexReturnFunction();
-            var mole = index_1.Mole.findMoleByObject(returnValue);
-            mole.setup(function (_) { return _.returning1Function(); }).returns(2);
+            var objectMole = index_1.Mole.findMoleByObject(returnValue);
+            objectMole.setup(function (_) { return _.returning1Function(); }).returns(2);
             var result1 = testObject.returning1Function();
             var result2 = returnValue.returning1Function();
             chai_1.expect(result1).to.be.equal(1);
@@ -5010,15 +5611,15 @@ describe('Mole', function () {
         it('set to true should create mole for the return value return value', function () {
             mole.moleReturnValue = true;
             var result = testObject.complexReturnFunction().complexReturnFunction();
-            var mole = index_1.Mole.findMoleByObject(result);
+            var objectMole = index_1.Mole.findMoleByObject(result);
             chai_1.expect(mole.moleReturnValue).to.be.true;
-            chai_1.expect(mole).to.not.be.null;
+            chai_1.expect(objectMole).to.not.be.null;
         });
         it('set to true should create new mole for the return value return value', function () {
             mole.moleReturnValue = true;
             var returnValue = testObject.complexReturnFunction().complexReturnFunction();
-            var mole = index_1.Mole.findMoleByObject(returnValue);
-            mole.setup(function (_) { return _.returning1Function(); }).returns(2);
+            var objectMole = index_1.Mole.findMoleByObject(returnValue);
+            objectMole.setup(function (_) { return _.returning1Function(); }).returns(2);
             var result1 = testObject.returning1Function();
             var result2 = returnValue.returning1Function();
             chai_1.expect(result1).to.be.equal(1);
@@ -5027,22 +5628,22 @@ describe('Mole', function () {
         it('set to false should not create mole of the return value', function () {
             mole.moleReturnValue = false;
             var result = testObject.complexGetterFunction;
-            var mole = index_1.Mole.findMoleByObject(result);
+            var objectMole = index_1.Mole.findMoleByObject(result);
             chai_1.expect(mole.moleReturnValue).to.be.false;
-            chai_1.expect(mole).to.be.null;
+            chai_1.expect(objectMole).to.be.null;
         });
         it('set to true should create mole for the return value', function () {
             mole.moleReturnValue = true;
             var result = testObject.complexGetterFunction;
-            var mole = index_1.Mole.findMoleByObject(result);
+            var objectMole = index_1.Mole.findMoleByObject(result);
             chai_1.expect(mole.moleReturnValue).to.be.true;
-            chai_1.expect(mole).to.not.be.null;
+            chai_1.expect(objectMole).to.not.be.null;
         });
         it('set to true should create new mole for the return value', function () {
             mole.moleReturnValue = true;
             var returnValue = testObject.complexGetterFunction;
-            var mole = index_1.Mole.findMoleByObject(returnValue);
-            mole.setup(function (_) { return _.returning1Function(); }).returns(2);
+            var objectMole = index_1.Mole.findMoleByObject(returnValue);
+            objectMole.setup(function (_) { return _.returning1Function(); }).returns(2);
             var result1 = testObject.returning1Function();
             var result2 = returnValue.returning1Function();
             chai_1.expect(result1).to.be.equal(1);
@@ -5051,15 +5652,15 @@ describe('Mole', function () {
         it('set to true should create mole for the return value return value', function () {
             mole.moleReturnValue = true;
             var result = testObject.complexGetterFunction.complexGetterFunction;
-            var mole = index_1.Mole.findMoleByObject(result);
+            var objectMole = index_1.Mole.findMoleByObject(result);
             chai_1.expect(mole.moleReturnValue).to.be.true;
-            chai_1.expect(mole).to.not.be.null;
+            chai_1.expect(objectMole).to.not.be.null;
         });
         it('set to true should create new mole for the return value return value', function () {
             mole.moleReturnValue = true;
             var returnValue = testObject.complexGetterFunction.complexGetterFunction;
-            var mole = index_1.Mole.findMoleByObject(returnValue);
-            mole.setup(function (_) { return _.returning1Function(); }).returns(2);
+            var objectMole = index_1.Mole.findMoleByObject(returnValue);
+            objectMole.setup(function (_) { return _.returning1Function(); }).returns(2);
             var result1 = testObject.returning1Function();
             var result2 = returnValue.returning1Function();
             chai_1.expect(result1).to.be.equal(1);

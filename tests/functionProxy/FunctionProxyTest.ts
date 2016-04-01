@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { FunctionProxy } from '../../src/functionProxy/FunctionProxy';
 import { FunctionProxyConfigurations } from '../../src/functionProxy/FunctionProxyConfigurations';
 import { TestObject } from '../testsCommon/TestObject';
-import {VerifyFunctionCallMode} from '../../src/functionCallMode/VerifyFunctionCallMode';
+import { VerifyFunctionCallMode } from '../../src/functionCallMode/VerifyFunctionCallMode';
 import { InvokeFunctionCallMode} from '../../src/functionCallMode/InvokeFunctionCallMode';
 import { IFunctionCallMode} from '../../src/functionCallMode/IFunctionCallMode';
 import { ItIsBase } from '../../src/it/ItIsBase';
@@ -23,6 +23,7 @@ describe('FunctionProxy', () => {
 
   beforeEach(() => {
     thisObject = new TestObject();
+
     functionProxyConfigurations = new FunctionProxyConfigurations();
 
     noArgsFunctionProxy = new FunctionProxy('noArgumentsFunction', thisObject.noArgumentsFunction,
@@ -130,17 +131,18 @@ describe('FunctionProxy', () => {
   });
 
   describe('callFunction - unknown mode', () => {
-    it('should throw error', () => { })
-    // Arrange
-    var unknownFunctionCallMode: IFunctionCallMode = {};
+    it('should throw error', () => {
+      // Arrange
+      var unknownFunctionCallMode: IFunctionCallMode = {};
 
-    functionProxyConfigurations.functionCallMode = unknownFunctionCallMode;
+      functionProxyConfigurations.functionCallMode = unknownFunctionCallMode;
 
-    //Act
-    var action = () => noArgsFunctionProxy.callFunction([]);
+      //Act
+      var action = () => noArgsFunctionProxy.callFunction([]);
 
-    // Assert
-    expect(action).to.throw();
+      // Assert
+      expect(action).to.throw();
+    });
 
   });
 
@@ -541,7 +543,7 @@ describe('FunctionProxy', () => {
 
   describe('callFunction - verify mode many arguments', () => {
 
-    it('callFunction - verify mode many arguments -  was not called should not find a match', () => {
+    it('was not called should not find a match', () => {
       // Arrange
       var verifyMode: VerifyFunctionCallMode = setVerifyMode();
 
@@ -556,7 +558,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(0);
     });
 
-    it('callFunction - verify mode many arguments -  was called should find a match', () => {
+    it('was called should find a match', () => {
       // Arrange
       var arg1 = {};
       var arg2 = {};
@@ -573,7 +575,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(1);
     });
 
-    it('callFunction - verify mode many arguments -  was called twice should find a match', () => {
+    it('was called twice should find a match', () => {
       // Arrange
       var arg1 = {};
       var arg2 = {};
@@ -588,10 +590,10 @@ describe('FunctionProxy', () => {
       manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
 
       // Assert
-      expect(verifyMode.numberOfMatches).to.be.equal(1);
+      expect(verifyMode.numberOfMatches).to.be.equal(2);
     });
 
-    it('callFunction - verify mode many arguments -  was called twice with different sets should find a match for first set', () => {
+    it('was called twice with different sets should find a match for first set', () => {
       // Arrange
       var argSet1 = [{}, {}, {}];
       var argSet2 = [{}, {}, {}];
@@ -608,7 +610,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(1);
     });
 
-    it('callFunction - verify mode many arguments -  was called twice with different sets should find a match for second set', () => {
+    it('was called twice with different sets should find a match for second set', () => {
       // Arrange
       var argSet1 = [{}, {}, {}];
       var argSet2 = [{}, {}, {}];
@@ -625,7 +627,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(1);
     });
 
-    it('callFunction - verify mode many arguments -  was called twice with different sets should not find a match for different set', () => {
+    it('was called twice with different sets should not find a match for different set', () => {
       // Arrange
       var argSet1 = [{}, {}, {}];
       var argSet2 = [{}, {}, {}];
@@ -661,7 +663,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(0);
     });
 
-    it('callFunction - verify mode many arguments -  was called with less parameters should find a match', () => {
+    it('was called with less parameters should find a match', () => {
       // Arrange
       var argSet = [{}, {}];
 
@@ -676,7 +678,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(1);
     });
 
-    it('callFunction - verify mode many arguments -  was called with more parameters should find a match', () => {
+    it('was called with more parameters should find a match', () => {
       // Arrange
       var argSet = [{}, {}, {}, {}];
 
@@ -691,7 +693,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(1);
     });
 
-    it('callFunction - verify mode many arguments -  was called with more parameters should not find a match with less parameters', () => {
+    it('was called with more parameters should not find a match with less parameters', () => {
       // Arrange
       var argSet = [{}, {}, {}, {}];
 
@@ -706,7 +708,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(0);
     });
 
-    it('callFunction - verify mode many arguments -  was called with ItIs that returns false should not find a match with less parameters', () => {
+    it('was called with ItIs that returns false should not find a match with less parameters', () => {
       // Arrange
       var argSet = [{}, {}, {}];
 
@@ -726,7 +728,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(0);
     });
 
-    it('callFunction - verify mode many arguments -  was called with ItIs that returns true should find a match with less parameters', () => {
+    it('was called with ItIs that returns true should find a match with less parameters', () => {
       // Arrange
       var argSet = [{}, {}, {}];
 
@@ -746,7 +748,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(1);
     });
 
-    it('callFunction - verify mode many arguments -  was called with ItIs that returns true 3 times should find a match with less parameters', () => {
+    it('was called with ItIs that returns true 3 times should find a match with less parameters', () => {
       // Arrange
       var argSet = [{}, {}, {}];
 
@@ -773,7 +775,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(3);
     });
 
-    it('callFunction - verify mode many arguments -  was called with 3 ItIs that returns true should find a match with less parameters', () => {
+    it('was called with 3 ItIs that returns true should find a match with less parameters', () => {
       // Arrange
       var argSet = [{}, {}, {}];
 
@@ -793,7 +795,7 @@ describe('FunctionProxy', () => {
       expect(verifyMode.numberOfMatches).to.be.equal(1);
     });
 
-    it('callFunction - verify mode many arguments -  was called with 2 ItIs that returns true and one that returns false should find a match with less parameters', () => {
+    it('was called with 2 ItIs that returns true and one that returns false should find a match with less parameters', () => {
       // Arrange
       var argSet = [{}, {}, {}];
 
@@ -822,7 +824,7 @@ describe('FunctionProxy', () => {
 
   describe('callFunction - override mode Callback', () => {
 
-    it('callFunction - override mode Callback - should not call the original function', () => {
+    it('should not call the original function', () => {
       // Arrange
       var numberOfTimesCalled = 0;
       thisObject.onNoArgumentsFunctionCalled = () => {
@@ -840,7 +842,7 @@ describe('FunctionProxy', () => {
       expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    it('callFunction - override mode Callback - should not call the original function with arguments', () => {
+    it('should not call the original function with arguments', () => {
       // Arrange
       var numberOfTimesCalled = 0;
       thisObject.onNoArgumentsFunctionCalled = () => {
@@ -858,7 +860,7 @@ describe('FunctionProxy', () => {
       expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    it('callFunction - override mode Callback - invoking the function should not call the original function', () => {
+    it('invoking the function should not call the original function', () => {
       // Arrange
       var numberOfTimesCalled = 0;
       thisObject.onNoArgumentsFunctionCalled = () => {
@@ -879,7 +881,7 @@ describe('FunctionProxy', () => {
       expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    it('callFunction - override mode Callback - invoking the function should call the override function', () => {
+    it('invoking the function should call the override function', () => {
       // Arrange
       var numberOfTimesCalled = 0;
       var override = () => {
@@ -898,7 +900,7 @@ describe('FunctionProxy', () => {
       expect(numberOfTimesCalled).to.be.equal(1);
     });
 
-    it('callFunction - override mode Callback - calling the function should not call the override function', () => {
+    it('calling the function should not call the override function', () => {
       // Arrange
       var numberOfTimesCalled = 0;
       var override = () => {
@@ -914,7 +916,7 @@ describe('FunctionProxy', () => {
       expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    it('callFunction - override mode Callback - invoking the function should call the override with same parameters', () => {
+    it('invoking the function should call the override with same parameters', () => {
       // Arrange
       var args = [{}, {}, {}];
 
@@ -942,7 +944,7 @@ describe('FunctionProxy', () => {
       expect(actualArgs[0].arg3).to.be.equal(args[2]);
     });
 
-    it('callFunction - override mode Callback - invoking the function with other parameters should not call the override', () => {
+    it('invoking the function with other parameters should not call the override', () => {
       // Arrange
       var args = [{}, {}, {}];
 
@@ -963,7 +965,7 @@ describe('FunctionProxy', () => {
       expect(numberOfTimesCalled).to.be.equal(0);
     });
 
-    it('callFunction - override mode Callback - invoking the function with other parameters should call the original function', () => {
+    it('invoking the function with other parameters should call the original function', () => {
       // Arrange
       var args1 = [{}, {}, {}];
       var args2 = [args1[0], args1[1], {}];
@@ -994,7 +996,7 @@ describe('FunctionProxy', () => {
       expect(actualArgs[0].arg3).to.be.equal(args2[2]);
     });
 
-    it('callFunction - override mode Callback - calling the function with ItIs and than invoking should call the override', () => {
+    it('calling the function with ItIs and than invoking should call the override', () => {
       // Arrange
       var numberOfTimesManyArgumentsFunctionCalled = 0;
       thisObject.onManyArgumentsFunctionCalled = (_arg1, _arg2, _arg3) => {
@@ -1031,7 +1033,7 @@ describe('FunctionProxy', () => {
       expect(actualArgs[0].arg3).to.be.equal(arg3);
     });
 
-    it('callFunction - override mode Callback - calling the function with ItIs and than invoking with not matching argument should not call the override and call the original', () => {
+    it('calling the function with ItIs and than invoking with not matching argument should not call the override and call the original', () => {
       // Arrange
       var actualManyArgumentsFunctionArgs = [];
       thisObject.onManyArgumentsFunctionCalled = (_arg1, _arg2, _arg3) => {
@@ -1186,7 +1188,7 @@ describe('FunctionProxy', () => {
       manyArgsFunctionProxy.callFunction(args);
 
       // Assert
-      expect(actualArgs.length).to.be.equal(3);
+      expect(actualArgs.length).to.be.equal(1);
       expect(actualArgs[0].arg1).to.be.equal(args[0]);
       expect(actualArgs[0].arg2).to.be.equal(args[1]);
       expect(actualArgs[0].arg3).to.be.equal(args[2]);
@@ -1238,7 +1240,7 @@ describe('FunctionProxy', () => {
       manyArgsFunctionProxy.callFunction(args2);
 
       // Assert
-      expect(actualArgs.length).to.be.equal(3);
+      expect(actualArgs.length).to.be.equal(1);
       expect(actualArgs[0].arg1).to.be.equal(args2[0]);
       expect(actualArgs[0].arg2).to.be.equal(args2[1]);
       expect(actualArgs[0].arg3).to.be.equal(args2[2]);
@@ -1275,7 +1277,7 @@ describe('FunctionProxy', () => {
 
       // Assert
       expect(numberOfTimesCalled).to.be.equal(0);
-      expect(actualArgs.length).to.be.equal(3);
+      expect(actualArgs.length).to.be.equal(1);
       expect(actualArgs[0].arg1).to.be.equal(arg1);
       expect(actualArgs[0].arg2).to.be.equal(arg2);
       expect(actualArgs[0].arg3).to.be.equal(arg3);
@@ -1312,7 +1314,7 @@ describe('FunctionProxy', () => {
 
       // Assert
       expect(numberOfTimesCalled).to.be.equal(0);
-      expect(actualArgs.length).to.be.equal(3);
+      expect(actualArgs.length).to.be.equal(1);
       expect(actualArgs[0].arg1).to.be.equal(arg1);
       expect(actualArgs[0].arg2).to.be.equal(arg2);
       expect(actualArgs[0].arg3).to.be.equal(arg3);
@@ -1447,7 +1449,7 @@ describe('FunctionProxy', () => {
       }
 
       // Assert
-      expect(actualArgs.length).to.be.equal(3);
+      expect(actualArgs.length).to.be.equal(1);
       expect(actualArgs[0].arg1).to.be.equal(args[0]);
       expect(actualArgs[0].arg2).to.be.equal(args[1]);
       expect(actualArgs[0].arg3).to.be.equal(args[2]);
@@ -1502,7 +1504,7 @@ describe('FunctionProxy', () => {
       manyArgsFunctionProxy.callFunction(args2);
 
       // Assert
-      expect(actualArgs.length).to.be.equal(3);
+      expect(actualArgs.length).to.be.equal(1);
       expect(actualArgs[0].arg1).to.be.equal(args2[0]);
       expect(actualArgs[0].arg2).to.be.equal(args2[1]);
       expect(actualArgs[0].arg3).to.be.equal(args2[2]);
@@ -1541,7 +1543,7 @@ describe('FunctionProxy', () => {
       }
 
       // Assert
-      expect(actualArgs.length).to.be.equal(3);
+      expect(actualArgs.length).to.be.equal(1);
       expect(actualArgs[0].arg1).to.be.equal(arg1);
       expect(actualArgs[0].arg2).to.be.equal(arg2);
       expect(actualArgs[0].arg3).to.be.equal(arg3);
@@ -1578,7 +1580,7 @@ describe('FunctionProxy', () => {
       manyArgsFunctionProxy.callFunction([arg1, arg2, arg3]);
 
       // Assert
-      expect(actualArgs.length).to.be.equal(3);
+      expect(actualArgs.length).to.be.equal(1);
       expect(actualArgs[0].arg1).to.be.equal(arg1);
       expect(actualArgs[0].arg2).to.be.equal(arg2);
       expect(actualArgs[0].arg3).to.be.equal(arg3);
@@ -1767,7 +1769,7 @@ describe('FunctionProxy', () => {
       // Assert
       expect(numberOfTimesThrowsOverrideWasCalled).to.be.equal(0);
       expect(numberOfTimesReturnsValueWasCalled).to.be.equal(0);
-      expect(numberOfTimesCallbackOVerrideWasCalled).to.be.equal(0);
+      expect(numberOfTimesCallbackOVerrideWasCalled).to.be.equal(1);
     });
 
     it('with value should call only a returns on invoke', () => {
@@ -2054,8 +2056,8 @@ describe('FunctionProxy', () => {
         numberOfTimesCallbackOverride2WasCalled++;
       }
 
-      var throwsOverrideCallMode1 = new ReturnsOverrideFunctionCallMode(returnsOverride1);
-      var throwsOverrideCallMode2 = new ReturnsOverrideFunctionCallMode(returnsOverride2);
+      var throwsOverrideCallMode1 = new ReturnsOverrideFunctionCallMode(throwsOverride1);
+      var throwsOverrideCallMode2 = new ReturnsOverrideFunctionCallMode(throwsOverride2);
       var returnsOverrideCallMode1 = new ReturnsOverrideFunctionCallMode(returnsOverride1);
       var returnsOverrideCallMode2 = new ReturnsOverrideFunctionCallMode(returnsOverride2);
       var callbackOverrideCallMode1 = new CallbackOverrideFunctionCallMode(callbackOverride1);
