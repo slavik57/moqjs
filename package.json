@@ -1,0 +1,28 @@
+{
+  "name": "moqjs",
+  "version": "1.1.0",
+  "description": "A mock library for javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests --recursive -c -b"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slavik57/moqjs.git"
+  },
+  "keywords": [
+    "moq",
+    "mock",
+    "moqjs"
+  ],
+  "author": "Slava Shpitalny <slavik57@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/slavik57/moqjs/issues"
+  },
+  "homepage": "https://github.com/slavik57/moqjs#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "sinon": "^1.17.3"
+  }
+}
