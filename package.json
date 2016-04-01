@@ -1,7 +1,7 @@
 {
   "name": "moqjs",
   "version": "1.1.0",
-  "description": "A mock library for javascript",
+  "description": "A mock library for JavaScript/TypeScript",
   "main": "index.js",
   "scripts": {
     "test": "mocha tests --recursive -c -b"

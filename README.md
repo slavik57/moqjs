@@ -6,12 +6,15 @@ MoqJS
 npm install moqjs --save-dev
 ```
 ===
-A javascript library inspired by the Moq library for .Net
+A JavaScript/TypeScript library inspired by the Moq library for .Net
 
+### Example in TypeScript/es6
 ```javascript
+  import { Mole, Times, It } from 'moqjs';
+
   // Create some object instance
   var dog = new Dog();
-  
+
   // Create a mole for the object
   var mole = new Mole(dog);
 
@@ -22,7 +25,10 @@ A javascript library inspired by the Moq library for .Net
   var result = dog.eat('meat');
 
   // Verify the given method was indeed called with the expected value exactly once
-  var isVerified = mole.verify(_dog => _dog.eat('meat'), Times.exact(1));
+  var isVerified1 = mole.verify(_dog => _dog.eat('meat'), Times.exact(1));
+
+  // Verify the given method was indeed called with any string value exactly once
+  var isVerified2 = mole.verify(_dog => _dog.eat(It.isAny(String)), Times.exact(1));
 ```
 
 Checkout the [Quickstart](https://github.com/slavik57/moqjs/wiki/Quickstart) for more examples!
