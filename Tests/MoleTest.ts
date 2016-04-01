@@ -1,5435 +1,4890 @@
-﻿'use strict';
+import { expect } from 'chai';
+import { TestObject } from './testsCommon/TestObject';
+import { Mole, Times, It } from '../index';
+import { ItIsBase } from '../src/it/ItIsBase';
+import { ITimes } from '../src/times/ITimes';
 
-module Tests {
-    import ItIsBase = moqJS.ItIsBase;
-    import It = moqJS.It;
-    import ITimes = moqJS.ITimes;
-    import Times = moqJS.Times;
-    import Mole = moqJS.Mole;
+describe('Mole', () => {
+  var testObject: TestObject;
+  var mole: Mole<TestObject>;
 
-    class MoleLifecycleObject implements LifecycleObject {
-        public testObject: TestObject;
-        public mole: Mole<TestObject>;
+  beforeEach(() => {
+    testObject = new TestObject();
 
-        public beforeEach = function () {
-            var context: MoleLifecycleObject = this;
+    mole = new Mole(testObject);
+  });
 
-            context.testObject = new TestObject();
+  afterEach(() => {
+    mole.dispose();
+  });
 
-            context.mole = new Mole(context.testObject);
-        };
+  describe('constructor', () => {
 
-        public afterEach = function () {
-            var context: MoleLifecycleObject = this;
+    it('should initialize correctly', () => {
+      // Arrange
+      var testObject = new TestObject();
 
-            context.mole.dispose();
-        };
-    }
+      // Act
+      var mole = new Mole(testObject);
 
-    QUnit.module('Mole', new MoleLifecycleObject());
+      // Assert
+      expect(mole.object).to.be.equal(testObject);
+    });
 
-    QUnit.test('constructor - should initialize correctly', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
+  });
 
+  describe('noArgumentsFunction', () => {
+
+    it('should call only the original function', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      var shouldNotBeCalled = () => numberOfTimesCalled++;
+
+      var numberOfTimesNoArgumentsFunctionCalled = 0;
+      testObject.onNoArgumentsFunctionCalled = () => {
+        numberOfTimesNoArgumentsFunctionCalled++;
+      };
+
+      testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onGetterCalled = shouldNotBeCalled;
+      testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onSetterCalled = shouldNotBeCalled;
+
+      // Act
+      testObject.noArgumentsFunction();
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+      expect(numberOfTimesNoArgumentsFunctionCalled).to.be.equal(1);
+    });
+
+  });
+
+  describe('oneArgumentsFunction', () => {
+
+    it('one arguments should call only the original function', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      var shouldNotBeCalled = () => numberOfTimesCalled++;
+
+      var arg = {};
+
+      testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onGetterCalled = shouldNotBeCalled;
+      testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onSetterCalled = shouldNotBeCalled;
+
+      var actualArg;
+      testObject.onOneArgumentsFunctionCalled = (_arg) => {
+        actualArg = arg;
+      };
+
+      // Act
+      testObject.oneArgumentsFunction(arg);
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+      expect(actualArg).to.be.equal(arg);
+    });
+
+  });
+
+  describe('manyArgumentsFunction', () => {
+
+    it('many arguments should call only the original function', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      var shouldNotBeCalled = () => numberOfTimesCalled++;
+
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onGetterCalled = shouldNotBeCalled;
+      testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onSetterCalled = shouldNotBeCalled;
+      testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled;
+
+      var actualArg1;
+      var actualArg2;
+      var actualArg3;
+      testObject.onManyArgumentsFunctionCalled = (_arg1, _arg2, _arg3) => {
+        actualArg1 = _arg1;
+        actualArg2 = _arg2;
+        actualArg3 = _arg3;
+      };
+
+      // Act
+      testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+      expect(actualArg1).to.be.equal(arg1);
+      expect(actualArg2).to.be.equal(arg2);
+      expect(actualArg3).to.be.equal(arg3);
+    });
+
+  });
+
+  describe('getter', () => {
+
+    it('should call only the original getter', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      var shouldNotBeCalled = () => numberOfTimesCalled++;
+
+      testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
+      testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onSetterCalled = shouldNotBeCalled;
+
+      var numberOfTimesGetterCalled = 0;
+      testObject.onGetterCalled = () => numberOfTimesGetterCalled++;
+
+      var value = {};
+      testObject.getterValue = value;
+
+      // Act
+      var actualValue = testObject.getter;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+      expect(numberOfTimesGetterCalled).to.be.equal(1);
+      expect(actualValue).to.be.equal(value);
+    });
+
+    it('should call only the original getter', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      var shouldNotBeCalled = () => numberOfTimesCalled++;
+
+      testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
+      testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onSetterCalled = shouldNotBeCalled;
+      testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onGetterCalled = shouldNotBeCalled;
+
+      var numberOfTimesGetterOfGetterAndSetterCalled = 0;
+      testObject.onGetterOfGetterAndSetterCalled = () => numberOfTimesGetterOfGetterAndSetterCalled++;
+
+      var value = {};
+      testObject.getterAndSetterValue = value;
+
+      // Act
+      var actualValue = testObject.getterAndSetter;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+      expect(numberOfTimesGetterOfGetterAndSetterCalled).to.be.equal(1);
+      expect(actualValue).to.be.equal(value);
+    });
+
+  });
+
+  describe('setter', () => {
+
+    it('should call only the original setter', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      var shouldNotBeCalled = () => numberOfTimesCalled++;
+
+      testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
+      testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onGetterCalled = shouldNotBeCalled;
+
+      var numberOfTimesSetterCalled = 0;
+      testObject.onSetterCalled = () => numberOfTimesSetterCalled++;
+
+      var value = {};
+
+      // Act
+      testObject.setter = value;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+      expect(numberOfTimesSetterCalled).to.be.equal(1);
+      expect(testObject.setterValue).to.be.equal(value);
+    });
+
+    it('should call only the original setter', () => {
+      // Arrange
+      var numberOfTimesCalled = 0;
+      var shouldNotBeCalled = () => numberOfTimesCalled++;
+
+      testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
+      testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
+      testObject.onSetterCalled = shouldNotBeCalled;
+      testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
+      testObject.onGetterCalled = shouldNotBeCalled;
+
+      var numberOfTimesSetterOfGetterAndSetterCalled = 0;
+      testObject.onSetterOfGetterAndSetterCalled = () => numberOfTimesSetterOfGetterAndSetterCalled++;
+
+      var value = {};
+
+      // Act
+      testObject.getterAndSetter = value;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+      expect(numberOfTimesSetterOfGetterAndSetterCalled).to.be.equal(1);
+      expect(testObject.getterAndSetterValue).to.be.equal(value);
+    });
+
+  });
+
+  describe('verify', () => {
+
+    it('should verify only the no arguments function', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      // Act
+      testObject.noArgumentsFunction();
+
+      // Assert
+      var verifyNoArguments = mole.verify(_ => _.noArgumentsFunction());
+      var verifyOneArguments = mole.verify(_ => _.oneArgumentsFunction(arg1));
+      var verifyManyArguments = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+      var verifyGetter = mole.verify(_ => _.getter);
+      var verifySetter = mole.verify(_ => _.setter = arg1);
+      var verifyGetterAndSetterGetter = mole.verify(_ => _.getterAndSetter);
+      var verifyGetterAndSetterSetter = mole.verify(_ => _.getterAndSetter = arg1);
+
+      expect(verifyNoArguments).to.be.true;
+      expect(verifyOneArguments).to.be.false;
+      expect(verifyManyArguments).to.be.false;
+      expect(verifyGetter).to.be.false;
+      expect(verifySetter).to.be.false;
+      expect(verifyGetterAndSetterSetter).to.be.false;
+      expect(verifyGetterAndSetterGetter).to.be.false;
+    });
+
+    it('should verify only the one argument function', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      // Act
+      testObject.oneArgumentsFunction(arg1);
+
+      // Assert
+      var verifyNoArguments = mole.verify(_ => _.noArgumentsFunction());
+      var verifyOneArguments = mole.verify(_ => _.oneArgumentsFunction(arg1));
+      var verifyManyArguments = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+      var verifyGetter = mole.verify(_ => _.getter);
+      var verifySetter = mole.verify(_ => _.setter = arg1);
+      var verifyGetterAndSetterGetter = mole.verify(_ => _.getterAndSetter);
+      var verifyGetterAndSetterSetter = mole.verify(_ => _.getterAndSetter = arg1);
+
+      expect(verifyNoArguments).to.be.false;
+      expect(verifyOneArguments).to.be.true;
+      expect(verifyManyArguments).to.be.false;
+      expect(verifyGetter).to.be.false;
+      expect(verifySetter).to.be.false;
+      expect(verifyGetterAndSetterSetter).to.be.false;
+      expect(verifyGetterAndSetterGetter).to.be.false;
+    });
+
+    it('should verify only the many argument function', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      // Act
+      testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+      // Assert
+      var verifyNoArguments = mole.verify(_ => _.noArgumentsFunction());
+      var verifyOneArguments = mole.verify(_ => _.oneArgumentsFunction(arg1));
+      var verifyManyArguments = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+      var verifyGetter = mole.verify(_ => _.getter);
+      var verifySetter = mole.verify(_ => _.setter = arg1);
+      var verifyGetterAndSetterGetter = mole.verify(_ => _.getterAndSetter);
+      var verifyGetterAndSetterSetter = mole.verify(_ => _.getterAndSetter = arg1);
+
+      expect(verifyNoArguments).to.be.false;
+      expect(verifyOneArguments).to.be.false;
+      expect(verifyManyArguments).to.be.true;
+      expect(verifyGetter).to.be.false;
+      expect(verifySetter).to.be.false;
+      expect(verifyGetterAndSetterSetter).to.be.false;
+      expect(verifyGetterAndSetterGetter).to.be.false;
+    });
+
+    it('should verify only the getter', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      // Act
+      var value = testObject.getter;
+
+      // Assert
+      var verifyNoArguments = mole.verify(_ => _.noArgumentsFunction());
+      var verifyOneArguments = mole.verify(_ => _.oneArgumentsFunction(arg1));
+      var verifyManyArguments = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+      var verifyGetter = mole.verify(_ => _.getter);
+      var verifySetter = mole.verify(_ => _.setter = arg1);
+      var verifyGetterAndSetterGetter = mole.verify(_ => _.getterAndSetter);
+      var verifyGetterAndSetterSetter = mole.verify(_ => _.getterAndSetter = arg1);
+
+      expect(verifyNoArguments).to.be.false;
+      expect(verifyOneArguments).to.be.false;
+      expect(verifyManyArguments).to.be.false;
+      expect(verifyGetter).to.be.true;
+      expect(verifySetter).to.be.false;
+      expect(verifyGetterAndSetterSetter).to.be.false;
+      expect(verifyGetterAndSetterGetter).to.be.false;
+    });
+
+    it('should verify only the setter', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      // Act
+      testObject.setter = arg1;
+
+      // Assert
+      var verifyNoArguments = mole.verify(_ => _.noArgumentsFunction());
+      var verifyOneArguments = mole.verify(_ => _.oneArgumentsFunction(arg1));
+      var verifyManyArguments = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+      var verifyGetter = mole.verify(_ => _.getter);
+      var verifySetter = mole.verify(_ => _.setter = arg1);
+      var verifyGetterAndSetterGetter = mole.verify(_ => _.getterAndSetter);
+      var verifyGetterAndSetterSetter = mole.verify(_ => _.getterAndSetter = arg1);
+
+      expect(verifyNoArguments).to.be.false;
+      expect(verifyOneArguments).to.be.false;
+      expect(verifyManyArguments).to.be.false;
+      expect(verifyGetter).to.be.false;
+      expect(verifySetter).to.be.true;
+      expect(verifyGetterAndSetterSetter).to.be.false;
+      expect(verifyGetterAndSetterGetter).to.be.false;
+    });
+
+    it('should verify only the getter of getter and setter', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      // Act
+      var value = testObject.getterAndSetter;
+
+      // Assert
+      var verifyNoArguments = mole.verify(_ => _.noArgumentsFunction());
+      var verifyOneArguments = mole.verify(_ => _.oneArgumentsFunction(arg1));
+      var verifyManyArguments = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+      var verifyGetter = mole.verify(_ => _.getter);
+      var verifySetter = mole.verify(_ => _.setter = arg1);
+      var verifyGetterAndSetterGetter = mole.verify(_ => _.getterAndSetter);
+      var verifyGetterAndSetterSetter = mole.verify(_ => _.getterAndSetter = arg1);
+
+      expect(verifyNoArguments).to.be.false;
+      expect(verifyOneArguments).to.be.false;
+      expect(verifyManyArguments).to.be.false;
+      expect(verifyGetter).to.be.false;
+      expect(verifySetter).to.be.false;
+      expect(verifyGetterAndSetterSetter).to.be.true;
+      expect(verifyGetterAndSetterGetter).to.be.false;
+    });
+
+    it('should verify only the setter of getter and setter', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      // Act
+      testObject.getterAndSetter = arg1;
+
+      // Assert
+      var verifyNoArguments = mole.verify(_ => _.noArgumentsFunction());
+      var verifyOneArguments = mole.verify(_ => _.oneArgumentsFunction(arg1));
+      var verifyManyArguments = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+      var verifyGetter = mole.verify(_ => _.getter);
+      var verifySetter = mole.verify(_ => _.setter = arg1);
+      var verifyGetterAndSetterGetter = mole.verify(_ => _.getterAndSetter);
+      var verifyGetterAndSetterSetter = mole.verify(_ => _.getterAndSetter = arg1);
+
+      expect(verifyNoArguments).to.be.false;
+      expect(verifyOneArguments).to.be.false;
+      expect(verifyManyArguments).to.be.false;
+      expect(verifyGetter).to.be.false;
+      expect(verifySetter).to.be.false;
+      expect(verifyGetterAndSetterSetter).to.be.false;
+      expect(verifyGetterAndSetterGetter).to.be.true;
+    });
+
+    it('after setups should count ok', () => {
+      // Act
+      mole.setup(_ => _.getter).callback(() => { });
+      testObject.getter;
+      testObject.getter;
+      testObject.getter;
+      testObject.getter;
+
+      mole.setup(_ => _.oneArgumentsFunction(1)).callback(() => { });
+      mole.setup(_ => _.oneArgumentsFunction(2)).callback(() => { });
+      mole.setup(_ => _.oneArgumentsFunction(3)).callback(() => { });
+      testObject.oneArgumentsFunction(1);
+      testObject.oneArgumentsFunction(2);
+      testObject.oneArgumentsFunction(2);
+      testObject.oneArgumentsFunction(3);
+      testObject.oneArgumentsFunction(3);
+      testObject.oneArgumentsFunction(3);
+      testObject.oneArgumentsFunction(4);
+      testObject.oneArgumentsFunction(4);
+      testObject.oneArgumentsFunction(4);
+      testObject.oneArgumentsFunction(4);
+
+      // Assert
+      expect(mole.verify(_ => _.getter, Times.exact(4))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(1), Times.exact(1))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(2), Times.exact(2))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(3), Times.exact(3))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(4), Times.exact(4))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(It.isAny(Number)), Times.exact(10))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(It.isAny(Number)), Times.exact(11))).to.be.false;
+    });
+
+    it('complex test', () => {
+      // Arrange
+      var argSet = [{}, {}, {}, {}, {}, {}];
+
+      // Act
+      testObject.noArgumentsFunction();
+      testObject.oneArgumentsFunction(argSet[0]);
+      testObject.setter = argSet[0];
+      testObject.getterAndSetter = argSet[0];
+      testObject.getterAndSetter;
+      testObject.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]);
+      testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
+      testObject.oneArgumentsFunction(argSet[2]);
+      testObject.getterAndSetter;
+      testObject.setter = argSet[2];
+      testObject.getterAndSetter = argSet[2];
+      testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
+      testObject.oneArgumentsFunction(argSet[0]);
+      testObject.setter = argSet[0];
+      testObject.getterAndSetter;
+      testObject.getterAndSetter = argSet[0];
+      testObject.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]);
+      testObject.getter;
+      testObject.noArgumentsFunction();
+      testObject.oneArgumentsFunction(argSet[0]);
+      testObject.setter = argSet[0];
+      testObject.getterAndSetter = argSet[0];
+      testObject.getter;
+      testObject.noArgumentsFunction();
+      testObject.getterAndSetter;
+      testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
+      testObject.noArgumentsFunction();
+      testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
+      testObject.getter;
+      testObject.setter = argSet[1];
+      testObject.oneArgumentsFunction(argSet[1]);
+      testObject.getterAndSetter = argSet[1];
+      testObject.getterAndSetter = argSet[2];
+      testObject.getterAndSetter = argSet[2];
+      testObject.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]);
+      testObject.getter;
+      testObject.oneArgumentsFunction(argSet[2]);
+      testObject.setter = argSet[2];
+      testObject.setter = argSet[2];
+      testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
+      testObject.oneArgumentsFunction(argSet[2]);
+
+      // Assert
+      expect(mole.verify(_ => _.noArgumentsFunction())).to.be.true;
+      expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(3))).to.be.false;
+      expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(4))).to.be.true;
+      expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(5))).to.be.false;
+      expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(6))).to.be.false;
+
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[0]))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[1]))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[2]))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[3]))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(3))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(4))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(1))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(3))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(3))).to.be.true;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(4))).to.be.false;
+      expect(mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(5))).to.be.false;
+
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(3))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(4))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(5))).to.be.false;
+
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(2))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(3))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(4))).to.be.false;
+
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(1))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(3))).to.be.false;
+
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(1))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(3))).to.be.false;
+
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(1))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(3))).to.be.false;
+
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(0))).to.be.true;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(3))).to.be.false;
+
+      expect(mole.verify(_ => _.getter)).to.be.true;
+      expect(mole.verify(_ => _.getter, Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.getter, Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.getter, Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.getter, Times.exact(3))).to.be.false;
+      expect(mole.verify(_ => _.getter, Times.exact(4))).to.be.true;
+      expect(mole.verify(_ => _.getter, Times.exact(5))).to.be.false;
+      expect(mole.verify(_ => _.getter, Times.exact(6))).to.be.false;
+
+      expect(mole.verify(_ => _.setter = argSet[0])).to.be.true;
+      expect(mole.verify(_ => _.setter = argSet[1])).to.be.true;
+      expect(mole.verify(_ => _.setter = argSet[2])).to.be.true;
+      expect(mole.verify(_ => _.setter = argSet[3])).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[0], Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[0], Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[0], Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[0], Times.exact(3))).to.be.true;
+      expect(mole.verify(_ => _.setter = argSet[0], Times.exact(4))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[1], Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[1], Times.exact(1))).to.be.true;
+      expect(mole.verify(_ => _.setter = argSet[1], Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[1], Times.exact(3))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[2], Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[2], Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[2], Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[2], Times.exact(3))).to.be.true;
+      expect(mole.verify(_ => _.setter = argSet[2], Times.exact(4))).to.be.false;
+      expect(mole.verify(_ => _.setter = argSet[2], Times.exact(5))).to.be.false;
+
+      expect(mole.verify(_ => _.getterAndSetter)).to.be.true;
+      expect(mole.verify(_ => _.getterAndSetter, Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter, Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter, Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter, Times.exact(3))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter, Times.exact(4))).to.be.true;
+      expect(mole.verify(_ => _.getterAndSetter, Times.exact(5))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter, Times.exact(6))).to.be.false;
+
+      expect(mole.verify(_ => _.getterAndSetter = argSet[0])).to.be.true;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[1])).to.be.true;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[2])).to.be.true;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[3])).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(3))).to.be.true;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(4))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(1))).to.be.true;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(3))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(0))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(1))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(2))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(3))).to.be.true;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(4))).to.be.false;
+      expect(mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(5))).to.be.false;
+    });
+
+    it('times returns false should return false', () => {
+      // Arrange
+      var timesMole: ITimes = {
+        match: () => { return false; }
+      };
+
+      // Act
+      var result = mole.verify(_ => _.noArgumentsFunction(), timesMole);
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('times returns true should return true', () => {
+      // Arrange
+      var timesMole: ITimes = {
+        match: () => { return true; }
+      };
+
+      // Act
+      var result = mole.verify(_ => _.noArgumentsFunction(), timesMole);
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('ItIsBase returns false should return false', () => {
+      // Arrange
+      var itIs = new ItIsBase();
+      itIs.match = () => false;
+
+      testObject.setter = 1;
+
+      // Act
+      var result = mole.verify(_ => _.setter = itIs);
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('ItIsBase returns false should return true', () => {
+      // Arrange
+      var itIs = new ItIsBase();
+      itIs.match = () => true;
+
+      testObject.setter = 1;
+
+      // Act
+      var result = mole.verify(_ => _.setter = itIs);
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    describe('no arguments', () => {
+
+      it('was not called should not find a match', () => {
         // Act
-        var mole = new Mole(testObject);
+        var result = mole.verify(_ => _.noArgumentsFunction());
 
         // Assert
-        assert.strictEqual(mole.object, testObject);
-    });
+        expect(result).to.be.false;
+      });
 
-    QUnit.test('noArgumentsFunction - should call only the original function', function (assert: QUnitAssert) {
-        QUnit.expect(1);
+      it('was not called should not find 2 matches', () => {
+        // Act
+        var result = mole.verify(_ => _.noArgumentsFunction(), Times.exact(2));
 
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should return true on 0 matches', () => {
+        // Act
+        var result = mole.verify(_ => _.noArgumentsFunction(), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should return false on 0 matches', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
-
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(true, 'no arguments function should be called');
-        };
-
-        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onGetterCalled = shouldNotBeCalled;
-        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onSetterCalled = shouldNotBeCalled;
+        testObject.noArgumentsFunction();
 
         // Act
-        context.testObject.noArgumentsFunction();
+        var result = mole.verify(_ => _.noArgumentsFunction(), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called should return true on 1 matches', () => {
+        // Arrange
+        testObject.noArgumentsFunction();
+
+        // Act
+        var result = mole.verify(_ => _.noArgumentsFunction(), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should return false on 2 matches', () => {
+        // Arrange
+        testObject.noArgumentsFunction();
+
+        // Act
+        var result = mole.verify(_ => _.noArgumentsFunction(), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should return true on 2 matches', () => {
+        // Arrange
+        testObject.noArgumentsFunction();
+        testObject.noArgumentsFunction();
+
+        // Act
+        var result = mole.verify(_ => _.noArgumentsFunction(), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should return false on 1 matches', () => {
+        // Arrange
+        testObject.noArgumentsFunction();
+        testObject.noArgumentsFunction();
+
+        // Act
+        var result = mole.verify(_ => _.noArgumentsFunction(), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should return false on 3 matches', () => {
+        // Arrange
+        testObject.noArgumentsFunction();
+        testObject.noArgumentsFunction();
+
+        // Act
+        var result = mole.verify(_ => _.noArgumentsFunction(), Times.exact(3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
     });
 
-    QUnit.test('oneArgumentsFunction - one arguments should call only the original function', function (assert: QUnitAssert) {
-        QUnit.expect(1);
+    describe('one argument', () => {
 
+      it('was not called should not find a match', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
-
         var arg = {};
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onGetterCalled = shouldNotBeCalled;
-        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onSetterCalled = shouldNotBeCalled;
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg));
 
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'The arguments should be the same');
-        };
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should not find 1 match', () => {
+        // Arrange
+        var arg = {};
 
         // Act
-        context.testObject.oneArgumentsFunction(arg);
-    });
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
 
-    QUnit.test('manyArgumentsFunction - many arguments should call only the original function', function (assert: QUnitAssert) {
-        QUnit.expect(3);
+        // Assert
+        expect(result).to.be.false;
+      });
 
+      it('was not called should not find 2 matches', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        var arg = {};
 
-        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
 
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should find 0 matches', () => {
+        // Arrange
+        var arg = {};
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should find a match', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.oneArgumentsFunction(arg);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should find 1 match', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.oneArgumentsFunction(arg);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should not find 2 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.oneArgumentsFunction(arg);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called should not verify 0 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.oneArgumentsFunction(arg);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should find a match', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.oneArgumentsFunction(arg);
+        testObject.oneArgumentsFunction(arg);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should find 2 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.oneArgumentsFunction(arg);
+        testObject.oneArgumentsFunction(arg);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should not find 0 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.oneArgumentsFunction(arg);
+        testObject.oneArgumentsFunction(arg);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not find 1 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.oneArgumentsFunction(arg);
+        testObject.oneArgumentsFunction(arg);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not find 3 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.oneArgumentsFunction(arg);
+        testObject.oneArgumentsFunction(arg);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should verify first arg', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should verify first arg called 1 time', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should not verify first arg called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify first arg called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should not verify first arg called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should verify first arg called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+        testObject.oneArgumentsFunction(arg1);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should verify second arg was called', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should verify second arg was called 1 time', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should not verify second arg was called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify second arg was called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should not verify second arg was called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should not verify second arg was called 1 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should verify second arg was called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called 3 times should not verify second arg was called 3 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+        testObject.oneArgumentsFunction(arg2);
+
+        // Act
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify with another arg', () => {
+        // Arrange
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onGetterCalled = shouldNotBeCalled;
-        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onSetterCalled = shouldNotBeCalled;
-        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled;
-
-        context.testObject.onManyArgumentsFunctionCalled = (_arg1, _arg2, _arg3) => {
-            // Assert
-            assert.strictEqual(_arg1, arg1, 'The 1st argument should be the same');
-            assert.strictEqual(_arg2, arg2, 'The 2nd argument should be the same');
-            assert.strictEqual(_arg3, arg3, 'The 3rd argument should be the same');
-        };
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
 
         // Act
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-    });
-
-    QUnit.test('getter - should call only the original getter', 2, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
-
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
-        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onSetterCalled = shouldNotBeCalled;
-
-        context.testObject.onGetterCalled = () => assert.ok(true, 'should call the getter');
-
-        var value = {};
-        context.testObject.getterValue = value;
-
-        // Act
-        var actualValue = context.testObject.getter;
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg3));
 
         // Assert
-        assert.strictEqual(actualValue, value, 'Should return the getter value');
-    });
+        expect(result).to.be.false;
+      });
 
-    QUnit.test('setter - should call only the original setter', 2, function (assert: QUnitAssert) {
+      it('was called twice should not verify with another arg was called 1 times', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
-
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
-        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onGetterCalled = shouldNotBeCalled;
-
-        context.testObject.onSetterCalled = () => assert.ok(true, 'should call the getter');
-
-        var value = {};
-
-        // Act
-        context.testObject.setter = value;
-
-        // Assert
-        assert.strictEqual(context.testObject.setterValue, value, 'Should set the setter value');
-    });
-
-    QUnit.test('getter&setter - setter - should call only the original setter', 2, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
-
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
-        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onSetterCalled = shouldNotBeCalled;
-        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onGetterCalled = shouldNotBeCalled;
-
-        context.testObject.onSetterOfGetterAndSetterCalled = () => assert.ok(true, 'should call the getter');
-
-        var value = {};
-
-        // Act
-        context.testObject.getterAndSetter = value;
-
-        // Assert
-        assert.strictEqual(context.testObject.getterAndSetterValue, value, 'Should set the value');
-    });
-
-    QUnit.test('getter&setter - getter - should call only the original getter', 2, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var shouldNotBeCalled = () => assert.ok(false, 'should not be called');
-
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onOneArgumentsFunctionCalled = shouldNotBeCalled
-        context.testObject.onManyArgumentsFunctionCalled = shouldNotBeCalled;
-        context.testObject.onSetterCalled = shouldNotBeCalled;
-        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotBeCalled;
-        context.testObject.onGetterCalled = shouldNotBeCalled;
-
-        context.testObject.onGetterOfGetterAndSetterCalled = () => assert.ok(true, 'should call the getter');
-
-        var value = {};
-        context.testObject.getterAndSetterValue = value;
-
-        // Act
-        var actualValue = context.testObject.getterAndSetter;
-
-        // Assert
-        assert.strictEqual(actualValue, value, 'Should get the value');
-    });
-
-    QUnit.test('verify - should verify only the no arguments function', 7, function (assert: QUnitAssert) {
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
 
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+
         // Act
-        context.testObject.noArgumentsFunction();
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(1));
 
         // Assert
-        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
-        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-        var verifyGetter = context.mole.verify(_ => _.getter);
-        var verifySetter = context.mole.verify(_ => _.setter = arg1);
-        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
-        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
+        expect(result).to.be.false;
+      });
 
-        assert.strictEqual(verifyNoArguments, true, 'no arguments should be verified');
-        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
-        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
-        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
-        assert.strictEqual(verifySetter, false, 'setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterGetter, false, 'getter of getter and setter should not be verified');
-    });
-
-    QUnit.test('verify - should verify only the one argument function', 7, function (assert: QUnitAssert) {
-
+      it('was called twice should not verify with another arg was called 2 times', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
 
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+
         // Act
-        context.testObject.oneArgumentsFunction(arg1);
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(2));
 
         // Assert
-        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
-        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-        var verifyGetter = context.mole.verify(_ => _.getter);
-        var verifySetter = context.mole.verify(_ => _.setter = arg1);
-        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
-        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
+        expect(result).to.be.false;
+      });
 
-        assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
-        assert.strictEqual(verifyOneArguments, true, 'one arguments should be verified');
-        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
-        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
-        assert.strictEqual(verifySetter, false, 'setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterGetter, false, 'getter of getter and setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
-    });
-
-    QUnit.test('verify - should verify only the many argument function', 7, function (assert: QUnitAssert) {
-
+      it('was called twice should verify with another arg was called 0 times', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
         var arg1 = {};
         var arg2 = {};
         var arg3 = {};
 
-        // Act
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-
-        // Assert
-        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
-        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-        var verifyGetter = context.mole.verify(_ => _.getter);
-        var verifySetter = context.mole.verify(_ => _.setter = arg1);
-        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
-        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
-
-        assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
-        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
-        assert.strictEqual(verifyManyArguments, true, 'many arguments should be verified');
-        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
-        assert.strictEqual(verifySetter, false, 'setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterGetter, false, 'getter of getter and setter should not be verified');
-    });
-
-    QUnit.test('verify - should verify only the getter', 7, function (assert: QUnitAssert) {
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        // Act
-        var value = context.testObject.getter;
-
-        // Assert
-        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
-        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-        var verifyGetter = context.mole.verify(_ => _.getter);
-        var verifySetter = context.mole.verify(_ => _.setter = arg1);
-        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
-        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
-
-        assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
-        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
-        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
-        assert.strictEqual(verifyGetter, true, 'getter should be verified');
-        assert.strictEqual(verifySetter, false, 'setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterGetter, false, 'getter of getter and setter should not be verified');
-    });
-
-    QUnit.test('verify - should verify only the setter', 7, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        // Act
-        context.testObject.setter = arg1;
-
-        // Assert
-        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
-        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-        var verifyGetter = context.mole.verify(_ => _.getter);
-        var verifySetter = context.mole.verify(_ => _.setter = arg1);
-        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
-        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
-
-        assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
-        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
-        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
-        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
-        assert.strictEqual(verifySetter, true, 'setter should be verified');
-        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterGetter, false, 'Getter of getter and setter should not be verified');
-    });
-
-    QUnit.test('verify - should verify only the getter of getter and setter', 7, function (assert: QUnitAssert) {
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        // Act
-        var value = context.testObject.getterAndSetter;
-
-        // Assert
-        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
-        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-        var verifyGetter = context.mole.verify(_ => _.getter);
-        var verifySetter = context.mole.verify(_ => _.setter = arg1);
-        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
-        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
-
-        assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
-        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
-        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
-        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
-        assert.strictEqual(verifySetter, false, 'setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterGetter, true, 'getter of getter and setter should be verified');
-        assert.strictEqual(verifyGetterAndSetterSetter, false, 'setter of getter and setter should not be verified');
-    });
-
-    QUnit.test('verify - should verify only the setter of getter and setter', 7, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        // Act
-        context.testObject.getterAndSetter = arg1;
-
-        // Assert
-        var verifyNoArguments = context.mole.verify(_ => _.noArgumentsFunction());
-        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-        var verifyGetter = context.mole.verify(_ => _.getter);
-        var verifySetter = context.mole.verify(_ => _.setter = arg1);
-        var verifyGetterAndSetterGetter = context.mole.verify(_ => _.getterAndSetter);
-        var verifyGetterAndSetterSetter = context.mole.verify(_ => _.getterAndSetter = arg1);
-
-        assert.strictEqual(verifyNoArguments, false, 'no arguments should not be verified');
-        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
-        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
-        assert.strictEqual(verifyGetter, false, 'getter should not be verified');
-        assert.strictEqual(verifySetter, false, 'setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterGetter, false, 'getter of getter and setter should not be verified');
-        assert.strictEqual(verifyGetterAndSetterSetter, true, 'setter of getter and setter should be verified');
-    });
-
-    QUnit.test('verify - no arguments - was not called should not find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction());
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - no arguments - was not called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - no arguments - was not called should return true on 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verified');
-    });
-
-    QUnit.test('verify - no arguments - was called should return false on 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.testObject.noArgumentsFunction();
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should return false on 0 mathes');
-    });
-
-    QUnit.test('verify - no arguments - was called should return true on 1 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.testObject.noArgumentsFunction();
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should be verified');
-    });
-
-    QUnit.test('verify - no arguments - was called should return false on 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.testObject.noArgumentsFunction();
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - no arguments - was called twice should return true on 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.testObject.noArgumentsFunction();
-        context.testObject.noArgumentsFunction();
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should be verified');
-    });
-
-    QUnit.test('verify - no arguments - was called twice should return false on 1 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.testObject.noArgumentsFunction();
-        context.testObject.noArgumentsFunction();
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - no arguments - was called twice should return false on 3 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.testObject.noArgumentsFunction();
-        context.testObject.noArgumentsFunction();
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - one argument - was not called should not find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verify - one argument - was not called should not find 1 match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verify - one argument - was not called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verify - one argument - was not called should find 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should find 0 matches');
-    });
-
-    QUnit.test('verify - one argument - was called should find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.oneArgumentsFunction(arg);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg));
-
-        // Assert
-        assert.strictEqual(result, true, 'should find a match');
-    });
-
-    QUnit.test('verify - one argument - was called should find 1 match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.oneArgumentsFunction(arg);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should find a match');
-    });
-
-    QUnit.test('verify - one argument - was called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.oneArgumentsFunction(arg);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find matches');
-    });
-
-    QUnit.test('verify - one argument - was called should not verify 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.oneArgumentsFunction(arg);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 0 matches');
-    });
-
-    QUnit.test('verify - one argument - was called twice should find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.oneArgumentsFunction(arg);
-        context.testObject.oneArgumentsFunction(arg);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify match');
-    });
-
-    QUnit.test('verify - one argument - was called twice should find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.oneArgumentsFunction(arg);
-        context.testObject.oneArgumentsFunction(arg);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify match');
-    });
-
-    QUnit.test('verify - one argument - was called twice should not find 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.oneArgumentsFunction(arg);
-        context.testObject.oneArgumentsFunction(arg);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 0 matches');
-    });
-
-    QUnit.test('verify - one argument - was called twice should not find 1 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.oneArgumentsFunction(arg);
-        context.testObject.oneArgumentsFunction(arg);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 1 matches');
-    });
-
-    QUnit.test('verify - one argument - was called twice should not find 3 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.oneArgumentsFunction(arg);
-        context.testObject.oneArgumentsFunction(arg);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg), Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 3 matches');
-    });
-
-    QUnit.test('verify - one argument - was called twice should verify first arg', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should verify first arg called 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should not verify first arg called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should not verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called 3 times should not verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called 3 times should verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-        context.testObject.oneArgumentsFunction(arg1);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg1), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should verify second arg was called', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should verify second arg was called 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should not verify second arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should not verify second arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called 3 times should not verify second arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called 3 times should not verify second arg was called 1 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called 3 times should verify second arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - one argument - was called 3 times should not verify second arg was called 3 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg2), Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should not verify with another arg', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should not verify with another arg was called 1 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should not verify with another arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - one argument - was called twice should verify with another arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-
-        // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - many arguments - was not called should not verify', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments - was not called should not verify for 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments - was not called should not verify for 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments - was not called should verify for 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - many arguments - was called should verify', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - many arguments - was called should verify for 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - many arguments - was called should not verify for 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments - was called should not verify for 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments - was called twice should not verify for 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments - was called twice should not verify for 1 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments - was called twice should verify for 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - many arguments - was called twice should verify', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - many arguments - was called twice should not verify for 3 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should verify first set', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should verify first set 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should not verify first set 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should not verify first set 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should verify second set', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should verify second set 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should not verify second set 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should not verify second set 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should not verify another set', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should not verify another set 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should not verify another set 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - many arguments -  was called twice with different sets should verify another set 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var argSet1 = [{}, {}, {}];
-        var argSet2 = [{}, {}, {}];
-
-        context.testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
-        context.testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
-
-        // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - getter - was not called should not find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        var result = context.mole.verify(_ => _.getter);
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - getter - was not called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        var result = context.mole.verify(_ => _.getter, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - getter - was not called should return true on 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        var result = context.mole.verify(_ => _.getter, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verified');
-    });
-
-    QUnit.test('verify - getter - was called should return false on 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value = context.testObject.getter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getter, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should return false on 0 mathes');
-    });
-
-    QUnit.test('verify - getter - was called should return true on 1 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value = context.testObject.getter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getter, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should be verified');
-    });
-
-    QUnit.test('verify - getter - was called should return false on 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value = context.testObject.getter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getter, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - getter - was called twice should return true on 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value1 = context.testObject.getter;
-        var value2 = context.testObject.getter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getter, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should be verified');
-    });
-
-    QUnit.test('verify - getter - was called twice should return false on 1 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value1 = context.testObject.getter;
-        var value2 = context.testObject.getter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getter, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - getter - was called twice should return false on 3 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value1 = context.testObject.getter;
-        var value2 = context.testObject.getter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getter, Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - setter - was not called should not find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg);
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verify - setter - was not called should not find 1 match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verify - setter - was not called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verify - setter - was not called should find 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should find 0 matches');
-    });
-
-    QUnit.test('verify - setter - was called should find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.setter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg);
-
-        // Assert
-        assert.strictEqual(result, true, 'should find a match');
-    });
-
-    QUnit.test('verify - setter - was called should find 1 match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.setter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should find a match');
-    });
-
-    QUnit.test('verify - setter - was called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.setter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find matches');
-    });
-
-    QUnit.test('verify - setter - was called should not verify 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.setter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 0 matches');
-    });
-
-    QUnit.test('verify - setter - was called twice should find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.setter = arg;
-        context.testObject.setter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg);
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify match');
-    });
-
-    QUnit.test('verify - setter - was called twice should find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.setter = arg;
-        context.testObject.setter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify match');
-    });
-
-    QUnit.test('verify - setter - was called twice should not find 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.setter = arg;
-        context.testObject.setter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 0 matches');
-    });
-
-    QUnit.test('verify - setter - was called twice should not find 1 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.setter = arg;
-        context.testObject.setter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 1 matches');
-    });
-
-    QUnit.test('verify - setter - was called twice should not find 3 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.setter = arg;
-        context.testObject.setter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg, Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 3 matches');
-    });
-
-    QUnit.test('verify - setter - was called twice should verify first arg', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg1);
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should verify first arg called 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg1, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should not verify first arg called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg1, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should not verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg1, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called 3 times should not verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg1, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called 3 times should verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-        context.testObject.setter = arg1;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg1, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should verify second arg was called', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg2);
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should verify second arg was called 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should not verify second arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should not verify second arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called 3 times should not verify second arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called 3 times should not verify second arg was called 1 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called 3 times should verify second arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - setter - was called 3 times should not verify second arg was called 3 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg2, Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should not verify with another arg', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg3);
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should not verify with another arg was called 1 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg3, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should not verify with another arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg3, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - setter - was called twice should verify with another arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.setter = arg1;
-        context.testObject.setter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.setter = arg3, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - getter&setter - getter - was not called should not find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter);
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - getter&setter - getter - was not called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - getter&setter - getter - was not called should return true on 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verified');
-    });
-
-    QUnit.test('verify - getter&setter - getter - was called should return false on 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value = context.testObject.getterAndSetter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should return false on 0 mathes');
-    });
-
-    QUnit.test('verify - getter&setter - getter - was called should return true on 1 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value = context.testObject.getterAndSetter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should be verified');
-    });
-
-    QUnit.test('verify - getter&setter - getter - was called should return false on 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value = context.testObject.getterAndSetter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - getter&setter - getter - was called twice should return true on 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value1 = context.testObject.getterAndSetter;
-        var value2 = context.testObject.getterAndSetter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should be verified');
-    });
-
-    QUnit.test('verify - getter&setter - getter - was called twice should return false on 1 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value1 = context.testObject.getterAndSetter;
-        var value2 = context.testObject.getterAndSetter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - getter&setter - getter - was called twice should return false on 3 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var value1 = context.testObject.getterAndSetter;
-        var value2 = context.testObject.getterAndSetter;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter, Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not be verified');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was not called should not find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg);
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was not called should not find 1 match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was not called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was not called should find 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should find 0 matches');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called should find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.getterAndSetter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg);
-
-        // Assert
-        assert.strictEqual(result, true, 'should find a match');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called should find 1 match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.getterAndSetter = arg;
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
 
         // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(1));
+        var result = mole.verify(_ => _.oneArgumentsFunction(arg3), Times.exact(0));
 
         // Assert
-        assert.strictEqual(result, true, 'should find a match');
-    });
+        expect(result).to.be.true;
+      });
 
-    QUnit.test('verify - getter&setter - setter - was called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.getterAndSetter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find matches');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called should not verify 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.getterAndSetter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 0 matches');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.getterAndSetter = arg;
-        context.testObject.getterAndSetter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg);
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify match');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.getterAndSetter = arg;
-        context.testObject.getterAndSetter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify match');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should not find 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.getterAndSetter = arg;
-        context.testObject.getterAndSetter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 0 matches');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should not find 1 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.getterAndSetter = arg;
-        context.testObject.getterAndSetter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 1 matches');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should not find 3 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.getterAndSetter = arg;
-        context.testObject.getterAndSetter = arg;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg, Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 3 matches');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should verify first arg', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg1);
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should verify first arg called 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg1, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should not verify first arg called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg1, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should not verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg1, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called 3 times should not verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg1, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called 3 times should verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-        context.testObject.getterAndSetter = arg1;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg1, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should verify second arg was called', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg2);
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should verify second arg was called 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should not verify second arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should not verify second arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called 3 times should not verify second arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called 3 times should not verify second arg was called 1 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called 3 times should verify second arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called 3 times should not verify second arg was called 3 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg2, Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should not verify with another arg', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg3);
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should not verify with another arg was called 1 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg3, Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should not verify with another arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg3, Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verify - getter&setter - setter - was called twice should verify with another arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.getterAndSetter = arg1;
-        context.testObject.getterAndSetter = arg2;
-
-        // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = arg3, Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verify - complex test', function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        var argSet = [{}, {}, {}, {}, {}, {}];
-
-        // Act
-        context.testObject.noArgumentsFunction();
-        context.testObject.oneArgumentsFunction(argSet[0]);
-        context.testObject.setter = argSet[0];
-        context.testObject.getterAndSetter = argSet[0];
-        context.testObject.getterAndSetter;
-        context.testObject.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]);
-        context.testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
-        context.testObject.oneArgumentsFunction(argSet[2]);
-        context.testObject.getterAndSetter;
-        context.testObject.setter = argSet[2];
-        context.testObject.getterAndSetter = argSet[2];
-        context.testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
-        context.testObject.oneArgumentsFunction(argSet[0]);
-        context.testObject.setter = argSet[0];
-        context.testObject.getterAndSetter;
-        context.testObject.getterAndSetter = argSet[0];
-        context.testObject.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]);
-        context.testObject.getter;
-        context.testObject.noArgumentsFunction();
-        context.testObject.oneArgumentsFunction(argSet[0]);
-        context.testObject.setter = argSet[0];
-        context.testObject.getterAndSetter = argSet[0];
-        context.testObject.getter;
-        context.testObject.noArgumentsFunction();
-        context.testObject.getterAndSetter;
-        context.testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
-        context.testObject.noArgumentsFunction();
-        context.testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]);
-        context.testObject.getter;
-        context.testObject.setter = argSet[1];
-        context.testObject.oneArgumentsFunction(argSet[1]);
-        context.testObject.getterAndSetter = argSet[1];
-        context.testObject.getterAndSetter = argSet[2];
-        context.testObject.getterAndSetter = argSet[2];
-        context.testObject.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]);
-        context.testObject.getter;
-        context.testObject.oneArgumentsFunction(argSet[2]);
-        context.testObject.setter = argSet[2];
-        context.testObject.setter = argSet[2];
-        context.testObject.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]);
-        context.testObject.oneArgumentsFunction(argSet[2]);
-
-        // Assert
-        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction()), true, 'no arguments function should be verified');
-        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), false, 'no arguments function should not be verified for 0');
-        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(1)), false, 'no arguments function should not be verified for 1');
-        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(2)), false, 'no arguments function should not be verified for 2');
-        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(3)), false, 'no arguments function should not be verified for 3');
-        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(4)), true), 'no arguments function should be verified for 4';
-        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(5)), false, 'no arguments function should not be verified for 5');
-        assert.strictEqual(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(6)), false, 'no arguments function should not be verified for 6');
-
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0])), true, 'one arguments function should be verified for argSet[0]');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[1])), true, 'one arguments function should be verified for argSet[1]');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2])), true, 'one arguments function should be verified for argSet[2]');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[3])), false, 'one arguments function should not be verified for argSet[3]');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(0)), false, 'one arguments function should not be verified for argSet[0] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(1)), false, 'one arguments function should not be verified for argSet[0] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(2)), false, 'one arguments function not should be verified for argSet[0] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(3)), true, 'one arguments function should be verified for argSet[0] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[0]), Times.exact(4)), false, 'one arguments function should not be verified for argSet[0] 4 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(0)), false, 'one arguments function should not be verified for argSet[1] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(1)), true, 'one arguments function should be verified for argSet[1] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(2)), false, 'one arguments function should not be verified for argSet[1] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[1]), Times.exact(3)), false, 'one arguments function should not be verified for argSet[1] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(0)), false, 'one arguments function should not be verified for argSet[2] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(1)), false, 'one arguments function should not be verified for argSet[2] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(2)), false, 'one arguments function should not be verified for argSet[2] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(3)), true, 'one arguments function should be verified for argSet[2] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(4)), false, 'one arguments function should not be verified for argSet[2] 4 times');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(argSet[2]), Times.exact(5)), false, 'one arguments function should not be verified for argSet[2] 5 times');
-
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2])), true, 'many arguments function should be verified for argSet[0,1,2]');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[0,1,2] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,1,2] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[0,1,2] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(3)), true, 'many arguments function should be verified for argSet[0,1,2] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(4)), false, 'many arguments function should not be verified for argSet[0,1,2] 4 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[2]), Times.exact(5)), false, 'many arguments function should not be verified for argSet[0,1,2] 5 times');
-
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0])), true, 'many arguments function should be verified for argSet[0,1,0]');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[0,1,0] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,1,0] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(2)), true, 'many arguments function should be verified for argSet[0,1,0] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[0,1,0] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[1], argSet[0]), Times.exact(4)), false, 'many arguments function should not be verified for argSet[0,1,0] 4 times');
-
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1])), true, 'many arguments function should not be verified for argSet[1,1,1]');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[1,1,1] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(1)), true, 'many arguments function should be verified for argSet[1,1,1] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[1,1,1] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[1], argSet[1], argSet[1]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[1,1,1] 3 times');
-
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2])), true, 'many arguments function should be verified for argSet[2,1,2]');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[2,1,2] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(1)), true, 'many arguments function should be verified for argSet[2,1,2] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[2,1,2] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[1], argSet[2]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[2,1,2] 3 times');
-
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2])), true, 'many arguments function should be verified for argSet[2,2,2]');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(0)), false, 'many arguments function should not be verified for argSet[2,2,2] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(1)), true, 'many arguments function should be verified for argSet[2,2,2] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[2,2,2] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[2], argSet[2], argSet[2]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[2,2,2] 3 times');
-
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0])), false, 'many arguments function should not be verified for argSet[0,0,0]');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(0)), true, 'many arguments function should be verified for argSet[0,0,0] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(1)), false, 'many arguments function should not be verified for argSet[0,0,0] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(2)), false, 'many arguments function should not be verified for argSet[0,0,0] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.manyArgumentsFunction(argSet[0], argSet[0], argSet[0]), Times.exact(3)), false, 'many arguments function should not be verified for argSet[0,0,0] 3 times');
-
-        assert.strictEqual(context.mole.verify(_ => _.getter), true, 'getter should be verified');
-        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(0)), false, 'getter should not be verified for 0');
-        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(1)), false, 'getter should not be verified for 1');
-        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(2)), false, 'getter should not be verified for 2');
-        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(3)), false, 'getter should not be verified for 3');
-        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(4)), true), 'getter should be verified for 4';
-        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(5)), false, 'getter should not be verified for 5');
-        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(6)), false, 'getter should not be verified for 6');
-
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0]), true, 'setter should be verified for argSet[0]');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[1]), true, 'setter should be verified for argSet[1]');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2]), true, 'setter should be verified for argSet[2]');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[3]), false, 'setter should not be verified for argSet[3]');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0], Times.exact(0)), false, 'setter should not be verified for argSet[0] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0], Times.exact(1)), false, 'setter should not be verified for argSet[0] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0], Times.exact(2)), false, 'setter not should be verified for argSet[0] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0], Times.exact(3)), true, 'setter should be verified for argSet[0] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[0], Times.exact(4)), false, 'setter should not be verified for argSet[0] 4 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[1], Times.exact(0)), false, 'setter should not be verified for argSet[1] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[1], Times.exact(1)), true, 'setter should be verified for argSet[1] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[1], Times.exact(2)), false, 'setter should not be verified for argSet[1] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[1], Times.exact(3)), false, 'setter should not be verified for argSet[1] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(0)), false, 'setter should not be verified for argSet[2] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(1)), false, 'setter should not be verified for argSet[2] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(2)), false, 'setter should not be verified for argSet[2] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(3)), true, 'setter should be verified for argSet[2] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(4)), false, 'setter should not be verified for argSet[2] 4 times');
-        assert.strictEqual(context.mole.verify(_ => _.setter = argSet[2], Times.exact(5)), false, 'setter should not be verified for argSet[2] 5 times');
-
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter), true, 'getterAndSetter getter should be verified');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(0)), false, 'getterAndSetter getter should not be verified for 0');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(1)), false, 'getterAndSetter getter should not be verified for 1');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(2)), false, 'getterAndSetter getter should not be verified for 2');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(3)), false, 'getterAndSetter getter should not be verified for 3');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(4)), true), 'getterAndSetter getter should be verified for 4';
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(5)), false, 'getterAndSetter getter should not be verified for 5');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter, Times.exact(6)), false, 'getterAndSetter getter should not be verified for 6');
-
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0]), true, 'getterAndSetter setter should be verified for argSet[0]');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[1]), true, 'getterAndSetter setter should be verified for argSet[1]');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2]), true, 'getterAndSetter setter should be verified for argSet[2]');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[3]), false, 'getterAndSetter setter should not be verified for argSet[3]');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(0)), false, 'getterAndSetter setter should not be verified for argSet[0] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(1)), false, 'getterAndSetter setter should not be verified for argSet[0] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(2)), false, 'getterAndSetter setter not should be verified for argSet[0] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(3)), true, 'getterAndSetter setter should be verified for argSet[0] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[0], Times.exact(4)), false, 'getterAndSetter setter should not be verified for argSet[0] 4 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(0)), false, 'getterAndSetter setter should not be verified for argSet[1] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(1)), true, 'getterAndSetter setter should be verified for argSet[1] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(2)), false, 'getterAndSetter setter should not be verified for argSet[1] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[1], Times.exact(3)), false, 'getterAndSetter setter should not be verified for argSet[1] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(0)), false, 'getterAndSetter setter should not be verified for argSet[2] 0 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(1)), false, 'getterAndSetter setter should not be verified for argSet[2] 1 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(2)), false, 'getterAndSetter setter should not be verified for argSet[2] 2 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(3)), true, 'getterAndSetter setter should be verified for argSet[2] 3 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(4)), false, 'getterAndSetter setter should not be verified for argSet[2] 4 times');
-        assert.strictEqual(context.mole.verify(_ => _.getterAndSetter = argSet[2], Times.exact(5)), false, 'getterAndSetter setter should not be verified for argSet[2] 5 times');
-    });
-
-    QUnit.test('verify - times returns false should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var timesMole: ITimes = {
-            match: () => { return false; }
-        };
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction(), timesMole);
-
-        // Assert
-        assert.strictEqual(result, false, 'should return false if times do not match');
-    });
-
-    QUnit.test('verify - times returns true should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var timesMole: ITimes = {
-            match: () => { return true; }
-        };
-
-        // Act
-        var result = context.mole.verify(_ => _.noArgumentsFunction(), timesMole);
-
-        // Assert
-        assert.strictEqual(result, true, 'should return true if times match');
-    });
-
-    QUnit.test('verify - one argument - ItIsBase returns false should return false', 1, function (assert: QUnitAssert) {
+      it('ItIsBase returns false should return false', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var itIs = new ItIsBase();
         itIs.match = () => false;
 
-        context.testObject.oneArgumentsFunction(1);
+        testObject.oneArgumentsFunction(1);
 
         // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(itIs));
+        var result = mole.verify(_ => _.oneArgumentsFunction(itIs));
 
         // Assert
-        assert.strictEqual(result, false, 'should return false if ItIs returns false');
-    });
+        expect(result).to.be.false;
+      });
 
-    QUnit.test('verify - one argument - ItIsBase returns false should return true', 1, function (assert: QUnitAssert) {
+      it('ItIsBase returns false should return true', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var itIs = new ItIsBase();
         itIs.match = () => true;
 
-        context.testObject.oneArgumentsFunction(1);
+        testObject.oneArgumentsFunction(1);
 
         // Act
-        var result = context.mole.verify(_ => _.oneArgumentsFunction(itIs));
+        var result = mole.verify(_ => _.oneArgumentsFunction(itIs));
 
         // Assert
-        assert.strictEqual(result, true, 'should return true if ItIs returns true');
+        expect(result).to.be.true;
+      });
+
     });
 
-    QUnit.test('verify - many arguments - ItIsBase returns false should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    describe('many arguments', () => {
 
+      it('was not called should not verify', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should not verify for 1 time', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should not verify for 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should verify for 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should verify', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should verify for 1 time', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should not verify for 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called should not verify for 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify for 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify for 1 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should verify for 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should verify', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should not verify for 3 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3), Times.exact(3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice with different sets should verify first set', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice with different sets should verify first set 1 time', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice with different sets should not verify first set 0 times', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice with different sets should not verify first set 2 times', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice with different sets should verify second set', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice with different sets should verify second set 1 time', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice with different sets should not verify second set 0 times', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice with different sets should not verify second set 2 times', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice with different sets should not verify another set', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice with different sets should not verify another set 1 time', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice with different sets should not verify another set 2 times', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice with different sets should verify another set 0 times', () => {
+        // Arrange
+        var argSet1 = [{}, {}, {}];
+        var argSet2 = [{}, {}, {}];
+
+        testObject.manyArgumentsFunction(argSet1[0], argSet1[1], argSet1[2]);
+        testObject.manyArgumentsFunction(argSet2[0], argSet2[1], argSet2[2]);
+
+        // Act
+        var result = mole.verify(_ => _.manyArgumentsFunction(argSet1[0], argSet1[1], argSet2[2]), Times.exact(0));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('ItIsBase returns false should return false', () => {
+        // Arrange
         var itIs = new ItIsBase();
         itIs.match = () => false;
 
-        context.testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(itIs, itIs, itIs));
+        var result = mole.verify(_ => _.manyArgumentsFunction(itIs, itIs, itIs));
 
         // Assert
-        assert.strictEqual(result, false, 'should return false if ItIs returns false');
-    });
+        expect(result).to.be.false;
+      });
 
-    QUnit.test('verify - many arguments - ItIsBase returns true should return true', 1, function (assert: QUnitAssert) {
+      it('ItIsBase returns true should return true', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var itIs = new ItIsBase();
         itIs.match = () => true;
 
-        context.testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(itIs, itIs, itIs));
+        var result = mole.verify(_ => _.manyArgumentsFunction(itIs, itIs, itIs));
 
         // Assert
-        assert.strictEqual(result, true, 'should return true if ItIs returns true');
-    });
+        expect(result).to.be.true;
+      });
 
-    QUnit.test('verify - many arguments - ItIsBase returns true and false should return false', 1, function (assert: QUnitAssert) {
+      it('ItIsBase returns true and false should return false', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var trueItIs = new ItIsBase();
         trueItIs.match = () => true;
 
         var falseItIs = new ItIsBase();
         falseItIs.match = () => false;
 
-        context.testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, falseItIs));
+        var result = mole.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, falseItIs));
 
         // Assert
-        assert.strictEqual(result, false, 'should return false if some ItIs returns false');
-    });
+        expect(result).to.be.false;
+      });
 
-    QUnit.test('verify - many arguments - ItIsBase returns true and other arguments dont match should return false', 1, function (assert: QUnitAssert) {
+      it('ItIsBase returns true and other arguments dont match should return false', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var trueItIs = new ItIsBase();
         trueItIs.match = () => true;
 
-        context.testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, 2));
+        var result = mole.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, 2));
 
         // Assert
-        assert.strictEqual(result, false, 'should return false if some arguments dont match');
-    });
+        expect(result).to.be.false;
+      });
 
-    QUnit.test('verify - many arguments - called many times ItIsBase returns true should return true', 1, function (assert: QUnitAssert) {
+      it('called many times ItIsBase returns true should return true', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var trueItIs = new ItIsBase();
         trueItIs.match = () => true;
 
-        context.testObject.manyArgumentsFunction(1, 1, 2);
-        context.testObject.manyArgumentsFunction(1, 1, 1);
-        context.testObject.manyArgumentsFunction(1, 1, 1);
-        context.testObject.manyArgumentsFunction(1, 1, 2);
-        context.testObject.manyArgumentsFunction(1, 1, 1);
-        context.testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 2);
+        testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 2);
+        testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, 2), Times.exact(2));
+        var result = mole.verify(_ => _.manyArgumentsFunction(trueItIs, trueItIs, 2), Times.exact(2));
 
         // Assert
-        assert.strictEqual(result, true, 'should return true if ItIs returns true and the times match');
-    });
+        expect(result).to.be.true;
+      });
 
-    QUnit.test('verify - many arguments - called many times ItIsBase returns true once should return true', 1, function (assert: QUnitAssert) {
+      it('called many times ItIsBase returns true once should return true', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var trueItIs = new ItIsBase();
         var numberOfTimesReturnedTrue = 0;
         trueItIs.match = () => {
-            numberOfTimesReturnedTrue++;
-            return numberOfTimesReturnedTrue <= 1;
+          numberOfTimesReturnedTrue++;
+          return numberOfTimesReturnedTrue <= 1;
         };
 
-        context.testObject.manyArgumentsFunction(1, 1, 2);
-        context.testObject.manyArgumentsFunction(1, 1, 1);
-        context.testObject.manyArgumentsFunction(1, 1, 1);
-        context.testObject.manyArgumentsFunction(1, 1, 2);
-        context.testObject.manyArgumentsFunction(1, 1, 1);
-        context.testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 2);
+        testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 2);
+        testObject.manyArgumentsFunction(1, 1, 1);
+        testObject.manyArgumentsFunction(1, 1, 1);
 
         // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(1, trueItIs, 2), Times.exact(1));
+        var result = mole.verify(_ => _.manyArgumentsFunction(1, trueItIs, 2), Times.exact(1));
 
         // Assert
-        assert.strictEqual(result, true, 'should return true if ItIs returns true and the times match');
-    });
+        expect(result).to.be.true;
+      });
 
-    QUnit.test('verify - many arguments - called with numbers and strings should return only the strings', 1, function (assert: QUnitAssert) {
+      it('called with numbers and strings should return only the strings', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var numberItIs = It.isAny(Number);
         var stringItIs = It.isAny(String);
 
-        context.testObject.manyArgumentsFunction(11, 1, 1);
-        context.testObject.manyArgumentsFunction(12, 1, 2);
-        context.testObject.manyArgumentsFunction(13, '1', 3);
-        context.testObject.manyArgumentsFunction(14, 1, 4);
-        context.testObject.manyArgumentsFunction(15, '112', 5);
-        context.testObject.manyArgumentsFunction(16, 1, 6);
+        testObject.manyArgumentsFunction(11, 1, 1);
+        testObject.manyArgumentsFunction(12, 1, 2);
+        testObject.manyArgumentsFunction(13, '1', 3);
+        testObject.manyArgumentsFunction(14, 1, 4);
+        testObject.manyArgumentsFunction(15, '112', 5);
+        testObject.manyArgumentsFunction(16, 1, 6);
 
         // Act
-        var result = context.mole.verify(_ => _.manyArgumentsFunction(numberItIs, stringItIs, numberItIs), Times.exact(2));
+        var result = mole.verify(_ => _.manyArgumentsFunction(numberItIs, stringItIs, numberItIs), Times.exact(2));
 
         // Assert
-        assert.strictEqual(result, true, 'should return true for 2 string calls');
+        expect(result).to.be.true;
+      });
+
     });
 
-    QUnit.test('verify - setter - ItIsBase returns false should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    describe('getter', () => {
 
+      it('was not called should not find a match', () => {
+        // Act
+        var result = mole.verify(_ => _.getter);
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should not find 2 matches', () => {
+        // Act
+        var result = mole.verify(_ => _.getter, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should return true on 0 matches', () => {
+        // Act
+        var result = mole.verify(_ => _.getter, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should return false on 0 matches', () => {
+        // Arrange
+        var value = testObject.getter;
+
+        // Act
+        var result = mole.verify(_ => _.getter, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called should return true on 1 matches', () => {
+        // Arrange
+        var value = testObject.getter;
+
+        // Act
+        var result = mole.verify(_ => _.getter, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should return false on 2 matches', () => {
+        // Arrange
+        var value = testObject.getter;
+
+        // Act
+        var result = mole.verify(_ => _.getter, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should return true on 2 matches', () => {
+        // Arrange
+        var value1 = testObject.getter;
+        var value2 = testObject.getter;
+
+        // Act
+        var result = mole.verify(_ => _.getter, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should return false on 1 matches', () => {
+        // Arrange
+        var value1 = testObject.getter;
+        var value2 = testObject.getter;
+
+        // Act
+        var result = mole.verify(_ => _.getter, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should return false on 3 matches', () => {
+        // Arrange
+        var value1 = testObject.getter;
+        var value2 = testObject.getter;
+
+        // Act
+        var result = mole.verify(_ => _.getter, Times.exact(3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should not find a match', () => {
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter);
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should not find 2 matches', () => {
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should return true on 0 matches', () => {
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should return false on 0 matches', () => {
+        // Arrange
+        var value = testObject.getterAndSetter;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called should return true on 1 matches', () => {
+        // Arrange
+        var value = testObject.getterAndSetter;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should return false on 2 matches', () => {
+        // Arrange
+        var value = testObject.getterAndSetter;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should return true on 2 matches', () => {
+        // Arrange
+        var value1 = testObject.getterAndSetter;
+        var value2 = testObject.getterAndSetter;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should return false on 1 matches', () => {
+        // Arrange
+        var value1 = testObject.getterAndSetter;
+        var value2 = testObject.getterAndSetter;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should return false on 3 matches', () => {
+        // Arrange
+        var value1 = testObject.getterAndSetter;
+        var value2 = testObject.getterAndSetter;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter, Times.exact(3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+    });
+
+    describe('setter', () => {
+
+      it('was not called should not find a match', () => {
+        // Arrange
+        var arg = {};
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg);
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should not find 1 match', () => {
+        // Arrange
+        var arg = {};
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should not find 2 matches', () => {
+        // Arrange
+        var arg = {};
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should find 0 matches', () => {
+        // Arrange
+        var arg = {};
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should find a match', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.setter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg);
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should find 1 match', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.setter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should not find 2 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.setter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called should not verify 0 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.setter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should find a match', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.setter = arg;
+        testObject.setter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg);
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should find 2 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.setter = arg;
+        testObject.setter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should not find 0 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.setter = arg;
+        testObject.setter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not find 1 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.setter = arg;
+        testObject.setter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not find 3 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.setter = arg;
+        testObject.setter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg, Times.exact(3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should verify first arg', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg1);
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should verify first arg called 1 time', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg1, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should not verify first arg called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg1, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify first arg called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg1, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should not verify first arg called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg1, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should verify first arg called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+        testObject.setter = arg1;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg1, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should verify second arg was called', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg2);
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should verify second arg was called 1 time', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg2, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should not verify second arg was called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg2, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify second arg was called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg2, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should not verify second arg was called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg2, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should not verify second arg was called 1 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg2, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should verify second arg was called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg2, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called 3 times should not verify second arg was called 3 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg2, Times.exact(3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify with another arg', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg3);
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify with another arg was called 1 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg3, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify with another arg was called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg3, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should verify with another arg was called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.setter = arg1;
+        testObject.setter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.setter = arg3, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was not called should not find a match', () => {
+        // Arrange
+        var arg = {};
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg);
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should not find 1 match', () => {
+        // Arrange
+        var arg = {};
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should not find 2 matches', () => {
+        // Arrange
+        var arg = {};
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was not called should find 0 matches', () => {
+        // Arrange
+        var arg = {};
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should find a match', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.getterAndSetter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg);
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should find 1 match', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.getterAndSetter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called should not find 2 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.getterAndSetter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called should not verify 0 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.getterAndSetter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should find a match', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.getterAndSetter = arg;
+        testObject.getterAndSetter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg);
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should find 2 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.getterAndSetter = arg;
+        testObject.getterAndSetter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should not find 0 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.getterAndSetter = arg;
+        testObject.getterAndSetter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not find 1 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.getterAndSetter = arg;
+        testObject.getterAndSetter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not find 3 matches', () => {
+        // Arrange
+        var arg = {};
+
+        testObject.getterAndSetter = arg;
+        testObject.getterAndSetter = arg;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg, Times.exact(3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should verify first arg', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg1);
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should verify first arg called 1 time', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg1, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should not verify first arg called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg1, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify first arg called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg1, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should not verify first arg called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg1, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should verify first arg called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+        testObject.getterAndSetter = arg1;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg1, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should verify second arg was called', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg2);
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should verify second arg was called 1 time', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg2, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called twice should not verify second arg was called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg2, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify second arg was called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg2, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should not verify second arg was called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg2, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should not verify second arg was called 1 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg2, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called 3 times should verify second arg was called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg2, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('was called 3 times should not verify second arg was called 3 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg2, Times.exact(3));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify with another arg', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg3);
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify with another arg was called 1 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg3, Times.exact(1));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should not verify with another arg was called 2 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg3, Times.exact(2));
+
+        // Assert
+        expect(result).to.be.false;
+      });
+
+      it('was called twice should verify with another arg was called 0 times', () => {
+        // Arrange
+        var arg1 = {};
+        var arg2 = {};
+        var arg3 = {};
+
+        testObject.getterAndSetter = arg1;
+        testObject.getterAndSetter = arg2;
+
+        // Act
+        var result = mole.verify(_ => _.getterAndSetter = arg3, Times.exact(0));
+
+        // Assert
+        expect(result).to.be.true;
+      });
+
+      it('ItIsBase returns false should return false', () => {
+        // Arrange
         var itIs = new ItIsBase();
         itIs.match = () => false;
 
-        context.testObject.setter = 1;
+        testObject.getterAndSetter = 1;
 
         // Act
-        var result = context.mole.verify(_ => _.setter = itIs);
+        var result = mole.verify(_ => _.getterAndSetter = itIs);
 
         // Assert
-        assert.strictEqual(result, false, 'should return false if ItIs returns false');
-    });
+        expect(result).to.be.false;
+      });
 
-    QUnit.test('verify - setter - ItIsBase returns false should return true', 1, function (assert: QUnitAssert) {
+      it('ItIsBase returns false should return true', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var itIs = new ItIsBase();
         itIs.match = () => true;
 
-        context.testObject.setter = 1;
+        testObject.getterAndSetter = 1;
 
         // Act
-        var result = context.mole.verify(_ => _.setter = itIs);
+        var result = mole.verify(_ => _.getterAndSetter = itIs);
 
         // Assert
-        assert.strictEqual(result, true, 'should return true if ItIs returns true');
+        expect(result).to.be.true;
+      });
+
     });
 
-    QUnit.test('verify - getter&setter - setter - ItIsBase returns false should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+  });
 
-        var itIs = new ItIsBase();
-        itIs.match = () => false;
+  describe('verifyPrivate', () => {
 
-        context.testObject.getterAndSetter = 1;
+    it('should verify only the private function', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
 
+      // Act
+      testObject.callPrivateFunction(1);
+
+      // Assert
+      var verifyPrivateFunction = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [1]);
+      var verifyOneArguments = mole.verify(_ => _.oneArgumentsFunction(arg1));
+      var verifyManyArguments = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+
+      expect(verifyPrivateFunction).to.be.true;
+      expect(verifyOneArguments).to.be.false;
+      expect(verifyManyArguments).to.be.false;
+    });
+
+    it('should verify only the many argument function', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      // Act
+      testObject.manyArgumentsFunction(arg1, arg2, arg3);
+
+      // Assert
+      var verifyPrivateFunction = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [It.isAny(Object)]);
+      var verifyOneArguments = mole.verify(_ => _.oneArgumentsFunction(arg1));
+      var verifyManyArguments = mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
+
+      expect(verifyPrivateFunction).to.be.false;
+      expect(verifyOneArguments).to.be.false;
+      expect(verifyManyArguments).to.be.true;
+    });
+
+    it('was not called should not find a match', () => {
+      // Arrange
+      var arg = {};
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg]);
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was not called should not find 1 match', () => {
+      // Arrange
+      var arg = {};
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(1));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was not called should not find 2 matches', () => {
+      // Arrange
+      var arg = {};
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(2));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was not called should find 0 matches', () => {
+      // Arrange
+      var arg = {};
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(0));
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called should find a match', () => {
+      // Arrange
+      var arg = {};
+
+      testObject.callPrivateFunction(arg);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg]);
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called should find 1 match', () => {
+      // Arrange
+      var arg = {};
+
+      testObject.callPrivateFunction(arg);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(1));
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called should not find 2 matches', () => {
+      // Arrange
+      var arg = {};
+
+      testObject.callPrivateFunction(arg);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(2));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called should not verify 0 matches', () => {
+      // Arrange
+      var arg = {};
+
+      testObject.callPrivateFunction(arg);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(0));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called twice should find a match', () => {
+      // Arrange
+      var arg = {};
+
+      testObject.callPrivateFunction(arg);
+      testObject.callPrivateFunction(arg);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg]);
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called twice should find 2 matches', () => {
+      // Arrange
+      var arg = {};
+
+      testObject.callPrivateFunction(arg);
+      testObject.callPrivateFunction(arg);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(2));
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called twice should not find 0 matches', () => {
+      // Arrange
+      var arg = {};
+
+      testObject.callPrivateFunction(arg);
+      testObject.callPrivateFunction(arg);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(0));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called twice should not find 1 matches', () => {
+      // Arrange
+      var arg = {};
+
+      testObject.callPrivateFunction(arg);
+      testObject.callPrivateFunction(arg);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(1));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called twice should not find 3 matches', () => {
+      // Arrange
+      var arg = {};
+
+      testObject.callPrivateFunction(arg);
+      testObject.callPrivateFunction(arg);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(3));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called twice should verify first arg', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1]);
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called twice should verify first arg called 1 time', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(1));
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called twice should not verify first arg called 0 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(0));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called twice should not verify first arg called 2 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(2));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called 3 times should not verify first arg called 2 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(2));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called 3 times should verify first arg called 2 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+      testObject.callPrivateFunction(arg1);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(2));
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called twice should verify second arg was called', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2]);
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called twice should verify second arg was called 1 time', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(1));
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called twice should not verify second arg was called 2 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(2));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called twice should not verify second arg was called 0 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(0));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called 3 times should not verify second arg was called 0 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(0));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called 3 times should not verify second arg was called 1 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(1));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called 3 times should verify second arg was called 2 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(2));
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('was called 3 times should not verify second arg was called 3 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(3));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called twice should not verify with another arg', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg3]);
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called twice should not verify with another arg was called 1 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg3], Times.exact(1));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called twice should not verify with another arg was called 2 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg3], Times.exact(2));
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('was called twice should verify with another arg was called 0 times', () => {
+      // Arrange
+      var arg1 = {};
+      var arg2 = {};
+      var arg3 = {};
+
+      testObject.callPrivateFunction(arg1);
+      testObject.callPrivateFunction(arg2);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg3], Times.exact(0));
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('times returns false should return false', () => {
+      // Arrange
+      var timesMole: ITimes = {
+        match: () => { return false; }
+      };
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [1], timesMole);
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('times returns true should return true', () => {
+      // Arrange
+      var timesMole: ITimes = {
+        match: () => { return true; }
+      };
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [1], timesMole);
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+    it('one argument - ItIsBase returns false should return false', () => {
+      // Arrange
+      var itIs = new ItIsBase();
+      itIs.match = () => false;
+
+      testObject.callPrivateFunction(1);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [itIs]);
+
+      // Assert
+      expect(result).to.be.false;
+    });
+
+    it('one argument - ItIsBase returns false should return true', () => {
+      // Arrange
+      var itIs = new ItIsBase();
+      itIs.match = () => true;
+
+      testObject.callPrivateFunction(1);
+
+      // Act
+      var result = mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [itIs]);
+
+      // Assert
+      expect(result).to.be.true;
+    });
+
+  });
+
+  describe('callBase', () => {
+
+    it('set to true after constructor should call the original function', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var numberOfTimesCalled = 0;
+      testObject.onNoArgumentsFunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      // Act
+      testObject.noArgumentsFunction();
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
+    });
+
+    it('set to true after constructor should call the original getter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var numberOfTimesCalled = 0;
+      var originalGetterWasCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      testObject.onGetterCalled = originalGetterWasCalled;
+
+      // Act
+      testObject.getter;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
+    });
+
+    it('set to true after constructor should call the original setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var numberOfTimesCalled = 0;
+      var originalSetterWasCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      testObject.onSetterCalled = originalSetterWasCalled;
+
+      // Act
+      testObject.setter = 1;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
+    });
+
+    it('set to true after constructor should call the original getter of getter and setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var numberOfTimesCalled = 0;
+      var originalGetterWasCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      testObject.onGetterOfGetterAndSetterCalled = originalGetterWasCalled;
+
+      // Act
+      testObject.getterAndSetter;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
+    });
+
+    it('set to true after constructor should call the original setter of getter and setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var numberOfTimesCalled = 0;
+      var originalSetterWasCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      testObject.onSetterOfGetterAndSetterCalled = originalSetterWasCalled;
+
+      // Act
+      testObject.getterAndSetter = 1;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
+    });
+
+    it('set to false after constructor should not call the original function', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var numberOfTimesCalled = 0;
+      testObject.onNoArgumentsFunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      // Act
+      testObject.noArgumentsFunction();
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+    });
+
+    it('set to false after constructor should not call the original getters and setters', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var numberOfTimesCalled = 0;
+      var shouldNotCall = () => {
+        numberOfTimesCalled++;
+      }
+
+      testObject.onGetterCalled = shouldNotCall;
+      testObject.onSetterCalled = shouldNotCall;
+      testObject.onGetterOfGetterAndSetterCalled = shouldNotCall;
+      testObject.onSetterOfGetterAndSetterCalled = shouldNotCall;
+
+      // Act
+      testObject.getter;
+      testObject.setter = 1;
+      testObject.getterAndSetter;
+      testObject.getterAndSetter = 1;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+    });
+
+    it('set to true should return the original function value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      // Act
+      var result = testObject.returning1Function();
+
+      // Assert
+      expect(result).to.be.equal(1);
+    });
+
+    it('set to true should return the original getter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var getterValue = {};
+      testObject.getterValue = getterValue;
+
+      // Act
+      var result = testObject.getter;
+
+      // Assert
+      expect(result).to.be.equal(getterValue);
+    });
+
+    it('set to true should set the setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var setterValue = {};
+
+      // Act
+      testObject.setter = setterValue;
+
+      // Assert
+      expect(testObject.setterValue).to.be.equal(setterValue);
+    });
+
+    it('set to true should return the original getter of getter and setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var getterAndSetterValue = {};
+      testObject.getterAndSetterValue = getterAndSetterValue
+
+      // Act
+      var result = testObject.getterAndSetter;
+
+      // Assert
+      expect(result).to.be.equal(getterAndSetterValue);
+    });
+
+    it('set to true should set the setter of getter and setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var getterAndSetterValue = {};
+
+      // Act
+      testObject.getterAndSetter = getterAndSetterValue;
+
+      // Assert
+      expect(testObject.getterAndSetterValue).to.be.equal(getterAndSetterValue);
+    });
+
+    it('set to false should not return the original function value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      // Act
+      var result = testObject.returning1Function();
+
+      // Assert
+      expect(result).to.not.be.equal(1);
+    });
+
+    it('set to false should not return the original getter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var getterValue = {};
+      testObject.getterValue = getterValue;
+
+      // Act
+      var result = testObject.getter;
+
+      // Assert
+      expect(result).to.not.be.equal(getterValue);
+    });
+
+    it('set to false should not set the setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var setterValue = {};
+
+      // Act
+      testObject.setter = setterValue;
+
+      // Assert
+      expect(testObject.setterValue).to.not.be.equal(setterValue);
+    });
+
+    it('set to false should not return the original getter of getter and setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var getterAndSetterValue = {};
+      testObject.getterAndSetterValue = getterAndSetterValue
+
+      // Act
+      var result = testObject.getterAndSetter;
+
+      // Assert
+      expect(result).to.not.be.equal(getterAndSetterValue);
+    });
+
+    it('set to false should not set the setter of getter and setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var getterAndSetterValue = {};
+
+      // Act
+      testObject.getterAndSetter = getterAndSetterValue;
+
+      // Assert
+      expect(testObject.getterAndSetterValue).to.not.be.equal(getterAndSetterValue);
+    });
+
+    it('set to false should return undefined', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      // Act
+      var result = testObject.returning1Function();
+
+      // Assert
+      expect(result).to.be.undefined;
+    });
+
+    it('set to false should return undefined from getters', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      testObject.getterValue = 1;
+      testObject.getterAndSetterValue = 1;
+
+      // Act
+      var result1 = testObject.getter;
+      var result2 = testObject.getterAndSetter;
+
+      // Assert
+      expect(result1).to.be.undefined;
+      expect(result2).to.be.undefined;
+    });
+
+    it('set to true after constructor should call the original function', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var numberOfTimesCalled = 0;
+      testObject.onNoArgumentsFunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      // Act
+      testObject.noArgumentsFunction();
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
+    });
+
+    it('set to true after constructor should call the original getter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var numberOfTimesCalled = 0;
+      var originalGetterWasCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      testObject.onGetterCalled = originalGetterWasCalled;
+
+      // Act
+      testObject.getter;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
+    });
+
+    it('set to true after constructor should call the original setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var numberOfTimesCalled = 0;
+      var originalSetterWasCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      testObject.onSetterCalled = originalSetterWasCalled;
+
+      // Act
+      testObject.setter = 1;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
+    });
+
+    it('set to true after constructor should call the original getter of getter and setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var numberOfTimesCalled = 0;
+      var originalGetterWasCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      testObject.onGetterOfGetterAndSetterCalled = originalGetterWasCalled;
+
+      // Act
+      testObject.getterAndSetter;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
+    });
+
+    it('set to true after constructor should call the original setter of getter and setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var numberOfTimesCalled = 0;
+      var originalSetterWasCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      testObject.onSetterOfGetterAndSetterCalled = originalSetterWasCalled;
+
+      // Act
+      testObject.getterAndSetter = 1;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(1);
+    });
+
+    it('set to false after constructor should not call the original function', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var numberOfTimesCalled = 0;
+      testObject.onNoArgumentsFunctionCalled = () => {
+        numberOfTimesCalled++;
+      }
+
+      // Act
+      testObject.noArgumentsFunction();
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+    });
+
+    it('set to false after constructor should not call the original getters and setters', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var numberOfTimesCalled = 0;
+      var shouldNotCall = () => {
+        numberOfTimesCalled++;
+      }
+
+      testObject.onGetterCalled = shouldNotCall;
+      testObject.onSetterCalled = shouldNotCall;
+      testObject.onGetterOfGetterAndSetterCalled = shouldNotCall;
+      testObject.onSetterOfGetterAndSetterCalled = shouldNotCall;
+
+      // Act
+      testObject.getter;
+      testObject.setter = 1;
+      testObject.getterAndSetter;
+      testObject.getterAndSetter = 1;
+
+      // Assert
+      expect(numberOfTimesCalled).to.be.equal(0);
+    });
+
+    it('set to true should return the original function value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      // Act
+      var result = testObject.returning1Function();
+
+      // Assert
+      expect(result).to.be.equal(1);
+    });
+
+    it('set to true should return the original getter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var getterValue = {};
+      testObject.getterValue = getterValue;
+
+      // Act
+      var result = testObject.getter;
+
+      // Assert
+      expect(result).to.be.equal(getterValue);
+    });
+
+    it('set to true should set the setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var setterValue = {};
+
+      // Act
+      testObject.setter = setterValue;
+
+      // Assert
+      expect(testObject.setterValue).to.be.equal(setterValue);
+    });
+
+    it('set to true should return the original getter of getter and setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var getterAndSetterValue = {};
+      testObject.getterAndSetterValue = getterAndSetterValue
+
+      // Act
+      var result = testObject.getterAndSetter;
+
+      // Assert
+      expect(result).to.be.equal(getterAndSetterValue);
+    });
+
+    it('set to true should set the setter of getter and setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = true;
+
+      var getterAndSetterValue = {};
+
+      // Act
+      testObject.getterAndSetter = getterAndSetterValue;
+
+      // Assert
+      expect(testObject.getterAndSetterValue).to.be.equal(getterAndSetterValue);
+    });
+
+    it('set to false should not return the original function value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      // Act
+      var result = testObject.returning1Function();
+
+      // Assert
+      expect(result).to.not.be.equal(1);
+    });
+
+    it('set to false should not return the original getter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var getterValue = {};
+      testObject.getterValue = getterValue;
+
+      // Act
+      var result = testObject.getter;
+
+      // Assert
+      expect(result).to.not.be.equal(getterValue);
+    });
+
+    it('set to false should not set the setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var setterValue = {};
+
+      // Act
+      testObject.setter = setterValue;
+
+      // Assert
+      expect(testObject.setterValue).to.not.be.equal(setterValue);
+    });
+
+    it('set to false should not return the original getter of getter and setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var getterAndSetterValue = {};
+      testObject.getterAndSetterValue = getterAndSetterValue
+
+      // Act
+      var result = testObject.getterAndSetter;
+
+      // Assert
+      expect(result).to.not.be.equal(getterAndSetterValue);
+    });
+
+    it('set to false should not set the setter of getter and setter value', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      var getterAndSetterValue = {};
+
+      // Act
+      testObject.getterAndSetter = getterAndSetterValue;
+
+      // Assert
+      expect(testObject.getterAndSetterValue).to.not.be.equal(getterAndSetterValue);
+    });
+
+    it('set to false should return undefined', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      // Act
+      var result = testObject.returning1Function();
+
+      // Assert
+      expect(result).to.be.undefined;
+    });
+
+    it('set to false should return undefined from getters', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole(testObject);
+      mole.callBase = false;
+
+      testObject.getterValue = 1;
+      testObject.getterAndSetterValue = 1;
+
+      // Act
+      var result1 = testObject.getter;
+      var result2 = testObject.getterAndSetter;
+
+      // Assert
+      expect(result1).to.be.undefined;
+      expect(result2).to.be.undefined;
+    });
+
+  });
+
+  describe('setup', () => {
+
+    describe('callback', () => {
+
+      it('should not call callback if function is not called', () => {
         // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = itIs);
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
+        });
+      });
 
-        // Assert
-        assert.strictEqual(result, false, 'should return false if ItIs returns false');
-    });
-
-    QUnit.test('verify - getter&setter - setter - ItIsBase returns false should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var itIs = new ItIsBase();
-        itIs.match = () => true;
-
-        context.testObject.getterAndSetter = 1;
-
+      it('should not call callback if getter is not called', () => {
         // Act
-        var result = context.mole.verify(_ => _.getterAndSetter = itIs);
+        mole.setup(_ => _.getter).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
+        });
+      });
 
-        // Assert
-        assert.strictEqual(result, true, 'should return true if ItIs returns true');
-    });
-
-    QUnit.test('verify - after setups should count ok', function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not call callback if setter is not called', () => {
         // Act
-        context.mole.setup(_ => _.getter).callback(() => { });
-        context.testObject.getter;
-        context.testObject.getter;
-        context.testObject.getter;
-        context.testObject.getter;
+        mole.setup(_ => _.setter = 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
+        });
+      });
 
-        context.mole.setup(_ => _.oneArgumentsFunction(1)).callback(() => { });
-        context.mole.setup(_ => _.oneArgumentsFunction(2)).callback(() => { });
-        context.mole.setup(_ => _.oneArgumentsFunction(3)).callback(() => { });
-        context.testObject.oneArgumentsFunction(1);
-        context.testObject.oneArgumentsFunction(2);
-        context.testObject.oneArgumentsFunction(2);
-        context.testObject.oneArgumentsFunction(3);
-        context.testObject.oneArgumentsFunction(3);
-        context.testObject.oneArgumentsFunction(3);
-        context.testObject.oneArgumentsFunction(4);
-        context.testObject.oneArgumentsFunction(4);
-        context.testObject.oneArgumentsFunction(4);
-        context.testObject.oneArgumentsFunction(4);
-
-        // Assert
-        assert.strictEqual(context.mole.verify(_ => _.getter, Times.exact(4)), true, 'should verify getter correctly');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(1), Times.exact(1)), true, 'should verify calling the function with parameter correctly');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(2), Times.exact(2)), true, 'should verify calling the function with parameter correctly');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(3), Times.exact(3)), true, 'should verify calling the function with parameter correctly');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(4), Times.exact(4)), true, 'should verify calling the function with parameter correctly');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(It.isAny(Number)), Times.exact(10)), true, 'should verify calling with any number correctly');
-        assert.strictEqual(context.mole.verify(_ => _.oneArgumentsFunction(It.isAny(Number)), Times.exact(11)), false, 'should verify calling with any number correctly');
-    });
-
-    QUnit.test('verifyPrivate - should verify only the private function', 3, function (assert: QUnitAssert) {
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
+      it('should not call callback if getter of getter and setter is not called', () => {
         // Act
-        context.testObject.callPrivateFunction(1);
+        mole.setup(_ => _.getterAndSetter).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
+        });
+      });
 
-        // Assert
-        var verifyPrivateFunction = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [1]);
-        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-
-        assert.strictEqual(verifyPrivateFunction, true, 'private function should be verified');
-        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
-        assert.strictEqual(verifyManyArguments, false, 'many arguments should not be verified');
-    });
-
-    QUnit.test('verifyPrivate - should verify only the many argument function', 3, function (assert: QUnitAssert) {
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
+      it('should not call callback if setter of getter and setter is not called', () => {
         // Act
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
+        mole.setup(_ => _.getterAndSetter = 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
+        });
+      });
 
-        // Assert
-        var verifyPrivateFunction = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [It.isAny(Object)]);
-        var verifyOneArguments = context.mole.verify(_ => _.oneArgumentsFunction(arg1));
-        var verifyManyArguments = context.mole.verify(_ => _.manyArgumentsFunction(arg1, arg2, arg3));
-
-        assert.strictEqual(verifyPrivateFunction, false, 'no arguments should not be verified');
-        assert.strictEqual(verifyOneArguments, false, 'one arguments should not be verified');
-        assert.strictEqual(verifyManyArguments, true, 'many arguments should be verified');
-    });
-
-    QUnit.test('verifyPrivate - was not called should not find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
+      it('should call callback when function is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg]);
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verifyPrivate - was not called should not find 1 match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verifyPrivate - was not called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find a match');
-    });
-
-    QUnit.test('verifyPrivate - was not called should find 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should find 0 matches');
-    });
-
-    QUnit.test('verifyPrivate - was called should find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.callPrivateFunction(arg);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg]);
-
-        // Assert
-        assert.strictEqual(result, true, 'should find a match');
-    });
-
-    QUnit.test('verifyPrivate - was called should find 1 match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.callPrivateFunction(arg);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should find a match');
-    });
-
-    QUnit.test('verifyPrivate - was called should not find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.callPrivateFunction(arg);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not find matches');
-    });
-
-    QUnit.test('verifyPrivate - was called should not verify 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.callPrivateFunction(arg);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 0 matches');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should find a match', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.callPrivateFunction(arg);
-        context.testObject.callPrivateFunction(arg);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg]);
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify match');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should find 2 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.callPrivateFunction(arg);
-        context.testObject.callPrivateFunction(arg);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify match');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should not find 0 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.callPrivateFunction(arg);
-        context.testObject.callPrivateFunction(arg);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 0 matches');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should not find 1 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.callPrivateFunction(arg);
-        context.testObject.callPrivateFunction(arg);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 1 matches');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should not find 3 matches', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg = {};
-
-        context.testObject.callPrivateFunction(arg);
-        context.testObject.callPrivateFunction(arg);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg], Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify 3 matches');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should verify first arg', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1]);
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should verify first arg called 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should not verify first arg called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should not verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called 3 times should not verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called 3 times should verify first arg called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-        context.testObject.callPrivateFunction(arg1);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg1], Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should verify second arg was called', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2]);
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should verify second arg was called 1 time', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should not verify second arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should not verify second arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called 3 times should not verify second arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called 3 times should not verify second arg was called 1 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called 3 times should verify second arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verifyPrivate - was called 3 times should not verify second arg was called 3 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg2], Times.exact(3));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should not verify with another arg', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg3]);
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should not verify with another arg was called 1 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg3], Times.exact(1));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should not verify with another arg was called 2 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg3], Times.exact(2));
-
-        // Assert
-        assert.strictEqual(result, false, 'should not verify');
-    });
-
-    QUnit.test('verifyPrivate - was called twice should verify with another arg was called 0 times', function (assert: QUnitAssert) {
-        QUnit.expect(1);
-
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var arg1 = {};
-        var arg2 = {};
-        var arg3 = {};
-
-        context.testObject.callPrivateFunction(arg1);
-        context.testObject.callPrivateFunction(arg2);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [arg3], Times.exact(0));
-
-        // Assert
-        assert.strictEqual(result, true, 'should verify');
-    });
-
-    QUnit.test('verifyPrivate - times returns false should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var timesMole: ITimes = {
-            match: () => { return false; }
-        };
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [1], timesMole);
-
-        // Assert
-        assert.strictEqual(result, false, 'should return false if times do not match');
-    });
-
-    QUnit.test('verifyPrivate - times returns true should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var timesMole: ITimes = {
-            match: () => { return true; }
-        };
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [1], timesMole);
-
-        // Assert
-        assert.strictEqual(result, true, 'should return true if times match');
-    });
-
-    QUnit.test('verifyPrivate - one argument - ItIsBase returns false should return false', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var itIs = new ItIsBase();
-        itIs.match = () => false;
-
-        context.testObject.callPrivateFunction(1);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [itIs]);
-
-        // Assert
-        assert.strictEqual(result, false, 'should return false if ItIs returns false');
-    });
-
-    QUnit.test('verifyPrivate - one argument - ItIsBase returns false should return true', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var itIs = new ItIsBase();
-        itIs.match = () => true;
-
-        context.testObject.callPrivateFunction(1);
-
-        // Act
-        var result = context.mole.verifyPrivate(TestObject.PRIVATE_FUNCTION_NAME, [itIs]);
-
-        // Assert
-        assert.strictEqual(result, true, 'should return true if ItIs returns true');
-    });
-
-    QUnit.test('callBase - set to true after constructor should call the original function', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = true;
-
-        testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(true, 'original function should be called');
-        }
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+        });
 
         // Act
         testObject.noArgumentsFunction();
-    });
+      });
 
-    QUnit.test('callBase - set to true after constructor should call the original getter', 1, function (assert: QUnitAssert) {
+      it('should call callback when getter is called', () => {
         // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = true;
-
-        var originalGetterWasCalled = () => {
-            // Assert
-            assert.ok(true, 'original getter should be called');
-        }
-
-        testObject.onGetterCalled = originalGetterWasCalled;
+        mole.setup(_ => _.getter).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+        });
 
         // Act
         testObject.getter;
-    });
+      });
 
-    QUnit.test('callBase - set to true after constructor should call the original setter', 1, function (assert: QUnitAssert) {
+      it('should call callback when setter is called', () => {
         // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = true;
-
-        var originalSetterWasCalled = () => {
-            // Assert
-            assert.ok(true, 'original setter should be called');
-        }
-
-        testObject.onSetterCalled = originalSetterWasCalled;
+        mole.setup(_ => _.setter = 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+        });
 
         // Act
         testObject.setter = 1;
-    });
+      });
 
-    QUnit.test('callBase - set to true after constructor should call the original getter of getter and setter', 1, function (assert: QUnitAssert) {
+      it('should call callback when getter of getter and setter is called', () => {
         // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = true;
-
-        var originalGetterWasCalled = () => {
-            // Assert
-            assert.ok(true, 'original getter should be called');
-        }
-
-        testObject.onGetterOfGetterAndSetterCalled = originalGetterWasCalled;
+        mole.setup(_ => _.getterAndSetter).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+        });
 
         // Act
         testObject.getterAndSetter;
-    });
+      });
 
-    QUnit.test('callBase - set to true after constructor should call the original setter of getter and setter', 1, function (assert: QUnitAssert) {
+      it('should call callback when setter of getter and setter is called', () => {
         // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = true;
-
-        var originalSetterWasCalled = () => {
-            // Assert
-            assert.ok(true, 'original setter should be called');
-        }
-
-        testObject.onSetterOfGetterAndSetterCalled = originalSetterWasCalled;
+        mole.setup(_ => _.getterAndSetter = 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+        });
 
         // Act
         testObject.getterAndSetter = 1;
-    });
+      });
 
-    QUnit.test('callBase - set to false after constructor should not call the original function', 0, function (assert: QUnitAssert) {
+      it('should not call the original function', () => {
         // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = false;
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
         testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'original function should not be called');
-        }
+          expect(numberOfTimesCalled).to.be.equal(0);
+        };
 
         // Act
         testObject.noArgumentsFunction();
-    });
+      });
 
-    QUnit.test('callBase - set to false after constructor should not call the original getters and setters', 0, function (assert: QUnitAssert) {
+      it('should not call the original getter', () => {
         // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = false;
+        mole.setup(_ => _.getter).callback(() => { });
 
-        var shouldNotCall = () => {
-            // Assert
-            assert.ok(false, 'should not be called');
-        }
-
-        testObject.onGetterCalled = shouldNotCall;
-        testObject.onSetterCalled = shouldNotCall;
-        testObject.onGetterOfGetterAndSetterCalled = shouldNotCall;
-        testObject.onSetterOfGetterAndSetterCalled = shouldNotCall;
+        testObject.onGetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
+        };
 
         // Act
         testObject.getter;
+      });
+
+      it('should not call the original setter', () => {
+        // Arrange
+        mole.setup(_ => _.setter = 1).callback(() => { });
+
+        testObject.onSetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
+        };
+
+        // Act
         testObject.setter = 1;
+      });
+
+      it('should not call the original getter of getter and setter', () => {
+        // Arrange
+        mole.setup(_ => _.getterAndSetter).callback(() => { });
+
+        testObject.onGetterOfGetterAndSetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
+        };
+
+        // Act
         testObject.getterAndSetter;
+      });
+
+      it('should not call the original setter of getter and setter', () => {
+        // Arrange
+        mole.setup(_ => _.getterAndSetter = 1).callback(() => { });
+
+        testObject.onSetterOfGetterAndSetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
+        };
+
+        // Act
         testObject.getterAndSetter = 1;
-    });
+      });
 
-    QUnit.test('callBase - set to true should return the original function value', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters', () => {
         // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = true;
-
-        // Act
-        var result = testObject.returning1Function();
-
-        // Assert
-        assert.strictEqual(result, 1, 'should return the original value');
-    });
-
-    QUnit.test('callBase - set to true should return the original getter value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = true;
-
-        var getterValue = {};
-        testObject.getterValue = getterValue;
-
-        // Act
-        var result = testObject.getter;
-
-        // Assert
-        assert.strictEqual(result, getterValue, 'should return the correct value');
-    });
-
-    QUnit.test('callBase - set to true should set the setter value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = true;
-
-        var setterValue = {};
-
-        // Act
-        testObject.setter = setterValue;
-
-        // Assert
-        assert.strictEqual(testObject.setterValue, setterValue, 'should set the correct value');
-    });
-
-    QUnit.test('callBase - set to true should return the original getter of getter and setter value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = true;
-
-        var getterAndSetterValue = {};
-        testObject.getterAndSetterValue = getterAndSetterValue
-
-        // Act
-        var result = testObject.getterAndSetter;
-
-        // Assert
-        assert.strictEqual(result, getterAndSetterValue, 'should return the correct value');
-    });
-
-    QUnit.test('callBase - set to true should set the setter of getter and setter value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = true;
-
-        var getterAndSetterValue = {};
-
-        // Act
-        testObject.getterAndSetter = getterAndSetterValue;
-
-        // Assert
-        assert.strictEqual(testObject.getterAndSetterValue, getterAndSetterValue, 'should set the correct value');
-    });
-
-    QUnit.test('callBase - set to false should not return the original function value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = false;
-
-        // Act
-        var result = testObject.returning1Function();
-
-        // Assert
-        assert.notStrictEqual(result, 1, 'should not return the original value');
-    });
-
-    QUnit.test('callBase - set to false should not return the original getter value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = false;
-
-        var getterValue = {};
-        testObject.getterValue = getterValue;
-
-        // Act
-        var result = testObject.getter;
-
-        // Assert
-        assert.notStrictEqual(result, getterValue, 'should not return the value');
-    });
-
-    QUnit.test('callBase - set to false should not set the setter value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = false;
-
-        var setterValue = {};
-
-        // Act
-        testObject.setter = setterValue;
-
-        // Assert
-        assert.notStrictEqual(testObject.setterValue, setterValue, 'should not set the value');
-    });
-
-    QUnit.test('callBase - set to false should not return the original getter of getter and setter value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = false;
-
-        var getterAndSetterValue = {};
-        testObject.getterAndSetterValue = getterAndSetterValue
-
-        // Act
-        var result = testObject.getterAndSetter;
-
-        // Assert
-        assert.notStrictEqual(result, getterAndSetterValue, 'should not return the correct value');
-    });
-
-    QUnit.test('callBase - set to false should not set the setter of getter and setter value', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = false;
-
-        var getterAndSetterValue = {};
-
-        // Act
-        testObject.getterAndSetter = getterAndSetterValue;
-
-        // Assert
-        assert.notStrictEqual(testObject.getterAndSetterValue, getterAndSetterValue, 'should not set the value');
-    });
-
-    QUnit.test('callBase - set to false should return undefined', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = false;
-
-        // Act
-        var result = testObject.returning1Function();
-
-        // Assert
-        assert.strictEqual(result, undefined, 'should return undefined');
-    });
-
-    QUnit.test('callBase - set to false should return undefined from getters', 2, function (assert: QUnitAssert) {
-        // Arrange
-        var testObject = new TestObject();
-        var mole = new Mole(testObject);
-        mole.callBase = false;
-
-        testObject.getterValue = 1;
-        testObject.getterAndSetterValue = 1;
-
-        // Act
-        var result1 = testObject.getter;
-        var result2 = testObject.getterAndSetter;
-
-        // Assert
-        assert.strictEqual(result1, undefined, 'should return undefined');
-        assert.strictEqual(result2, undefined, 'should return undefined');
-    });
-
-    QUnit.test('setup - callback - should not call callback if function is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
-        });
-    });
-
-    QUnit.test('setup - callback - should not call callback if getter is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        context.mole.setup(_ => _.getter).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
-        });
-    });
-
-    QUnit.test('setup - callback - should not call callback if setter is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        context.mole.setup(_ => _.setter = 1).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
-        });
-    });
-
-    QUnit.test('setup - callback - should not call callback if getter of getter and setter is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        context.mole.setup(_ => _.getterAndSetter).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
-        });
-    });
-
-    QUnit.test('setup - callback - should not call callback if setter of getter and setter is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        // Act
-        context.mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
-        });
-    });
-
-    QUnit.test('setup - callback - should call callback when function is called', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
-        });
-
-        // Act
-        context.testObject.noArgumentsFunction();
-    });
-
-    QUnit.test('setup - callback - should call callback when getter is called', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getter).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
-        });
-
-        // Act
-        context.testObject.getter;
-    });
-
-    QUnit.test('setup - callback - should call callback when setter is called', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.setter = 1).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
-        });
-
-        // Act
-        context.testObject.setter = 1;
-    });
-
-    QUnit.test('setup - callback - should call callback when getter of getter and setter is called', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getterAndSetter).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
-        });
-
-        // Act
-        context.testObject.getterAndSetter;
-    });
-
-    QUnit.test('setup - callback - should call callback when setter of getter and setter is called', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
-        });
-
-        // Act
-        context.testObject.getterAndSetter = 1;
-    });
-
-    QUnit.test('setup - callback - should not call the original function', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
-
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
-        };
-
-        // Act
-        context.testObject.noArgumentsFunction();
-    });
-
-    QUnit.test('setup - callback - should not call the original getter', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getter).callback(() => { });
-
-        context.testObject.onGetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
-        };
-
-        // Act
-        context.testObject.getter;
-    });
-
-    QUnit.test('setup - callback - should not call the original setter', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.setter = 1).callback(() => { });
-
-        context.testObject.onSetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
-        };
-
-        // Act
-        context.testObject.setter = 1;
-    });
-
-    QUnit.test('setup - callback - should not call the original getter of getter and setter', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getterAndSetter).callback(() => { });
-
-        context.testObject.onGetterOfGetterAndSetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
-        };
-
-        // Act
-        context.testObject.getterAndSetter;
-    });
-
-    QUnit.test('setup - callback - should not call the original setter of getter and setter', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getterAndSetter = 1).callback(() => { });
-
-        context.testObject.onSetterOfGetterAndSetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
-        };
-
-        // Act
-        context.testObject.getterAndSetter = 1;
-    });
-
-    QUnit.test('setup - callback - should pass the same parameters', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 1;
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback((_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'should return same argument');
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback((_arg) => {
+          actualArg = _arg;
         });
 
         // Act
-        context.testObject.oneArgumentsFunction(arg);
-    });
+        testObject.oneArgumentsFunction(arg);
+      });
 
-    QUnit.test('setup - callback - should pass the same parameters 2', 3, function (assert: QUnitAssert) {
+      it('should pass the same parameters 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 1;
         var arg2 = 2;
         var arg3 = 3;
 
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
-            .callback((_arg1, _arg2, _arg3) => {
-                // Assert
-                assert.strictEqual(_arg1, arg1, 'should return same argument');
-                assert.strictEqual(_arg2, arg2, 'should return same argument');
-                assert.strictEqual(_arg3, arg3, 'should return same argument');
-            });
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+          .callback((_arg1, _arg2, _arg3) => {
+            actualArg1 = _arg1;
+            actualArg2 = _arg2;
+            actualArg3 = _arg3;
+          });
 
         // Act
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-    });
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+      });
 
-    QUnit.test('setup - callback - should pass the same parameters to setter', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters to setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 1;
 
-        context.mole.setup(_ => _.setter = It.isAny(Number)).callback((_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'should call with same argument');
+        mole.setup(_ => _.setter = It.isAny(Number)).callback((_arg) => {
+          actualArg = arg;
         });
 
         // Act
-        context.testObject.setter = arg;
-    });
+        testObject.setter = arg;
+      });
 
-    QUnit.test('setup - callback - should pass the same parameters to setter of getter and setter', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters to setter of getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 1;
 
-        context.mole.setup(_ => _.getterAndSetter = It.isAny(Number)).callback((_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'should pass the same argument');
+        mole.setup(_ => _.getterAndSetter = It.isAny(Number)).callback((_arg) => {
+          actualArg = arg;
         });
 
         // Act
-        context.testObject.getterAndSetter = arg;
-    });
+        testObject.getterAndSetter = arg;
+      });
 
-    QUnit.test('setup - callback - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
-        context.testObject.onGetterCalled = shouldNotHappen;
-        context.testObject.onSetterCalled = shouldNotHappen;
-        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
-        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onGetterCalled = shouldNotHappen;
+        testObject.onSetterCalled = shouldNotHappen;
+        testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
+        testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - callback - should not call other original functions 2', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getterAndSetter).callback(() => { });
+        mole.setup(_ => _.getterAndSetter).callback(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
-        context.testObject.onGetterCalled = shouldNotHappen;
-        context.testObject.onSetterCalled = shouldNotHappen;
-        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
-        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onGetterCalled = shouldNotHappen;
+        testObject.onSetterCalled = shouldNotHappen;
+        testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
+        testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
 
         // Act
-        context.testObject.getterAndSetter;
-    });
+        testObject.getterAndSetter;
+      });
 
-    QUnit.test('setup - callback - should not call other original functions 3', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions 3', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.setter = 1).callback(() => { });
+        mole.setup(_ => _.setter = 1).callback(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
-        context.testObject.onGetterCalled = shouldNotHappen;
-        context.testObject.onSetterCalled = shouldNotHappen;
-        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
-        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onGetterCalled = shouldNotHappen;
+        testObject.onSetterCalled = shouldNotHappen;
+        testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
+        testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
 
         // Act
-        context.testObject.setter = 1;
-    });
+        testObject.setter = 1;
+      });
 
-    QUnit.test('setup - callback - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.getter).callback(shouldNotHappen);
-        context.mole.setup(_ => _.setter = 1).callback(shouldNotHappen);
-        context.mole.setup(_ => _.getterAndSetter).callback(shouldNotHappen);
-        context.mole.setup(_ => _.getterAndSetter = 1).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.getter).callback(shouldNotHappen);
+        mole.setup(_ => _.setter = 1).callback(shouldNotHappen);
+        mole.setup(_ => _.getterAndSetter).callback(shouldNotHappen);
+        mole.setup(_ => _.getterAndSetter = 1).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
-        context.testObject.onGetterCalled = shouldNotHappen;
-        context.testObject.onSetterCalled = shouldNotHappen;
-        context.testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
-        context.testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onGetterCalled = shouldNotHappen;
+        testObject.onSetterCalled = shouldNotHappen;
+        testObject.onGetterOfGetterAndSetterCalled = shouldNotHappen;
+        testObject.onSetterOfGetterAndSetterCalled = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - callback - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call lazyReturns on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - callback - should not return the callback return value', 1, function (assert: QUnitAssert) {
+      it('should not return the callback return value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.returning1Function()).callback(() => {
-            return {};
+        mole.setup(_ => _.returning1Function()).callback(() => {
+          return {};
         });
 
         // Act
-        var result = context.testObject.returning1Function();
+        var result = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result, undefined, 'should return undefined');
-    });
+        expect(result).to.be.undefined;
+      });
 
-    QUnit.test('setup - callback - should call all the callbacks when function is called', 4, function (assert: QUnitAssert) {
+      it('should call all the callbacks when function is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            });
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		});
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - callback - should call all the callbacks when function is called for getter', 4, function (assert: QUnitAssert) {
+      it('should call all the callbacks when function is called for getter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getter).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setup(_ => _.getter).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            });
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		});
 
         // Act
-        context.testObject.getter;
-    });
+        testObject.getter;
+      });
 
-    QUnit.test('setup - callback - should call all the callbacks when function is called for setter', 4, function (assert: QUnitAssert) {
+      it('should call all the callbacks when function is called for setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.setter = 1).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setup(_ => _.setter = 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            });
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		});
 
         // Act
-        context.testObject.setter = 1;
-    });
+        testObject.setter = 1;
+      });
 
-    QUnit.test('setup - callback - should call all the callbacks when function is called for getter of getter and setter', 4, function (assert: QUnitAssert) {
+      it('should call all the callbacks when function is called for getter of getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getterAndSetter).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setup(_ => _.getterAndSetter).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            });
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		});
 
         // Act
-        context.testObject.getterAndSetter;
-    });
+        testObject.getterAndSetter;
+      });
 
-    QUnit.test('setup - callback - should call all the callbacks when function is called for setter of getter and setter', 4, function (assert: QUnitAssert) {
+      it('should call all the callbacks when function is called for setter of getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setup(_ => _.getterAndSetter = 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            });
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		});
 
         // Act
-        context.testObject.getterAndSetter = 1;
-    });
+        testObject.getterAndSetter = 1;
+      });
 
-    QUnit.test('setup - callback - should pass teh same parameters to all the callbacks when function is called', 4, function (assert: QUnitAssert) {
+      it('should pass teh same parameters to all the callbacks when function is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 12;
 
         var checkArgument = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'should pass same argument');
+          actualArg = _arg;
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
-            .callback(checkArgument)
-            .callback(checkArgument)
-            .callback(checkArgument)
-            .callback(checkArgument);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+          .callback(checkArgument)
+          .callback(checkArgument)
+          .callback(checkArgument)
+          .callback(checkArgument);
 
         // Act
-        context.testObject.oneArgumentsFunction(arg);
-    });
+        testObject.oneArgumentsFunction(arg);
+      });
 
-    QUnit.test('setup - callback - should pass teh same parameters to all the callbacks when function is called 2', 12, function (assert: QUnitAssert) {
+      it('should pass teh same parameters to all the callbacks when function is called 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 11;
         var arg2 = 12;
         var arg3 = 13;
 
         var checkArgument = (_arg1, _arg2, _arg3) => {
-            // Assert
-            assert.strictEqual(_arg1, arg1, 'should pass same argument');
-            assert.strictEqual(_arg2, arg2, 'should pass same argument');
-            assert.strictEqual(_arg3, arg3, 'should pass same argument');
+          actualArg1 = _arg1;
+          actualArg2 = _arg2;
+          actualArg3 = _arg3;
         };
 
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
-            .callback(checkArgument)
-            .callback(checkArgument)
-            .callback(checkArgument)
-            .callback(checkArgument);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+          .callback(checkArgument)
+          .callback(checkArgument)
+          .callback(checkArgument)
+          .callback(checkArgument);
 
         // Act
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-    });
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+      });
 
-    QUnit.test('setup - callback - should not affect verify', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify', () => {
         // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
+        mole.setup(_ => _.noArgumentsFunction()).callback(() => { });
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
-    });
+        expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(0))).to.be.true;
+      });
 
-    QUnit.test('setup - callback - should not affect verify for getter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify for getter', () => {
         // Act
-        context.mole.setup(_ => _.getter).callback(() => { });
+        mole.setup(_ => _.getter).callback(() => { });
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.getter, Times.exact(0)), 'should not effect verify');
-    });
+        expect(mole.verify(_ => _.getter, Times.exact(0))).to.be.true;
+      });
 
-    QUnit.test('setup - callback - should not affect verify for setter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify for setter', () => {
         // Act
-        context.mole.setup(_ => _.setter = 1).callback(() => { });
+        mole.setup(_ => _.setter = 1).callback(() => { });
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.setter = 1, Times.exact(0)), 'should not effect verify');
-    });
+        expect(mole.verify(_ => _.setter = 1, Times.exact(0))).to.be.true;
+      });
 
-    QUnit.test('setup - callback - should not affect verify for getter of getter and setter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify for getter of getter and setter', () => {
         // Act
-        context.mole.setup(_ => _.getterAndSetter).callback(() => { });
+        mole.setup(_ => _.getterAndSetter).callback(() => { });
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.getterAndSetter, Times.exact(0)), 'should not effect verify');
-    });
+        expect(mole.verify(_ => _.getterAndSetter, Times.exact(0))).to.be.true;
+      });
 
-    QUnit.test('setup - callback - should not affect verify for setter of getter and setter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify for setter of getter and setter', () => {
         // Act
-        context.mole.setup(_ => _.getterAndSetter = 1).callback(() => { });
+        mole.setup(_ => _.getterAndSetter = 1).callback(() => { });
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.getterAndSetter = 1, Times.exact(0)), 'should not effect verify');
-    });
+        expect(mole.verify(_ => _.getterAndSetter = 1, Times.exact(0))).to.be.true;
+      });
 
-    QUnit.test('setup - callback - setting setter should not affect getter', 1, function (assert: QUnitAssert) {
+      it('setting setter should not affect getter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getterAndSetter = 1).callback(() => { });
+        mole.setup(_ => _.getterAndSetter = 1).callback(() => { });
 
         var value = {};
-        context.testObject.getterAndSetterValue = value;
+        testObject.getterAndSetterValue = value;
 
         // Act
-        var result = context.testObject.getterAndSetter;
+        var result = testObject.getterAndSetter;
 
         // Assert
-        assert.strictEqual(result, value, 'should return the correct value');
-    });
+        expect(result).to.be.equal(value);
+      });
 
-    QUnit.test('setup - callback - setting getter should not affect setter', 1, function (assert: QUnitAssert) {
+      it('setting getter should not affect setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getterAndSetter).callback(() => { });
+        mole.setup(_ => _.getterAndSetter).callback(() => { });
 
         var value = {};
 
         // Act
-        context.testObject.getterAndSetter = value;
+        testObject.getterAndSetter = value;
 
         // Assert
-        assert.strictEqual(context.testObject.getterAndSetterValue, value, 'should set the correct value');
-    });
+        expect(testObject.getterAndSetterValue).to.be.equal(value);
+      });
 
-    QUnit.test('setup - callback - calling with not matching value should call the original function', 2, function (assert: QUnitAssert) {
+      it('calling with not matching value should call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.oneArgumentsFunction(1)).callback(() => { });
+        mole.setup(_ => _.oneArgumentsFunction(1)).callback(() => { });
 
         var arg = {};
-        context.testObject.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            assert.ok(true, 'should call the original function');
-            assert.strictEqual(_arg, arg, 'should call with the passed value');
+        testObject.onOneArgumentsFunctionCalled = (_arg) => {
+          actualArg = arg;
         };
 
         // Act
-        context.testObject.oneArgumentsFunction(arg);
-    });
+        testObject.oneArgumentsFunction(arg);
+      });
 
-    QUnit.test('setup - callback - calling setter with not matching value should call the original setter', 2, function (assert: QUnitAssert) {
+      it('calling setter with not matching value should call the original setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.setter = 1).callback(() => { });
+        mole.setup(_ => _.setter = 1).callback(() => { });
 
         var arg = {};
-        context.testObject.onSetterCalled = (_arg) => {
-            // Assert
-            assert.ok(true, 'should call the original setter');
-            assert.strictEqual(_arg, arg, 'should call with the passed value');
+        testObject.onSetterCalled = (_arg) => {
+          actualArg = arg;
         };
 
         // Act
-        context.testObject.setter = arg;
+        testObject.setter = arg;
+      });
+
     });
 
-    QUnit.test('setup - returns - should not call the original function', 0, function (assert: QUnitAssert) {
+    describe('returns', () => {
+
+      it('should not call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
-        context.mole.setup(_ => _.noArgumentsFunction()).returns(111);
-
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onNoArgumentsFunctionCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - returns - should not call the original getter', 0, function (assert: QUnitAssert) {
+      it('should not call the original getter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setup(_ => _.getter).returns(111);
 
-        context.mole.setup(_ => _.getter).returns(111);
-
-        context.testObject.onGetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onGetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.getter;
-    });
+        testObject.getter;
+      });
 
-    QUnit.test('setup - returns - should not call the original getter of getter and setter', 0, function (assert: QUnitAssert) {
+      it('should not call the original getter of getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setup(_ => _.getterAndSetter).returns(111);
 
-        context.mole.setup(_ => _.getterAndSetter).returns(111);
-
-        context.testObject.onGetterOfGetterAndSetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onGetterOfGetterAndSetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.getterAndSetter;
-    });
+        testObject.getterAndSetter;
+      });
 
-    QUnit.test('setup - returns - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).returns(111);
+        mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - returns - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).returns(111);
+        mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - returns - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call lazyReturns on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).returns(111);
+        mole.setup(_ => _.noArgumentsFunction()).returns(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - returns - should return the value', 1, function (assert: QUnitAssert) {
+      it('should return the value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
-        context.mole.setup(_ => _.returning1Function()).returns(returnValue);
+        mole.setup(_ => _.returning1Function()).returns(returnValue);
 
         // Act
-        var result = context.testObject.returning1Function();
+        var result = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the configured value');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - returns - should return the value for getter', 1, function (assert: QUnitAssert) {
+      it('should return the value for getter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
-        context.mole.setup(_ => _.getter).returns(returnValue);
+        mole.setup(_ => _.getter).returns(returnValue);
 
         // Act
-        var result = context.testObject.getter;
+        var result = testObject.getter;
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the configured value');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - returns - should return the value for getter and setter', 1, function (assert: QUnitAssert) {
+      it('should return the value for getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
-        context.mole.setup(_ => _.getterAndSetter).returns(returnValue);
+        mole.setup(_ => _.getterAndSetter).returns(returnValue);
 
         // Act
-        var result = context.testObject.getterAndSetter;
+        var result = testObject.getterAndSetter;
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the configured value');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - returns - should return the last returns value', 1, function (assert: QUnitAssert) {
+      it('should return the last returns value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
         var returnValue4 = {};
-        context.mole.setup(_ => _.returning1Function()).returns(returnValue1);
-        context.mole.setup(_ => _.returning1Function()).returns(returnValue2);
-        context.mole.setup(_ => _.returning1Function()).returns(returnValue3);
-        context.mole.setup(_ => _.returning1Function()).returns(returnValue4);
+        mole.setup(_ => _.returning1Function()).returns(returnValue1);
+        mole.setup(_ => _.returning1Function()).returns(returnValue2);
+        mole.setup(_ => _.returning1Function()).returns(returnValue3);
+        mole.setup(_ => _.returning1Function()).returns(returnValue4);
 
         // Act
-        var result = context.testObject.returning1Function();
+        var result = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
-    });
+        expect(result).to.be.equal(returnValue4);
+      });
 
-    QUnit.test('setup - returns - should not affect verify', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify', () => {
         // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).returns(4);
+        mole.setup(_ => _.noArgumentsFunction()).returns(4);
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
-    });
+        expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(0))).to.be.true;
+      });
 
-    QUnit.test('setup - returns - setting getter should not affect setter', 1, function (assert: QUnitAssert) {
+      it('setting getter should not affect setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
-        context.mole.setup(_ => _.getterAndSetter).returns(returnValue);
+        mole.setup(_ => _.getterAndSetter).returns(returnValue);
 
         var valueToSet = {};
 
         // Act
-        context.testObject.getterAndSetter = valueToSet;
+        testObject.getterAndSetter = valueToSet;
 
         // Assert
-        assert.strictEqual(context.testObject.getterAndSetterValue, valueToSet, 'should set the configured value');
-    });
+        expect(testObject.getterAndSetterValue).to.be.equal(valueToSet);
+      });
 
-    QUnit.test('setup - returns - calling with not matching argument should return the original', 1, function (assert: QUnitAssert) {
+      it('calling with not matching argument should return the original', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
-        context.mole.setup(_ => _.oneArgumentsFunction(1)).returns(returnValue);
+        mole.setup(_ => _.oneArgumentsFunction(1)).returns(returnValue);
 
         // Act
-        var result = context.testObject.oneArgumentsFunction(2);
+        var result = testObject.oneArgumentsFunction(2);
 
         // Assert
-        assert.notStrictEqual(result, returnValue, 'should not return the configured value');
+        expect(result).to.not.be.equal(returnValue);
+      });
+
     });
 
-    QUnit.test('setup - returnsInOrder - should not call the original function', 0, function (assert: QUnitAssert) {
+    describe('returnsInOrder', () => {
+
+      it('should not call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
 
-        context.mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
-
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onNoArgumentsFunctionCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - returnsInOrder - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
+        mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - returnsInOrder - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
+        mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([111]);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - returnsInOrder - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call lazyReturns on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).returns([111]);
+        mole.setup(_ => _.noArgumentsFunction()).returns([111]);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - returnsInOrder - should return the values', 4, function (assert: QUnitAssert) {
+      it('should return the values', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
-        context.mole.setup(_ => _.returning1Function()).returnsInOrder([returnValue1, returnValue2, returnValue3]);
+        mole.setup(_ => _.returning1Function()).returnsInOrder([returnValue1, returnValue2, returnValue3]);
 
         // Act
-        var result1 = context.testObject.returning1Function();
-        var result2 = context.testObject.returning1Function();
-        var result3 = context.testObject.returning1Function();
-        var result4 = context.testObject.returning1Function();
+        var result1 = testObject.returning1Function();
+        var result2 = testObject.returning1Function();
+        var result3 = testObject.returning1Function();
+        var result4 = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result1, returnValue1, 'should return the configured value1');
-        assert.strictEqual(result2, returnValue2, 'should return the configured value2');
-        assert.strictEqual(result3, returnValue3, 'should return the configured value3');
-        assert.strictEqual(result4, undefined, 'should return undefined');
-    });
+        expect(result1).to.not.be.equal(returnValue1);
+        expect(result2).to.not.be.equal(returnValue2);
+        expect(result3).to.not.be.equal(returnValue3);
+        expect(result4).to.be.undefined;
+      });
 
-    QUnit.test('setup - returnsInOrder - should return the last returns values', 4, function (assert: QUnitAssert) {
+      it('should return the last returns values', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
@@ -5437,38 +4892,33 @@ module Tests {
         var returnValue5 = {};
         var returnValue6 = {};
         var returnValue7 = {};
-        context.mole.setup(_ => _.returning1Function()).returns(returnValue1);
-        context.mole.setup(_ => _.returning1Function()).returnsInOrder([returnValue2, returnValue3, returnValue4]);
-        context.mole.setup(_ => _.returning1Function()).returnsInOrder([returnValue5, returnValue6, returnValue7]);
+        mole.setup(_ => _.returning1Function()).returns(returnValue1);
+        mole.setup(_ => _.returning1Function()).returnsInOrder([returnValue2, returnValue3, returnValue4]);
+        mole.setup(_ => _.returning1Function()).returnsInOrder([returnValue5, returnValue6, returnValue7]);
 
         // Act
-        var result1 = context.testObject.returning1Function();
-        var result2 = context.testObject.returning1Function();
-        var result3 = context.testObject.returning1Function();
-        var result4 = context.testObject.returning1Function();
+        var result1 = testObject.returning1Function();
+        var result2 = testObject.returning1Function();
+        var result3 = testObject.returning1Function();
+        var result4 = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result1, returnValue5, 'should return the last returnValue5');
-        assert.strictEqual(result2, returnValue6, 'should return the last returnValue6');
-        assert.strictEqual(result3, returnValue7, 'should return the last returnValue7');
-        assert.strictEqual(result4, undefined, 'should return undefined');
-    });
+        expect(result1).to.not.be.equal(returnValue5);
+        expect(result2).to.not.be.equal(returnValue6);
+        expect(result3).to.not.be.equal(returnValue7);
+        expect(result4).to.be.undefined;
+      });
 
-    QUnit.test('setup - returnsInOrder - should not affect verify', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify', () => {
         // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([4]);
+        mole.setup(_ => _.noArgumentsFunction()).returnsInOrder([4]);
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
-    });
+        expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(0))).to.be.true;
+      });
 
-    QUnit.test('setup - returnsInOrder - should return the last returns values for getter', 4, function (assert: QUnitAssert) {
+      it('should return the last returns values for getter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
@@ -5476,305 +4926,264 @@ module Tests {
         var returnValue5 = {};
         var returnValue6 = {};
         var returnValue7 = {};
-        context.mole.setup(_ => _.getter).returns(returnValue1);
-        context.mole.setup(_ => _.getter).returnsInOrder([returnValue2, returnValue3, returnValue4]);
-        context.mole.setup(_ => _.getter).returnsInOrder([returnValue5, returnValue6, returnValue7]);
+        mole.setup(_ => _.getter).returns(returnValue1);
+        mole.setup(_ => _.getter).returnsInOrder([returnValue2, returnValue3, returnValue4]);
+        mole.setup(_ => _.getter).returnsInOrder([returnValue5, returnValue6, returnValue7]);
 
         // Act
-        var result1 = context.testObject.getter;
-        var result2 = context.testObject.getter;
-        var result3 = context.testObject.getter;
-        var result4 = context.testObject.getter;
+        var result1 = testObject.getter;
+        var result2 = testObject.getter;
+        var result3 = testObject.getter;
+        var result4 = testObject.getter;
 
         // Assert
-        assert.strictEqual(result1, returnValue5, 'should return the last returnValue5');
-        assert.strictEqual(result2, returnValue6, 'should return the last returnValue6');
-        assert.strictEqual(result3, returnValue7, 'should return the last returnValue7');
-        assert.strictEqual(result4, undefined, 'should return undefined');
+        expect(result1).to.not.be.equal(returnValue5);
+        expect(result2).to.not.be.equal(returnValue6);
+        expect(result3).to.not.be.equal(returnValue7);
+        expect(result4).to.be.undefined;
+      });
+
     });
 
-    QUnit.test('setup - lazyReturns - should not call returnFunction if function is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    describe('lazyReturns', () => {
 
+      it('should not call returnFunction if function is not called', () => {
         // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
-            // Assert
-            assert.ok(false, 'should not call returnFunction');
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
-    });
+      });
 
-    QUnit.test('setup - lazyReturns - should call returnFunction when function is called', 1, function (assert: QUnitAssert) {
+      it('should call returnFunction when function is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
-            // Assert
-            assert.ok(true, 'should call returnFunction');
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         });
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - lazyReturns - should not call the original function', 0, function (assert: QUnitAssert) {
+      it('should not call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
-
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onNoArgumentsFunctionCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - lazyReturns - should pass the same parameters', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 1;
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns((_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'should return same argument');
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns((_arg) => {
+          actualArg = _arg;
         });
 
         // Act
-        context.testObject.oneArgumentsFunction(arg);
-    });
+        testObject.oneArgumentsFunction(arg);
+      });
 
-    QUnit.test('setup - lazyReturns - should pass the same parameters 2', 3, function (assert: QUnitAssert) {
+      it('should pass the same parameters 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 1;
         var arg2 = 2;
         var arg3 = 3;
 
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
-            .lazyReturns((_arg1, _arg2, _arg3) => {
-                // Assert
-                assert.strictEqual(_arg1, arg1, 'should return same argument');
-                assert.strictEqual(_arg2, arg2, 'should return same argument');
-                assert.strictEqual(_arg3, arg3, 'should return same argument');
-            });
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+          .lazyReturns((_arg1, _arg2, _arg3) => {
+            actualArg1 = _arg1;
+            actualArg2 = _arg2;
+            actualArg3 = _arg3;
+          });
 
         // Act
-        context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
-    });
+        testObject.manyArgumentsFunction(arg1, arg2, arg3);
+      });
 
-    QUnit.test('setup - lazyReturns - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - lazyReturns - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - lazyReturns - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call lazyReturns on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - lazyReturns - should return the returnFunction return value', 1, function (assert: QUnitAssert) {
+      it('should return the returnFunction return value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
 
-        context.mole.setup(_ => _.returning1Function()).lazyReturns(() => {
-            return returnValue;
+        mole.setup(_ => _.returning1Function()).lazyReturns(() => {
+          return returnValue;
         });
 
         // Act
-        var result = context.testObject.returning1Function();
+        var result = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return returnValue');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - lazyReturns - should return the last returnFunction return value', 1, function (assert: QUnitAssert) {
+      it('should return the last returnFunction return value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
         var returnValue4 = {};
 
-        context.mole.setup(_ => _.returning1Function())
-            .lazyReturns(() => { return returnValue1; })
-            .lazyReturns(() => { return returnValue2; })
-            .lazyReturns(() => { return returnValue3; })
-            .lazyReturns(() => { return returnValue4; });
+        mole.setup(_ => _.returning1Function())
+          .lazyReturns(() => { return returnValue1; })
+          .lazyReturns(() => { return returnValue2; })
+          .lazyReturns(() => { return returnValue3; })
+          .lazyReturns(() => { return returnValue4; });
 
         // Act
-        var result = context.testObject.returning1Function();
+        var result = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
-    });
+        expect(result).to.be.equal(returnValue4);
+      });
 
-    QUnit.test('setup - lazyReturns - should not affect verify', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify', () => {
         // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => 4);
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => 4);
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
-    });
+        expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(0))).to.be.true;
+      });
 
-    QUnit.test('setup - lazyReturns - should return the last returnFunction return of getter of getter and setter', 1, function (assert: QUnitAssert) {
+      it('should return the last returnFunction return of getter of getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
         var returnValue4 = {};
 
-        context.mole.setup(_ => _.getterAndSetter)
-            .lazyReturns(() => { return returnValue1; })
-            .lazyReturns(() => { return returnValue2; })
-            .lazyReturns(() => { return returnValue3; })
-            .lazyReturns(() => { return returnValue4; });
+        mole.setup(_ => _.getterAndSetter)
+          .lazyReturns(() => { return returnValue1; })
+          .lazyReturns(() => { return returnValue2; })
+          .lazyReturns(() => { return returnValue3; })
+          .lazyReturns(() => { return returnValue4; });
 
         // Act
-        var result = context.testObject.getterAndSetter;
+        var result = testObject.getterAndSetter;
 
         // Assert
-        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
+        expect(result).to.be.equal(returnValue4);
+      });
+
     });
 
-    QUnit.test('setup - lazyReturnsInOrder - should not call returnFunction if function is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    describe('lazyReturnsInOrder', () => {
 
+      it('should not call returnFunction if function is not called', () => {
         // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => {
-            // Assert
-            assert.ok(false, 'should not call returnFunction');
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         }]);
-    });
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should call returnFunction when function is called', 4, function (assert: QUnitAssert) {
+      it('should call returnFunction when function is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var functionThatWasCalled = [];
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([
-            () => functionThatWasCalled.push(1),
-            () => functionThatWasCalled.push(2),
-            () => functionThatWasCalled.push(3)]);
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([
+          () => functionThatWasCalled.push(1),
+          () => functionThatWasCalled.push(2),
+          () => functionThatWasCalled.push(3)]);
 
         // Act
-        context.testObject.noArgumentsFunction();
-        context.testObject.noArgumentsFunction();
-        context.testObject.noArgumentsFunction();
-        context.testObject.noArgumentsFunction();
+        testObject.noArgumentsFunction();
+        testObject.noArgumentsFunction();
+        testObject.noArgumentsFunction();
+        testObject.noArgumentsFunction();
 
         // Assert
-        assert.strictEqual(functionThatWasCalled.length, 3, 'there should be only 3 function calls');
-        assert.strictEqual(functionThatWasCalled[0], 1, 'should be function number 1');
-        assert.strictEqual(functionThatWasCalled[1], 2, 'should be function number 2');
-        assert.strictEqual(functionThatWasCalled[2], 3, 'should be function number 3');
-    });
+        expect(functionThatWasCalled.length).to.be.equal(3);
+        expect(functionThatWasCalled[0]).to.be.equal(1);
+        expect(functionThatWasCalled[1]).to.be.equal(2);
+        expect(functionThatWasCalled[2]).to.be.equal(3);
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should not call the original function', 0, function (assert: QUnitAssert) {
+      it('should not call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
 
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
-
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onNoArgumentsFunctionCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should pass the same parameters', 2, function (assert: QUnitAssert) {
+      it('should pass the same parameters', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 1;
         var arg2 = 2;
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturnsInOrder([(_arg1) => {
-            // Assert
-            assert.strictEqual(_arg1, arg1, 'should return same argument');
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturnsInOrder([(_arg1) => {
+          actualArg1 = _arg1;
         }, (_arg2) => {
-                // Assert
-                assert.strictEqual(_arg2, arg2, 'should return same argument');
-            }]);
+          actualArg2 = _arg2;
+        }]);
 
         // Act
-        context.testObject.oneArgumentsFunction(arg1);
-        context.testObject.oneArgumentsFunction(arg2);
-    });
+        testObject.oneArgumentsFunction(arg1);
+        testObject.oneArgumentsFunction(arg2);
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should pass the same parameters 2', 6, function (assert: QUnitAssert) {
+      it('should pass the same parameters 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg11 = 1;
         var arg12 = 2;
         var arg13 = 3;
@@ -5782,118 +5191,104 @@ module Tests {
         var arg22 = 5;
         var arg23 = 6;
 
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
-            .lazyReturnsInOrder([(_arg11, _arg12, _arg13) => {
-                // Assert
-                assert.strictEqual(_arg11, arg11, 'should return same argument');
-                assert.strictEqual(_arg12, arg12, 'should return same argument');
-                assert.strictEqual(_arg13, arg13, 'should return same argument');
-            }, (_arg21, _arg22, _arg23) => {
-                    // Assert
-                    assert.strictEqual(_arg21, arg21, 'should return same argument');
-                    assert.strictEqual(_arg22, arg22, 'should return same argument');
-                    assert.strictEqual(_arg23, arg23, 'should return same argument');
-                }]);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+          .lazyReturnsInOrder([(_arg11, _arg12, _arg13) => {
+            actualArg11 = _arg11;
+            actualArg12 = _arg12;
+            actualArg13 = _arg13;
+          }, (_arg21, _arg22, _arg23) => {
+            // Assert
+            actualArg21 = _arg21;
+            actualArg22 = _arg22;
+            actualArg23 = _arg23;
+          }]);
 
         // Act
-        context.testObject.manyArgumentsFunction(arg11, arg12, arg13);
-        context.testObject.manyArgumentsFunction(arg21, arg22, arg23);
-    });
+        testObject.manyArgumentsFunction(arg11, arg12, arg13);
+        testObject.manyArgumentsFunction(arg21, arg22, arg23);
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call lazyReturns on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => { }]);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.noArgumentsFunction();
-    });
+        testObject.noArgumentsFunction();
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should return the returnFunction return values', 4, function (assert: QUnitAssert) {
+      it('should return the returnFunction return values', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
 
-        context.mole.setup(_ => _.returning1Function()).lazyReturnsInOrder([
-            () => returnValue1,
-            () => returnValue2,
-            () => returnValue3
+        mole.setup(_ => _.returning1Function()).lazyReturnsInOrder([
+          () => returnValue1,
+          () => returnValue2,
+          () => returnValue3
         ]);
 
         // Act
-        var result1 = context.testObject.returning1Function();
-        var result2 = context.testObject.returning1Function();
-        var result3 = context.testObject.returning1Function();
-        var result4 = context.testObject.returning1Function();
+        var result1 = testObject.returning1Function();
+        var result2 = testObject.returning1Function();
+        var result3 = testObject.returning1Function();
+        var result4 = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result1, returnValue1, 'should return returnValue1');
-        assert.strictEqual(result2, returnValue2, 'should return returnValue2');
-        assert.strictEqual(result3, returnValue3, 'should return returnValue3');
-        assert.strictEqual(result4, undefined, 'should return undefined');
-    });
+        expect(result1).to.be.equal(returnValue1);
+        expect(result2).to.be.equal(returnValue2);
+        expect(result3).to.be.equal(returnValue3);
+        expect(result4).to.be.undefined;
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should return the last returnFunction return values', 4, function (assert: QUnitAssert) {
+      it('should return the last returnFunction return values', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
@@ -5902,40 +5297,35 @@ module Tests {
         var returnValue6 = {};
         var returnValue7 = {};
 
-        context.mole.setup(_ => _.returning1Function())
-            .lazyReturns(() => { return returnValue1; })
-            .lazyReturns(() => { return returnValue2; })
-            .lazyReturnsInOrder([() => returnValue3, () => returnValue4])
-            .lazyReturnsInOrder([() => returnValue5, () => returnValue6, () => returnValue7]);
+        mole.setup(_ => _.returning1Function())
+          .lazyReturns(() => { return returnValue1; })
+          .lazyReturns(() => { return returnValue2; })
+          .lazyReturnsInOrder([() => returnValue3, () => returnValue4])
+          .lazyReturnsInOrder([() => returnValue5, () => returnValue6, () => returnValue7]);
 
         // Act
-        var result1 = context.testObject.returning1Function();
-        var result2 = context.testObject.returning1Function();
-        var result3 = context.testObject.returning1Function();
-        var result4 = context.testObject.returning1Function();
+        var result1 = testObject.returning1Function();
+        var result2 = testObject.returning1Function();
+        var result3 = testObject.returning1Function();
+        var result4 = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result1, returnValue5, 'should return the last returnValue5');
-        assert.strictEqual(result2, returnValue6, 'should return the last returnValue6');
-        assert.strictEqual(result3, returnValue7, 'should return the last returnValue7');
-        assert.strictEqual(result4, undefined, 'should return the last returnValue');
-    });
+        expect(result1).to.not.be.equal(returnValue5);
+        expect(result2).to.not.be.equal(returnValue6);
+        expect(result3).to.not.be.equal(returnValue7);
+        expect(result4).to.be.undefined;
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should not affect verify', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify', () => {
         // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => 4]);
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturnsInOrder([() => 4]);
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
-    });
+        expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(0))).to.be.true;
+      });
 
-    QUnit.test('setup - lazyReturnsInOrder - should return the last returnFunction return values of getter of getter and setter', 4, function (assert: QUnitAssert) {
+      it('should return the last returnFunction return values of getter of getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
@@ -5944,870 +5334,776 @@ module Tests {
         var returnValue6 = {};
         var returnValue7 = {};
 
-        context.mole.setup(_ => _.getterAndSetter)
-            .lazyReturns(() => { return returnValue1; })
-            .lazyReturns(() => { return returnValue2; })
-            .lazyReturnsInOrder([() => returnValue3, () => returnValue4])
-            .lazyReturnsInOrder([() => returnValue5, () => returnValue6, () => returnValue7]);
+        mole.setup(_ => _.getterAndSetter)
+          .lazyReturns(() => { return returnValue1; })
+          .lazyReturns(() => { return returnValue2; })
+          .lazyReturnsInOrder([() => returnValue3, () => returnValue4])
+          .lazyReturnsInOrder([() => returnValue5, () => returnValue6, () => returnValue7]);
 
         // Act
-        var result1 = context.testObject.getterAndSetter;
-        var result2 = context.testObject.getterAndSetter;
-        var result3 = context.testObject.getterAndSetter;
-        var result4 = context.testObject.getterAndSetter;
+        var result1 = testObject.getterAndSetter;
+        var result2 = testObject.getterAndSetter;
+        var result3 = testObject.getterAndSetter;
+        var result4 = testObject.getterAndSetter;
 
         // Assert
-        assert.strictEqual(result1, returnValue5, 'should return the last returnValue5');
-        assert.strictEqual(result2, returnValue6, 'should return the last returnValue6');
-        assert.strictEqual(result3, returnValue7, 'should return the last returnValue7');
-        assert.strictEqual(result4, undefined, 'should return the last returnValue');
+        expect(result1).to.not.be.equal(returnValue5);
+        expect(result2).to.not.be.equal(returnValue6);
+        expect(result3).to.not.be.equal(returnValue7);
+        expect(result4).to.be.undefined;
+      });
+
     });
 
-    QUnit.test('setup - throws - should not call the original function', 0, function (assert: QUnitAssert) {
+    describe('throws', () => {
+
+      it('should not call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
-        context.mole.setup(_ => _.noArgumentsFunction()).throws(111);
-
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onNoArgumentsFunctionCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
         try {
-            context.testObject.noArgumentsFunction();
+          testObject.noArgumentsFunction();
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - throws - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).throws(111);
+        mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
         try {
-            context.testObject.noArgumentsFunction();
+          testObject.noArgumentsFunction();
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - throws - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).throws(111);
+        mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
         try {
-            context.testObject.noArgumentsFunction();
+          testObject.noArgumentsFunction();
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - throws - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call lazyReturns on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).throws(111);
+        mole.setup(_ => _.noArgumentsFunction()).throws(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
         try {
-            context.testObject.noArgumentsFunction();
+          testObject.noArgumentsFunction();
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - throws - should throw the error', 1, function (assert: QUnitAssert) {
+      it('should throw the error', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
-        context.mole.setup(_ => _.returning1Function()).throws(thrownError);
+        mole.setup(_ => _.returning1Function()).throws(thrownError);
 
         // Act
         try {
-            context.testObject.returning1Function();
+          testObject.returning1Function();
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the configured error');
+          actualError = error;
         }
-    });
+      });
 
-    QUnit.test('setup - throws - should throw the last error', 1, function (assert: QUnitAssert) {
+      it('should throw the last error', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError1 = {};
         var thrownError2 = {};
         var thrownError3 = {};
         var thrownError4 = {};
-        context.mole.setup(_ => _.returning1Function())
-            .throws(thrownError1)
-            .throws(thrownError2)
-            .throws(thrownError3)
-            .throws(thrownError4);
+        mole.setup(_ => _.returning1Function())
+          .throws(thrownError1)
+          .throws(thrownError2)
+          .throws(thrownError3)
+          .throws(thrownError4);
 
         // Act
         try {
-            context.testObject.returning1Function();
+          testObject.returning1Function();
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+          expect(actualError).to.be.equal(thrownError4);
         }
-    });
+      });
 
-    QUnit.test('setup - throws - should throw the last error for getter', 1, function (assert: QUnitAssert) {
+      it('should throw the last error for getter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError1 = {};
         var thrownError2 = {};
         var thrownError3 = {};
         var thrownError4 = {};
-        context.mole.setup(_ => _.getter)
-            .throws(thrownError1)
-            .throws(thrownError2)
-            .throws(thrownError3)
-            .throws(thrownError4);
+        mole.setup(_ => _.getter)
+          .throws(thrownError1)
+          .throws(thrownError2)
+          .throws(thrownError3)
+          .throws(thrownError4);
 
         // Act
         try {
-            context.testObject.getter;
+          testObject.getter;
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+          expect(actualError).to.be.equal(thrownError4);
         }
-    });
+      });
 
-    QUnit.test('setup - throws - should throw the last error for setter', 1, function (assert: QUnitAssert) {
+      it('should throw the last error for setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError1 = {};
         var thrownError2 = {};
         var thrownError3 = {};
         var thrownError4 = {};
-        context.mole.setup(_ => _.setter = 1)
-            .throws(thrownError1)
-            .throws(thrownError2)
-            .throws(thrownError3)
-            .throws(thrownError4);
+        mole.setup(_ => _.setter = 1)
+          .throws(thrownError1)
+          .throws(thrownError2)
+          .throws(thrownError3)
+          .throws(thrownError4);
 
         // Act
         try {
-            context.testObject.setter = 1;
+          testObject.setter = 1;
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+          expect(actualError).to.be.equal(thrownError4);
         }
-    });
+      });
 
-    QUnit.test('setup - throws - should throw the last error for getter of getter and setter', 1, function (assert: QUnitAssert) {
+      it('should throw the last error for getter of getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError1 = {};
         var thrownError2 = {};
         var thrownError3 = {};
         var thrownError4 = {};
-        context.mole.setup(_ => _.getterAndSetter)
-            .throws(thrownError1)
-            .throws(thrownError2)
-            .throws(thrownError3)
-            .throws(thrownError4);
+        mole.setup(_ => _.getterAndSetter)
+          .throws(thrownError1)
+          .throws(thrownError2)
+          .throws(thrownError3)
+          .throws(thrownError4);
 
         // Act
         try {
-        context.testObject.getterAndSetter;
+          testObject.getterAndSetter;
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+          expect(actualError).to.be.equal(thrownError4);
         }
-    });
+      });
 
-    QUnit.test('setup - throws - should throw the last error for setter of getter and setter', 1, function (assert: QUnitAssert) {
+      it('should throw the last error for setter of getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError1 = {};
         var thrownError2 = {};
         var thrownError3 = {};
         var thrownError4 = {};
-        context.mole.setup(_ => _.getterAndSetter = 1)
-            .throws(thrownError1)
-            .throws(thrownError2)
-            .throws(thrownError3)
-            .throws(thrownError4);
+        mole.setup(_ => _.getterAndSetter = 1)
+          .throws(thrownError1)
+          .throws(thrownError2)
+          .throws(thrownError3)
+          .throws(thrownError4);
 
         // Act
         try {
-        context.testObject.getterAndSetter = 1;
+          testObject.getterAndSetter = 1;
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+          expect(actualError).to.be.equal(thrownError4);
         }
-    });
+      });
 
-    QUnit.test('setup - throws - should not affect verify', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify', () => {
         // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).throws('error');
+        mole.setup(_ => _.noArgumentsFunction()).throws('error');
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
-    });
+        expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(0))).to.be.true;
+      });
 
-    QUnit.test('setup - throws - setting getter should not affect setter', 0, function (assert: QUnitAssert) {
+      it('setting getter should not affect setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError1 = {};
         var thrownError2 = {};
         var thrownError3 = {};
         var thrownError4 = {};
-        context.mole.setup(_ => _.getterAndSetter)
-            .throws(thrownError1)
-            .throws(thrownError2)
-            .throws(thrownError3)
-            .throws(thrownError4);
+        mole.setup(_ => _.getterAndSetter)
+          .throws(thrownError1)
+          .throws(thrownError2)
+          .throws(thrownError3)
+          .throws(thrownError4);
 
         // Act
-       try{
-            context.testObject.getterAndSetter = 1;
-       } catch (e) {
-           assert.ok(false, 'should not throw');
-       }
-    });
+        try {
+          testObject.getterAndSetter = 1;
+        } catch (e) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
 
-    QUnit.test('setup - throws - setting setter should not affect getter', 0, function (assert: QUnitAssert) {
+      it('setting setter should not affect getter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError1 = {};
         var thrownError2 = {};
         var thrownError3 = {};
         var thrownError4 = {};
-        context.mole.setup(_ => _.getterAndSetter = 1)
-            .throws(thrownError1)
-            .throws(thrownError2)
-            .throws(thrownError3)
-            .throws(thrownError4);
-
-        // Act
-        try{
-            context.testObject.getterAndSetter;
-        } catch (e) {
-            assert.ok(false, 'should not throw');
-        }
-    });
-
-    QUnit.test('setup - throws - calling setter with not matching argument should not throw', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.setter = 1).throws({});
+        mole.setup(_ => _.getterAndSetter = 1)
+          .throws(thrownError1)
+          .throws(thrownError2)
+          .throws(thrownError3)
+          .throws(thrownError4);
 
         // Act
         try {
-            context.testObject.setter = 2;
+          testObject.getterAndSetter;
         } catch (e) {
-            assert.ok(false, 'should not throw');
+          expect(numberOfTimesThrown).to.be.equal(0);
         }
-    });
+      });
 
-    QUnit.test('setup - throws - calling setter of getter and setter with not matching argument should not throw', 0, function (assert: QUnitAssert) {
+      it('calling setter with not matching argument should not throw', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.getterAndSetter = 1).throws({});
+        mole.setup(_ => _.setter = 1).throws({});
 
         // Act
         try {
-            context.testObject.getterAndSetter = 2;
+          testObject.setter = 2;
         } catch (e) {
-            assert.ok(false, 'should not throw');
+          expect(numberOfTimesThrown).to.be.equal(0);
         }
-    });
+      });
 
-    QUnit.test('setup - throws - calling function with not matching argument should not throw', 0, function (assert: QUnitAssert) {
+      it('calling setter of getter and setter with not matching argument should not throw', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.oneArgumentsFunction(1)).throws({});
+        mole.setup(_ => _.getterAndSetter = 1).throws({});
 
         // Act
         try {
-            context.testObject.oneArgumentsFunction(2);
+          testObject.getterAndSetter = 2;
         } catch (e) {
-            assert.ok(false, 'should not throw');
+          expect(numberOfTimesThrown).to.be.equal(0);
         }
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should not call returnErrorFunction if function is not called', 0, function (assert: QUnitAssert) {
+      it('calling function with not matching argument should not throw', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setup(_ => _.oneArgumentsFunction(1)).throws({});
 
         // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => {
-            // Assert
-            assert.ok(false, 'should not call returnFunction');
+        try {
+          testObject.oneArgumentsFunction(2);
+        } catch (e) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
+
+    });
+
+    describe('lazyThrows', () => {
+
+      it('should not call returnErrorFunction if function is not called', () => {
+        // Act
+        mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should call returnErrorFunction when function is called', 1, function (assert: QUnitAssert) {
+      it('should call returnErrorFunction when function is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => {
-            // Assert
-            assert.ok(true, 'should call returnFunction');
+        mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         });
 
         // Act
         try {
-            context.testObject.noArgumentsFunction();
+          testObject.noArgumentsFunction();
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should not call the original function', 0, function (assert: QUnitAssert) {
+      it('should not call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
 
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
-
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onNoArgumentsFunctionCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
         try {
-            context.testObject.noArgumentsFunction();
+          testObject.noArgumentsFunction();
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should pass the same parameters', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 1;
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyThrows((_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'should return same argument');
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyThrows((_arg) => {
+          actualArg = _arg;
         });
 
         // Act
         try {
-            context.testObject.oneArgumentsFunction(arg);
+          testObject.oneArgumentsFunction(arg);
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should pass the same parameters 2', 3, function (assert: QUnitAssert) {
+      it('should pass the same parameters 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 1;
         var arg2 = 2;
         var arg3 = 3;
 
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
-            .lazyThrows((_arg1, _arg2, _arg3) => {
-                // Assert
-                assert.strictEqual(_arg1, arg1, 'should return same argument');
-                assert.strictEqual(_arg2, arg2, 'should return same argument');
-                assert.strictEqual(_arg3, arg3, 'should return same argument');
-            });
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number)))
+          .lazyThrows((_arg1, _arg2, _arg3) => {
+            actualArg1 = _arg1;
+            actualArg2 = _arg2;
+            actualArg3 = _arg3;
+          });
 
         // Act
         try {
-            context.testObject.manyArgumentsFunction(arg1, arg2, arg3);
+          testObject.manyArgumentsFunction(arg1, arg2, arg3);
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
+        mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
         try {
-            context.testObject.noArgumentsFunction();
+          testObject.noArgumentsFunction();
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
+        mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
         try {
-            context.testObject.noArgumentsFunction();
+          testObject.noArgumentsFunction();
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should not call lazyThrows on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call lazyThrows on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
+        mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
         try {
-            context.testObject.noArgumentsFunction();
+          testObject.noArgumentsFunction();
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should throw the returnErrorFunction error', 1, function (assert: QUnitAssert) {
+      it('should throw the returnErrorFunction error', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var error = {};
 
-        context.mole.setup(_ => _.returning1Function()).lazyThrows(() => {
-            return error;
+        mole.setup(_ => _.returning1Function()).lazyThrows(() => {
+          return error;
         });
 
         // Act
         try {
-            context.testObject.returning1Function();
+          testObject.returning1Function();
         } catch (actualError) {
-            // Assert
-            assert.strictEqual(actualError, error, 'should throw the error');
+          expect(actualError).to.be.equal(error);
         }
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should throw the last returnErrorFunction error', 1, function (assert: QUnitAssert) {
+      it('should throw the last returnErrorFunction error', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var error1 = {};
         var error2 = {};
         var error3 = {};
         var error4 = {};
 
-        context.mole.setup(_ => _.returning1Function())
-            .lazyThrows(() => { return error1; })
-            .lazyThrows(() => { return error2; })
-            .lazyThrows(() => { return error3; })
-            .lazyThrows(() => { return error4; });
+        mole.setup(_ => _.returning1Function())
+          .lazyThrows(() => { return error1; })
+          .lazyThrows(() => { return error2; })
+          .lazyThrows(() => { return error3; })
+          .lazyThrows(() => { return error4; });
 
         // Act
         try {
-            context.testObject.returning1Function();
-        }catch (actualError) {
-            // Assert
-            assert.strictEqual(actualError, error4, 'should throw the last error');
+          testObject.returning1Function();
+        } catch (actualError) {
+          expect(actualError).to.be.equal(error4);
         }
-    });
+      });
 
-    QUnit.test('setup - lazyThrows - should not affect verify', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not affect verify', () => {
         // Act
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => 4);
+        mole.setup(_ => _.noArgumentsFunction()).lazyThrows(() => 4);
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.noArgumentsFunction(), Times.exact(0)), 'should not effect verify');
+        expect(mole.verify(_ => _.noArgumentsFunction(), Times.exact(0))).to.be.true;
+      });
+
+
     });
 
-    QUnit.test('setup - mix - should throw error if configured after return', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    describe('mix', () => {
 
+      it('should throw error if configured after return', () => {
+        // Arrange
         var returnValue = {};
         var thrownError = {};
 
-        context.mole.setup(_ => _.returning1Function())
-            .returns(returnValue)
-            .throws(thrownError);
+        mole.setup(_ => _.returning1Function())
+          .returns(returnValue)
+          .throws(thrownError);
 
         // Act
         try {
-            context.testObject.returning1Function();
+          testObject.returning1Function();
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the error');
+          expect(actualError).to.be.equal(thrownError);
         }
-    });
+      });
 
-    QUnit.test('setup - mix - should return value if configured after throw', 1, function (assert: QUnitAssert) {
+      it('should return value if configured after throw', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
         var thrownError = {};
 
-        context.mole.setup(_ => _.returning1Function())
-            .throws(thrownError)
-            .returns(returnValue);
+        mole.setup(_ => _.returning1Function())
+          .throws(thrownError)
+          .returns(returnValue);
 
         // Act
-        var result = context.testObject.returning1Function();
+        var result = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the configured value');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - mix - should call all the callbacks and the lazy returns but return last configured one', 5, function (assert: QUnitAssert) {
+      it('should call all the callbacks and the lazy returns but return last configured one', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
         var thrownError = {};
 
-        context.mole.setup(_ => _.returning1Function())
-            .throws(thrownError)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 1;
-            })
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 2;
-            })
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 3;
-            })
-            .callback(() => assert.ok(true, 'should call callback'))
-            .returns(returnValue);
+        mole.setup(_ => _.returning1Function())
+          .throws(thrownError)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 1;
+          })
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 2;
+          })
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 3;
+          })
+          .callback(() => assert.ok(true, 'should call callback'))
+          .returns(returnValue);
 
         // Act
-        var result = context.testObject.returning1Function();
+        var result = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the configured value');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - mix - should call all the callbacks and the lazy returns but return last configured one 2', 5, function (assert: QUnitAssert) {
+      it('should call all the callbacks and the lazy returns but return last configured one 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
         var thrownError = {};
 
-        context.mole.setup(_ => _.returning1Function())
-            .throws(thrownError)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 1;
-            })
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 2;
-            })
-            .returns(3)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return returnValue;
-            })
-            .callback(() => assert.ok(true, 'should call callback'));
+        mole.setup(_ => _.returning1Function())
+          .throws(thrownError)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 1;
+          })
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 2;
+          })
+          .returns(3)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return returnValue;
+          })
+          .callback(() => assert.ok(true, 'should call callback'));
 
         // Act
-        var result = context.testObject.returning1Function();
+        var result = testObject.returning1Function();
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the configured value');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - mix - should call all the callbacks and the lazy returns but throw last configured error', 5, function (assert: QUnitAssert) {
+      it('should call all the callbacks and the lazy returns but throw last configured error', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
         var thrownError = {};
 
-        context.mole.setup(_ => _.returning1Function())
-            .throws('asdasd')
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 1;
-            })
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 2;
-            })
-            .returns(returnValue)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 3;
-            })
-            .throws(thrownError)
-            .callback(() => assert.ok(true, 'should call callback'));
+        mole.setup(_ => _.returning1Function())
+          .throws('asdasd')
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 1;
+          })
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 2;
+          })
+          .returns(returnValue)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 3;
+          })
+          .throws(thrownError)
+          .callback(() => assert.ok(true, 'should call callback'));
 
         // Act
         try {
-            context.testObject.returning1Function();
+          testObject.returning1Function();
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the configured error');
+          actualError = error;
         }
-    });
+      });
 
-    QUnit.test('setup - mix - should not affect the verify', 1, function (assert: QUnitAssert) {
+      it('should not affect the verify', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
         var thrownError = {};
 
         // Act
-        context.mole.setup(_ => _.returning1Function())
-            .throws('asdasd')
-            .lazyReturns(() => 1)
-            .lazyReturns(() => 2)
-            .lazyReturns(() => 3)
-            .throws(thrownError)
-            .returns(returnValue)
-            .callback(() => { });
+        mole.setup(_ => _.returning1Function())
+          .throws('asdasd')
+          .lazyReturns(() => 1)
+          .lazyReturns(() => 2)
+          .lazyReturns(() => 3)
+          .throws(thrownError)
+          .returns(returnValue)
+          .callback(() => { });
 
         // Assert
-        assert.ok(context.mole.verify(_ => _.returning1Function(), Times.exact(0)), 'should be called once');
-    });
+        assert.ok(mole.verify(_ => _.returning1Function(), Times.exact(0)), 'should be called once');
+      });
 
-    QUnit.test('setup - mix - should call only the matching set', 3, function (assert: QUnitAssert) {
+      it('should call only the matching set', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
-            .lazyReturns(() => {
-                assert.ok(false, 'lazyReturns should not be called for any number');
-            })
-            .returns('return value')
-            .callback(() => {
-                assert.ok(false, 'callback should not be called for any number');
-            });
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(0);
+          })
+          .returns('return value')
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(0);
+          });
 
-        context.mole.setup(_ => _.oneArgumentsFunction('aaa'))
-            .throws('error')
-            .lazyReturns(() => {
-                assert.ok(false, 'lazyReturns should not be called aaa');
-            })
-            .callback(() => {
-                assert.ok(false, 'callback should not be called for aaa');
-            });
+        mole.setup(_ => _.oneArgumentsFunction('aaa'))
+          .throws('error')
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(0);
+          })
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(0);
+          });
 
-        context.mole.setup(_ => _.oneArgumentsFunction('bbb'))
-            .lazyReturns(() => {
-                assert.ok(true, 'should be called');
-            })
-            .callback(() => {
-                assert.ok(true, 'should be called');
-            })
-            .returns(returnValue);
+        mole.setup(_ => _.oneArgumentsFunction('bbb'))
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .returns(returnValue);
 
         // Act
-        var result = context.testObject.oneArgumentsFunction('bbb');
+        var result = testObject.oneArgumentsFunction('bbb');
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the return value');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - mix - if both setups match should call both', 4, function (assert: QUnitAssert) {
+      it('if both setups match should call both', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .returns('return value')
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          });
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
-            .lazyReturns(() => {
-                assert.ok(true, 'should call');
-            })
-            .returns('return value')
-            .callback(() => {
-                assert.ok(true, 'should call');
-            });
-
-        context.mole.setup(_ => _.oneArgumentsFunction(1))
-            .lazyReturns(() => {
-                assert.ok(true, 'should call');
-            })
-            .returns('return value')
-            .callback(() => {
-                assert.ok(true, 'should call');
-            });
+        mole.setup(_ => _.oneArgumentsFunction(1))
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .returns('return value')
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          });
 
         // Act
-        context.testObject.oneArgumentsFunction(1);
-    });
+        testObject.oneArgumentsFunction(1);
+      });
 
-    QUnit.test('setup - mix - if both setups match should return from the last', 1, function (assert: QUnitAssert) {
+      it('if both setups match should return from the last', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
-            .lazyReturns(() => 1)
-            .returns(() => 2);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+          .lazyReturns(() => 1)
+          .returns(() => 2);
 
-        context.mole.setup(_ => _.oneArgumentsFunction(1))
-            .lazyReturns(() => 3)
-            .returns(returnValue);
+        mole.setup(_ => _.oneArgumentsFunction(1))
+          .lazyReturns(() => 3)
+          .returns(returnValue);
 
         // Act
-        var result = context.testObject.oneArgumentsFunction(1);
+        var result = testObject.oneArgumentsFunction(1);
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the returnValue');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - mix - if both setups match should return from the last 2', 1, function (assert: QUnitAssert) {
+      it('if both setups match should return from the last 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
 
-        context.mole.setup(_ => _.oneArgumentsFunction(1))
-            .lazyReturns(() => 1)
-            .returns(() => 2);
+        mole.setup(_ => _.oneArgumentsFunction(1))
+          .lazyReturns(() => 1)
+          .returns(() => 2);
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
-            .lazyReturns(() => 3)
-            .returns(returnValue);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+          .lazyReturns(() => 3)
+          .returns(returnValue);
 
         // Act
-        var result = context.testObject.oneArgumentsFunction(1);
+        var result = testObject.oneArgumentsFunction(1);
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the returnValue');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - mix - if both setups match should throw from the last', 1, function (assert: QUnitAssert) {
+      it('if both setups match should throw from the last', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
-            .lazyReturns(() => 1)
-            .throws('error')
-            .returns(() => 2);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+          .lazyReturns(() => 1)
+          .throws('error')
+          .returns(() => 2);
 
-        context.mole.setup(_ => _.oneArgumentsFunction(1))
-            .lazyReturns(() => 3)
-            .throws(thrownError);
+        mole.setup(_ => _.oneArgumentsFunction(1))
+          .lazyReturns(() => 3)
+          .throws(thrownError);
 
         // Act
         try {
-            context.testObject.oneArgumentsFunction(1);
+          testObject.oneArgumentsFunction(1);
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the thrownError');
+          expect(actualError).to.be.equal(thrownError);
         }
-    });
+      });
 
-    QUnit.test('setup - mix - if both setups match should throw from the last 2', 1, function (assert: QUnitAssert) {
+      it('if both setups match should throw from the last 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
 
-        context.mole.setup(_ => _.oneArgumentsFunction(1))
-            .lazyReturns(() => 1)
-            .throws('error')
-            .returns(() => 2);
+        mole.setup(_ => _.oneArgumentsFunction(1))
+          .lazyReturns(() => 1)
+          .throws('error')
+          .returns(() => 2);
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
-            .lazyReturns(() => 3)
-            .throws(thrownError);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number)))
+          .lazyReturns(() => 3)
+          .throws(thrownError);
 
         // Act
         try {
-            context.testObject.oneArgumentsFunction(1);
+          testObject.oneArgumentsFunction(1);
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the thrownError');
+          expect(actualError).to.be.equal(thrownError);
         }
-    });
+      });
 
-    QUnit.test('setup - mix - setup for one object should not affect other', 5, function (assert: QUnitAssert) {
+      it('setup for one object should not affect other', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var testObject1 = new TestObject();
         var testObject2 = new TestObject();
 
@@ -6818,24 +6114,21 @@ module Tests {
         var returnsValue = 1;
         mole1.setup(_ => _.getter).returns(returnsValue);
         mole1.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback((_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg1, 'should call with correct argument');
+          actualArg = _arg;
         });
 
         var arg2 = 20;
         testObject2.onOneArgumentsFunctionCalled = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg2, 'should call with correct argument');
+          actualArg2 = _arg;
         };
 
         testObject1.onGetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not be called');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         testObject2.onGetterCalled = () => {
-            // Assert
-            assert.ok(true, 'should be called');
+          // Assert
+          expect(numberOfTimesCalled).to.be.equal(1);
         };
 
         var value = {};
@@ -6847,2308 +6140,2023 @@ module Tests {
         testObject2.oneArgumentsFunction(arg2);
 
         // Assert
-        assert.strictEqual(result1, returnsValue, 'should return the correct value');
-        assert.strictEqual(result2, value, 'should return the correct value');
+        expect(result1).to.be.equal(returnsValue);
+        expect(result2).to.be.equal(value);
+      });
+
     });
 
-    QUnit.test('setupPrivate - callback - should not call callback if function is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+  });
 
+  describe('setupPrivate', () => {
+
+    describe('callback', () => {
+
+      it('should not call callback if function is not called', () => {
         // Act
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
-    });
+      });
 
-    QUnit.test('setupPrivate - callback - should not call callback if getter is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not call callback if getter is not called', () => {
         // Act
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
-    });
+      });
 
-    QUnit.test('setupPrivate - callback - should not call callback if setter is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not call callback if setter is not called', () => {
         // Act
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
-    });
+      });
 
-    QUnit.test('setupPrivate - callback - should not call callback if getter of geter&setter is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not call callback if getter of geter&setter is not called', () => {
         // Act
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
-    });
+      });
 
-    QUnit.test('setupPrivate - callback - should not call callback if setter of geter&setter is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
+      it('should not call callback if setter of geter&setter is not called', () => {
         // Act
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
-    });
+      });
 
-    QUnit.test('setupPrivate - callback - should call callback when function is called', 1, function (assert: QUnitAssert) {
+      it('should call callback when function is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         });
 
         // Act
-        context.testObject.callPrivateFunction(null);
-    });
+        testObject.callPrivateFunction(null);
+      });
 
-    QUnit.test('setupPrivate - callback - should call callback when getter is called', 1, function (assert: QUnitAssert) {
+      it('should call callback when getter is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         });
 
         // Act
-        context.testObject.callPrivateGetter();
-    });
+        testObject.callPrivateGetter();
+      });
 
-    QUnit.test('setupPrivate - callback - should call callback when setter is called', 1, function (assert: QUnitAssert) {
+      it('should call callback when setter is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         });
 
         // Act
-        context.testObject.callPrivateSetter(1);
-    });
+        testObject.callPrivateSetter(1);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call callback when setter is called with wrong parameter', 0, function (assert: QUnitAssert) {
+      it('should not call callback when setter is called with wrong parameter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
 
         // Act
-        context.testObject.callPrivateSetter(2);
-    });
+        testObject.callPrivateSetter(2);
+      });
 
-    QUnit.test('setupPrivate - callback - should call callback when getter of getter&setter is called', 1, function (assert: QUnitAssert) {
+      it('should call callback when getter of getter&setter is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         });
 
         // Act
-        context.testObject.callPrivateGetterOfGetterAndSetter();
-    });
+        testObject.callPrivateGetterOfGetterAndSetter();
+      });
 
-    QUnit.test('setupPrivate - callback - should call callback when setter of getter&setter is called', 1, function (assert: QUnitAssert) {
+      it('should call callback when setter of getter&setter is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         });
 
         // Act
-        context.testObject.callPrivateSetterOfGetterAndSetter(1);
-    });
+        testObject.callPrivateSetterOfGetterAndSetter(1);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call callback when setter of getter&setter is called with wrong parameter', 0, function (assert: QUnitAssert) {
+      it('should not call callback when setter of getter&setter is called with wrong parameter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => {
-            // Assert
-            assert.ok(false, 'should not call callback');
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
 
         // Act
-        context.testObject.callPrivateSetterOfGetterAndSetter(2);
-    });
+        testObject.callPrivateSetterOfGetterAndSetter(2);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call the original function', 0, function (assert: QUnitAssert) {
+      it('should not call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
-
-        context.testObject.onPrivateFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onPrivateFunctionCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.callPrivateFunction(null);
-    });
+        testObject.callPrivateFunction(null);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call the original getter', 0, function (assert: QUnitAssert) {
+      it('should not call the original getter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).callback(() => { });
 
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).callback(() => { });
-
-        context.testObject.onPrivateGetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onPrivateGetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.callPrivateGetter();
-    });
+        testObject.callPrivateGetter();
+      });
 
-    QUnit.test('setupPrivate - callback - should not call the original setter', 0, function (assert: QUnitAssert) {
+      it('should not call the original setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => { });
 
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => { });
-
-        context.testObject.onPrivateSetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onPrivateSetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.callPrivateSetter(1);
-    });
+        testObject.callPrivateSetter(1);
+      });
 
-    QUnit.test('setupPrivate - callback - should call the original setter if called with other argument', 1, function (assert: QUnitAssert) {
+      it('should call the original setter if called with other argument', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => { });
 
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).callback(() => { });
-
-        context.testObject.onPrivateSetterCalled = () => {
-            // Assert
-            assert.ok(true, 'should call the original setter');
+        testObject.onPrivateSetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         };
 
         // Act
-        context.testObject.callPrivateSetter(2);
-    });
+        testObject.callPrivateSetter(2);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call the original getter of getter and setter', 0, function (assert: QUnitAssert) {
+      it('should not call the original getter of getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(() => { });
 
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).callback(() => { });
-
-        context.testObject.onPrivateGetterOfGetterAndSetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onPrivateGetterOfGetterAndSetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.callPrivateGetterOfGetterAndSetter();
-    });
+        testObject.callPrivateGetterOfGetterAndSetter();
+      });
 
-    QUnit.test('setupPrivate - callback - should not call the original setter of getter and setter', 0, function (assert: QUnitAssert) {
+      it('should not call the original setter of getter and setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => { });
 
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => { });
-
-        context.testObject.onPrivateSetterOfGetterAndSetterCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onPrivateSetterOfGetterAndSetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.callPrivateSetterOfGetterAndSetter(1);
-    });
+        testObject.callPrivateSetterOfGetterAndSetter(1);
+      });
 
-    QUnit.test('setupPrivate - callback - should call the original setter of getter and setter if called with other argument', 1, function (assert: QUnitAssert) {
+      it('should call the original setter of getter and setter if called with other argument', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => { });
 
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).callback(() => { });
-
-        context.testObject.onPrivateSetterOfGetterAndSetterCalled = () => {
-            // Assert
-            assert.ok(true, 'should call the original setter');
+        testObject.onPrivateSetterOfGetterAndSetterCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         };
 
         // Act
-        context.testObject.callPrivateSetterOfGetterAndSetter(2);
-    });
+        testObject.callPrivateSetterOfGetterAndSetter(2);
+      });
 
-    QUnit.test('setupPrivate - callback - should pass the same parameters', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 1;
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).callback((_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'should return same argument');
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).callback((_arg) => {
+          actualArg = _arg;
         });
 
         // Act
-        context.testObject.callPrivateFunction(arg);
-    });
+        testObject.callPrivateFunction(arg);
+      });
 
-    QUnit.test('setupPrivate - callback - should pass the same parameters 2', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 2;
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 2)
-            .callback((_arg1) => {
-                // Assert
-                assert.strictEqual(_arg1, arg1, 'should return same argument');
-            });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 2)
+          .callback((_arg1) => {
+            actualArg1 = _arg1;
+          });
 
         // Act
-        context.testObject.callPrivateFunction(arg1);
-    });
+        testObject.callPrivateFunction(arg1);
+      });
 
-    QUnit.test('setupPrivate - callback - should pass the same parameters to setter', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters to setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 2;
 
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 2)
-            .callback((_arg1) => {
-                // Assert
-                assert.strictEqual(_arg1, arg1, 'should return same argument');
-            });
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 2)
+          .callback((_arg1) => {
+            actualArg1 = _arg1;
+          });
 
         // Act
-        context.testObject.callPrivateSetter(arg1);
-    });
+        testObject.callPrivateSetter(arg1);
+      });
 
-    QUnit.test('setupPrivate - callback - should pass the same parameters to setter of getter&setter', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters to setter of getter&setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 2;
 
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 2)
-            .callback((_arg1) => {
-                // Assert
-                assert.strictEqual(_arg1, arg1, 'should return same argument');
-            });
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 2)
+          .callback((_arg1) => {
+            actualArg1 = _arg1;
+          });
 
         // Act
-        context.testObject.callPrivateSetterOfGetterAndSetter(arg1);
-    });
+        testObject.callPrivateSetterOfGetterAndSetter(arg1);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call if not matching', 0, function (assert: QUnitAssert) {
+      it('should not call if not matching', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 'some text';
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).callback(() => {
-            // Assert
-            assert.ok(false, 'should not be called');
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
 
         // Act
-        context.testObject.callPrivateFunction(arg);
-    });
+        testObject.callPrivateFunction(arg);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call if not matching 2', 0, function (assert: QUnitAssert) {
+      it('should not call if not matching 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 3;
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 2)
-            .callback(() => {
-                // Assert
-                assert.ok(false, 'should not be called');
-            });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 2)
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(0);
+          });
 
         // Act
-        context.testObject.callPrivateFunction(arg1);
-    });
+        testObject.callPrivateFunction(arg1);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call if not matching 3', 0, function (assert: QUnitAssert) {
+      it('should not call if not matching 3', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 3;
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME)
-            .callback(() => {
-                // Assert
-                assert.ok(false, 'should not be called');
-            });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME)
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(0);
+          });
 
         // Act
-        context.testObject.callPrivateFunction(undefined);
-    });
+        testObject.callPrivateFunction(undefined);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call setter if not matching', 0, function (assert: QUnitAssert) {
+      it('should not call setter if not matching', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 'some text';
 
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, It.isAny(Number)).callback(() => {
-            // Assert
-            assert.ok(false, 'should not be called');
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, It.isAny(Number)).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
 
         // Act
-        context.testObject.callPrivateSetter(arg);
-    });
+        testObject.callPrivateSetter(arg);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call setter of getter&setter if not matching', 0, function (assert: QUnitAssert) {
+      it('should not call setter of getter&setter if not matching', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 'some text';
 
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, It.isAny(Number)).callback(() => {
-            // Assert
-            assert.ok(false, 'should not be called');
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, It.isAny(Number)).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
 
         // Act
-        context.testObject.callPrivateSetterOfGetterAndSetter(arg);
-    });
+        testObject.callPrivateSetterOfGetterAndSetter(arg);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.callPrivateFunction(null);
-    });
+        testObject.callPrivateFunction(null);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, null).callback(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.callPrivateFunction(null);
-    });
+        testObject.callPrivateFunction(null);
+      });
 
-    QUnit.test('setupPrivate - callback - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call lazyReturns on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => { });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - callback - should not return the callback return value', 1, function (assert: QUnitAssert) {
+      it('should not return the callback return value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => {
-            return {};
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => {
+          return {};
         });
 
         // Act
-        var result = context.testObject.callPrivateFunction(1);
+        var result = testObject.callPrivateFunction(1);
 
         // Assert
-        assert.strictEqual(result, undefined, 'should return undefined');
-    });
+        expect(result).to.be.undefined;
+      });
 
-    QUnit.test('setupPrivate - callback - should call all the callbacks when function is called', 4, function (assert: QUnitAssert) {
+      it('should call all the callbacks when function is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            }).callback(() => {
-                // Assert
-                assert.ok(true, 'should call callback');
-            });
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		}).callback(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
+      		});
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - callback - should pass the same parameters to all the callbacks when function is called', 4, function (assert: QUnitAssert) {
+      it('should pass the same parameters to all the callbacks when function is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 12;
 
         var checkArgument = (_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'should pass same argument');
+          actualArg = _arg;
         };
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
-            .callback(checkArgument)
-            .callback(checkArgument)
-            .callback(checkArgument)
-            .callback(checkArgument);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+          .callback(checkArgument)
+          .callback(checkArgument)
+          .callback(checkArgument)
+          .callback(checkArgument);
 
         // Act
-        context.testObject.callPrivateFunction(arg);
+        testObject.callPrivateFunction(arg);
+      });
+
     });
 
-    QUnit.test('setupPrivate - returns - should not call the original function', 0, function (assert: QUnitAssert) {
+    describe('returns', () => {
+
+
+      it('returns - should not call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
-
-        context.testObject.onPrivateFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onPrivateFunctionCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - returns - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('returns - should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - returns - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('returns - should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - returns - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+      it('returns - should not call lazyReturns on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - returns - should return the value', 1, function (assert: QUnitAssert) {
+      it('returns - should return the value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue);
 
         // Act
-        var result = context.testObject.callPrivateFunction(1);
+        var result = testObject.callPrivateFunction(1);
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the configured value');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setupPrivate - returns - should return the last returns value', 1, function (assert: QUnitAssert) {
+      it('returns - should return the last returns value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
         var returnValue4 = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue1);
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue2);
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue3);
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue4);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue1);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue2);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue3);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).returns(returnValue4);
 
         // Act
-        var result = context.testObject.callPrivateFunction(1);
+        var result = testObject.callPrivateFunction(1);
 
         // Assert
-        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
-    });
+        expect(result).to.be.equal(returnValue4);
+      });
 
-    QUnit.test('setupPrivate - returns - should return the last getter value', 1, function (assert: QUnitAssert) {
+      it('returns - should return the last getter value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
         var returnValue4 = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).returns(returnValue1);
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).returns(returnValue2);
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).returns(returnValue3);
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).returns(returnValue4);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).returns(returnValue1);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).returns(returnValue2);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).returns(returnValue3);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).returns(returnValue4);
 
         // Act
-        var result = context.testObject.callPrivateGetter();
+        var result = testObject.callPrivateGetter();
 
         // Assert
-        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
-    });
+        expect(result).to.be.equal(returnValue4);
+      });
 
-    QUnit.test('setupPrivate - returns - should return the last getter of getter and setter value', 1, function (assert: QUnitAssert) {
+      it('returns - should return the last getter of getter and setter value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
         var returnValue4 = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue1);
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue2);
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue3);
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue4);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue1);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue2);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue3);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).returns(returnValue4);
 
         // Act
-        var result = context.testObject.callPrivateGetterOfGetterAndSetter();
+        var result = testObject.callPrivateGetterOfGetterAndSetter();
 
         // Assert
-        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
+        expect(result).to.be.equal(returnValue4);
+      });
+
     });
 
-    QUnit.test('setupPrivate - lazyReturns - should not call returnFunction if function is not called', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    describe('lazyReturns', () => {
 
+      it('should not call returnFunction if function is not called', () => {
         // Act
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
-            // Assert
-            assert.ok(false, 'should not call returnFunction');
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         });
-    });
+      });
 
-    QUnit.test('setupPrivate - lazyReturns - should call returnFunction when function is called', 1, function (assert: QUnitAssert) {
+      it('should call returnFunction when function is called', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
-            // Assert
-            assert.ok(true, 'should call returnFunction');
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
+          expect(numberOfTimesCalled).to.be.equal(1);
         });
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - lazyReturns - should not call the original function', 0, function (assert: QUnitAssert) {
+      it('should not call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
-
-        context.testObject.onPrivateFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onPrivateFunctionCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - lazyReturns - should pass the same parameters', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg = 1;
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).lazyReturns((_arg) => {
-            // Assert
-            assert.strictEqual(_arg, arg, 'should return same argument');
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number)).lazyReturns((_arg) => {
+          actualArg = _arg;
         });
 
         // Act
-        context.testObject.callPrivateFunction(arg);
-    });
+        testObject.callPrivateFunction(arg);
+      });
 
-    QUnit.test('setupPrivate - lazyReturns - should pass the same parameters 2', 1, function (assert: QUnitAssert) {
+      it('should pass the same parameters 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var arg1 = 1;
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, arg1)
-            .lazyReturns((_arg1, _arg2, _arg3) => {
-                // Assert
-                assert.strictEqual(_arg1, arg1, 'should return same argument');
-            });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, arg1)
+          .lazyReturns((_arg1, _arg2, _arg3) => {
+            actualArg1 = _arg1;
+          });
 
         // Act
-        context.testObject.callPrivateFunction(arg1);
-    });
+        testObject.callPrivateFunction(arg1);
+      });
 
-    QUnit.test('setupPrivate - lazyReturns - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - lazyReturns - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - lazyReturns - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call lazyReturns on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => { });
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
-        context.testObject.callPrivateFunction(1);
-    });
+        testObject.callPrivateFunction(1);
+      });
 
-    QUnit.test('setupPrivate - lazyReturns - should return the returnFunction return value', 1, function (assert: QUnitAssert) {
+      it('should return the returnFunction return value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
-            return returnValue;
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).lazyReturns(() => {
+          return returnValue;
         });
 
         // Act
-        var result = context.testObject.callPrivateFunction(1);
+        var result = testObject.callPrivateFunction(1);
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return returnValue');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setupPrivate - lazyReturns - should return the last returnFunction return value', 1, function (assert: QUnitAssert) {
+      it('should return the last returnFunction return value', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue1 = {};
         var returnValue2 = {};
         var returnValue3 = {};
         var returnValue4 = {};
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .lazyReturns(() => { return returnValue1; })
-            .lazyReturns(() => { return returnValue2; })
-            .lazyReturns(() => { return returnValue3; })
-            .lazyReturns(() => { return returnValue4; });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .lazyReturns(() => { return returnValue1; })
+          .lazyReturns(() => { return returnValue2; })
+          .lazyReturns(() => { return returnValue3; })
+          .lazyReturns(() => { return returnValue4; });
 
         // Act
-        var result = context.testObject.callPrivateFunction(1);
+        var result = testObject.callPrivateFunction(1);
 
         // Assert
-        assert.strictEqual(result, returnValue4, 'should return the last returnValue');
-    });
+        expect(result).to.be.equal(returnValue4);
+      });
 
-    QUnit.test('setupPrivate - lazyReturns - setup getter should not affect setter', 1, function (assert: QUnitAssert) {
+      it('setup getter should not affect setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME)
-            .lazyReturns(() => { return 1; });
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME)
+          .lazyReturns(() => { return 1; });
 
         var value = {};
 
         // Act
-        context.testObject.callPrivateSetterOfGetterAndSetter(value);
+        testObject.callPrivateSetterOfGetterAndSetter(value);
 
         // Assert
-        assert.strictEqual(context.testObject.privateGetterAndSetterValue, value, 'should set the value');
+        expect(testObject.privateGetterAndSetterValue).to.be.equal(value);
+      });
+
+
     });
 
-    QUnit.test('setupPrivate - throws - should not call the original function', 0, function (assert: QUnitAssert) {
+    describe('throws', () => {
+
+      it('should not call the original function', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
-
-        context.testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+        testObject.onNoArgumentsFunctionCalled = () => {
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
         // Act
         try {
-            context.testObject.callPrivateFunction(1);
+          testObject.callPrivateFunction(1);
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should not call other original functions', 0, function (assert: QUnitAssert) {
+      it('should not call other original functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
         try {
-            context.testObject.callPrivateFunction(1);
+          testObject.callPrivateFunction(1);
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should not call callbacks on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call callbacks on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).callback(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).callback(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
         try {
-            context.testObject.callPrivateFunction(1);
+          testObject.callPrivateFunction(1);
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should not call lazyReturns on other functions', 0, function (assert: QUnitAssert) {
+      it('should not call lazyReturns on other functions', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(111);
 
         var shouldNotHappen = () => {
-            // Assert
-            assert.ok(false, 'should not call the original function');
+          expect(numberOfTimesCalled).to.be.equal(0);
         };
 
-        context.mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
-        context.mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.oneArgumentsFunction(It.isAny(Number))).lazyReturns(shouldNotHappen);
+        mole.setup(_ => _.manyArgumentsFunction(It.isAny(Number), It.isAny(Number), It.isAny(Number))).lazyReturns(shouldNotHappen);
 
-        context.testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
-        context.testObject.manyArgumentsFunction = shouldNotHappen;
-        context.testObject.oneArgumentsFunction = shouldNotHappen;
+        testObject.onNoArgumentsFunctionCalled = shouldNotHappen;
+        testObject.manyArgumentsFunction = shouldNotHappen;
+        testObject.oneArgumentsFunction = shouldNotHappen;
 
         // Act
         try {
-            context.testObject.callPrivateFunction(1);
+          testObject.callPrivateFunction(1);
         } catch (e) {
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should throw the error', 1, function (assert: QUnitAssert) {
+      it('should throw the error', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(thrownError);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1).throws(thrownError);
 
         // Act
         try {
-            context.testObject.callPrivateFunction(1);
+          testObject.callPrivateFunction(1);
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the configured error');
+          actualError = error;
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should throw the error for getter', 1, function (assert: QUnitAssert) {
+      it('should throw the error for getter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).throws(thrownError);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_NAME).throws(thrownError);
 
         // Act
         try {
-            context.testObject.callPrivateGetter();
+          testObject.callPrivateGetter();
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the configured error');
+          actualError = error;
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should throw the error for setter', 1, function (assert: QUnitAssert) {
+      it('should throw the error for setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).throws(thrownError);
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).throws(thrownError);
 
         // Act
         try {
-            context.testObject.callPrivateSetter(1);
+          testObject.callPrivateSetter(1);
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the configured error');
+          actualError = error;
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should not throw the error for setter if arguments dont match', 0, function (assert: QUnitAssert) {
+      it('should not throw the error for setter if arguments dont match', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).throws(thrownError);
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1).throws(thrownError);
 
         // Act
         try {
-            context.testObject.callPrivateSetter(2);
+          testObject.callPrivateSetter(2);
         } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
+          expect(numberOfTimesThrown).to.be.equal(0);
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should throw the error for getter of getter&setter', 1, function (assert: QUnitAssert) {
+      it('should throw the error for getter of getter&setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).throws(thrownError);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).throws(thrownError);
 
         // Act
         try {
-            context.testObject.callPrivateGetterOfGetterAndSetter();
+          testObject.callPrivateGetterOfGetterAndSetter();
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the configured error');
+          actualError = error;
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should throw the error for setter of getter&setter', 1, function (assert: QUnitAssert) {
+      it('should throw the error for setter of getter&setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
 
         // Act
         try {
-            context.testObject.callPrivateSetterOfGetterAndSetter(1);
+          testObject.callPrivateSetterOfGetterAndSetter(1);
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the configured error');
+          actualError = error;
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should not throw the error for setter of getter&setter if arguments dont match', 0, function (assert: QUnitAssert) {
+      it('should not throw the error for setter of getter&setter if arguments dont match', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
 
         // Act
         try {
-            context.testObject.callPrivateSetterOfGetterAndSetter(2);
+          testObject.callPrivateSetterOfGetterAndSetter(2);
         } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
+          expect(numberOfTimesThrown).to.be.equal(0);
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - setup getter should not throw on setter', 0, function (assert: QUnitAssert) {
+      it('setup getter should not throw on setter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).throws(thrownError);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME).throws(thrownError);
 
         // Act
         try {
-            context.testObject.callPrivateSetterOfGetterAndSetter(2);
+          testObject.callPrivateSetterOfGetterAndSetter(2);
         } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
+          expect(numberOfTimesThrown).to.be.equal(0);
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - setup setter should not throw on getter', 0, function (assert: QUnitAssert) {
+      it('setup setter should not throw on getter', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1).throws(thrownError);
 
         // Act
         try {
-            context.testObject.callPrivateGetterOfGetterAndSetter();
+          testObject.callPrivateGetterOfGetterAndSetter();
         } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
+          expect(numberOfTimesThrown).to.be.equal(0);
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - throws - should throw the last error', 1, function (assert: QUnitAssert) {
+      it('should throw the last error', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var thrownError1 = {};
         var thrownError2 = {};
         var thrownError3 = {};
         var thrownError4 = {};
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .throws(thrownError1)
-            .throws(thrownError2)
-            .throws(thrownError3)
-            .throws(thrownError4);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .throws(thrownError1)
+          .throws(thrownError2)
+          .throws(thrownError3)
+          .throws(thrownError4);
 
         // Act
         try {
-            context.testObject.callPrivateFunction(1);
+          testObject.callPrivateFunction(1);
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError4, 'should throw the configured error');
+          expect(actualError).to.be.equal(thrownError4);
         }
+      });
+
     });
 
-    QUnit.test('setupPrivate - mix - should throw error if configured after return', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    describe('mix', () => {
 
+      it('should throw error if configured after return', () => {
+        // Arrange
         var returnValue = {};
         var thrownError = {};
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .returns(returnValue)
-            .throws(thrownError);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .returns(returnValue)
+          .throws(thrownError);
 
         // Act
         try {
-            context.testObject.callPrivateFunction(1);
+          testObject.callPrivateFunction(1);
         } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the error');
+          expect(actualError).to.be.equal(thrownError);
         }
-    });
+      });
 
-    QUnit.test('setupPrivate - mix - should return value if configured after throw', 1, function (assert: QUnitAssert) {
+      it('should return value if configured after throw', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
         var thrownError = {};
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .throws(thrownError)
-            .returns(returnValue);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .throws(thrownError)
+          .returns(returnValue);
 
         // Act
-        var result = context.testObject.callPrivateFunction(1);
+        var result = testObject.callPrivateFunction(1);
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the configured value');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setupPrivate - mix - should call all the callbacks and the lazy returns but return last configured one', 5, function (assert: QUnitAssert) {
+      it('should call all the callbacks and the lazy returns but return last configured one', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
         var thrownError = {};
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .throws(thrownError)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 1;
-            })
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 2;
-            })
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 3;
-            })
-            .callback(() => assert.ok(true, 'should call callback'))
-            .returns(returnValue);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .throws(thrownError)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 1;
+          })
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 2;
+          })
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 3;
+          })
+          .callback(() => assert.ok(true, 'should call callback'))
+          .returns(returnValue);
 
         // Act
-        var result = context.testObject.callPrivateFunction(1);
+        var result = testObject.callPrivateFunction(1);
 
         // Assert
-        assert.strictEqual(result, returnValue, 'should return the configured value');
-    });
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setupPrivate - mix - should call all the callbacks and the lazy returns but return last configured one 2', 5, function (assert: QUnitAssert) {
+      it('should call all the callbacks and the lazy returns but return last configured one 2', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
-
         var returnValue = {};
         var thrownError = {};
 
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .throws(thrownError)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 1;
-            })
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 2;
-            })
-            .returns(3)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return returnValue;
-            })
-            .callback(() => assert.ok(true, 'should call callback'));
-
-        // Act
-        var result = context.testObject.callPrivateFunction(1);
-
-        // Assert
-        assert.strictEqual(result, returnValue, 'should return the configured value');
-    });
-
-    QUnit.test('setupPrivate - mix - should call all the callbacks and the lazy returns but throw last configured error', 5, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var returnValue = {};
-        var thrownError = {};
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .throws('asdasd')
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 1;
-            })
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 2;
-            })
-            .returns(returnValue)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call lazyRerturns');
-                return 3;
-            })
-            .throws(thrownError)
-            .callback(() => assert.ok(true, 'should call callback'));
-
-        // Act
-        try {
-            context.testObject.callPrivateFunction(1);
-        } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the configured error');
-        }
-    });
-
-    QUnit.test('setupPrivate - mix - should call only the matching set', 3, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var returnValue = {};
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
-            .lazyReturns(() => {
-                assert.ok(false, 'lazyReturns should not be called for any number');
-            })
-            .returns('return value')
-            .callback(() => {
-                assert.ok(false, 'callback should not be called for any number');
-            });
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 'aaa')
-            .throws('error')
-            .lazyReturns(() => {
-                assert.ok(false, 'lazyReturns should not be called aaa');
-            })
-            .callback(() => {
-                assert.ok(false, 'callback should not be called for aaa');
-            });
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 'bbb')
-            .lazyReturns(() => {
-                assert.ok(true, 'should be called');
-            })
-            .callback(() => {
-                assert.ok(true, 'should be called');
-            })
-            .returns(returnValue);
-
-        // Act
-        var result = context.testObject.callPrivateFunction('bbb');
-
-        // Assert
-        assert.strictEqual(result, returnValue, 'should return the return value');
-    });
-
-    QUnit.test('setupPrivate - mix - if both setups match should call both', 4, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
-            .lazyReturns(() => {
-                assert.ok(true, 'should call');
-            })
-            .returns('return value')
-            .callback(() => {
-                assert.ok(true, 'should call');
-            });
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call');
-            })
-            .returns('return value')
-            .callback(() => {
-                assert.ok(true, 'should call');
-            });
-
-        // Act
-        context.testObject.callPrivateFunction(1);
-    });
-
-    QUnit.test('setupPrivate - mix - if both setups match should call both for setter', 4, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, It.isAny(Number))
-            .lazyReturns(() => {
-                assert.ok(true, 'should call');
-            })
-            .returns('return value')
-            .callback(() => {
-                assert.ok(true, 'should call');
-            });
-
-        context.mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call');
-            })
-            .returns('return value')
-            .callback(() => {
-                assert.ok(true, 'should call');
-            });
-
-        // Act
-        context.testObject.callPrivateSetter(1);
-    });
-
-    QUnit.test('setupPrivate - mix - if both setups match should call both for setter of getter and setter', 4, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, It.isAny(Number))
-            .lazyReturns(() => {
-                assert.ok(true, 'should call');
-            })
-            .returns('return value')
-            .callback(() => {
-                assert.ok(true, 'should call');
-            });
-
-        context.mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1)
-            .lazyReturns(() => {
-                assert.ok(true, 'should call');
-            })
-            .returns('return value')
-            .callback(() => {
-                assert.ok(true, 'should call');
-            });
-
-        // Act
-        context.testObject.callPrivateSetterOfGetterAndSetter(1);
-    });
-
-    QUnit.test('setupPrivate - mix - if both setups match should return from the last', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var returnValue = {};
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
-            .lazyReturns(() => 1)
-            .returns(() => 2);
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .lazyReturns(() => 3)
-            .returns(returnValue);
-
-        // Act
-        var result = context.testObject.callPrivateFunction(1);
-
-        // Assert
-        assert.strictEqual(result, returnValue, 'should return the returnValue');
-    });
-
-    QUnit.test('setupPrivate - mix - if both setups match should return from the last 2', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var returnValue = {};
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .lazyReturns(() => 1)
-            .returns(() => 2);
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
-            .lazyReturns(() => 3)
-            .returns(returnValue);
-
-        // Act
-        var result = context.testObject.callPrivateFunction(1);
-
-        // Assert
-        assert.strictEqual(result, returnValue, 'should return the returnValue');
-    });
-
-    QUnit.test('setupPrivate - mix - if both setups match should throw from the last', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var thrownError = {};
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
-            .lazyReturns(() => 1)
-            .throws('error')
-            .returns(() => 2);
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .lazyReturns(() => 3)
-            .throws(thrownError);
-
-        // Act
-        try {
-            context.testObject.callPrivateFunction(1);
-        } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the thrownError');
-        }
-    });
-
-    QUnit.test('setupPrivate - mix - if both setups match should throw from the last 2', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var thrownError = {};
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
-            .lazyReturns(() => 1)
-            .throws('error')
-            .returns(() => 2);
-
-        context.mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
-            .lazyReturns(() => 3)
-            .throws(thrownError);
-
-        // Act
-        try {
-            context.testObject.callPrivateFunction(1);
-        } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the thrownError');
-        }
-    });
-
-    QUnit.test('isStrict - true - no setup should throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        try {
-            // Act
-            context.testObject.noArgumentsFunction();
-        } catch (error) {
-            // Assert
-            assert.ok(true, 'should throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - no setup for getter should throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        try {
-        // Act
-            context.testObject.getter;
-        } catch (error) {
-            // Assert
-            assert.ok(true, 'should throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - no setup for setter should throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        try {
-            // Act
-            context.testObject.setter = 1;
-        } catch (error) {
-            // Assert
-            assert.ok(true, 'should throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - no setup for getter of getter and setter should throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        try {
-            // Act
-            context.testObject.getterAndSetter;
-        } catch (error) {
-            // Assert
-            assert.ok(true, 'should throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - no setup for setter of getter and setter should throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        try {
-            // Act
-        context.testObject.getterAndSetter = 1;
-        } catch (error) {
-            // Assert
-            assert.ok(true, 'should throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - has callback setup should call the callback and not throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-            assert.ok(true, 'should call the setup');
-        });
-
-        try {
-            // Act
-            context.testObject.noArgumentsFunction();
-        } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - getter has callback setup should call the callback and not throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        context.mole.setup(_ => _.getter).callback(() => {
-            assert.ok(true, 'should call the setup');
-        });
-
-        try {
-            // Act
-            context.testObject.getter;
-        } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - setter has callback setup should call the callback and not throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        context.mole.setup(_ => _.setter = 1).callback(() => {
-            assert.ok(true, 'should call the setup');
-        });
-
-        try {
-            // Act
-            context.testObject.setter = 1;
-        } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - getter of getter&setter has callback setup should call the callback and not throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        context.mole.setup(_ => _.getterAndSetter).callback(() => {
-            assert.ok(true, 'should call the setup');
-        });
-
-        try {
-            // Act
-            context.testObject.getterAndSetter;
-        } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - setter of getter&setter has callback setup should call the callback and not throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        context.mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-            assert.ok(true, 'should call the setup');
-        });
-
-        try {
-            // Act
-            context.testObject.getterAndSetter = 1;
-        } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - has callback setup  for other argument should throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        context.mole.setup(_ => _.oneArgumentsFunction(1)).callback(() => { });
-
-        try {
-            // Act
-            context.testObject.oneArgumentsFunction(2);
-        } catch (error) {
-            // Assert
-            assert.ok(true, 'should throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - setter has callback setup for other argument should throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        context.mole.setup(_ => _.setter = 1).callback(() => { });
-
-        try {
-            // Act
-            context.testObject.setter = 2;
-        } catch (error) {
-            // Assert
-            assert.ok(true, 'should throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - setter of getter&setter has callback setup for other argument should throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        context.mole.setup(_ => _.getterAndSetter = 1).callback(() => { });
-
-        try {
-            // Act
-            context.testObject.getterAndSetter = 2;
-        } catch (error) {
-            // Assert
-            assert.ok(true, 'should throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - has lazyReturns setup should call the lazyReturns and not throw error', 2, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        var returnValue = {};
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
-            assert.ok(true, 'should call the lazyReturns');
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .throws(thrownError)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 1;
+          })
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 2;
+          })
+          .returns(3)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
             return returnValue;
-        });
-
-        try {
-            // Act
-            var result = context.testObject.noArgumentsFunction();
-
-            // Assert
-            assert.strictEqual(result, returnValue, 'should return the return value');
-        } catch (error) {
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - has returns setup should return the returnValue and not throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        var returnValue = {};
-        context.mole.setup(_ => _.noArgumentsFunction()).returns(returnValue);
-
-        try {
-            // Act
-            var result = context.testObject.noArgumentsFunction();
-
-            // Assert
-            assert.strictEqual(result, returnValue, 'should return the return value');
-        } catch (error) {
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - true - has throws setup should throw the thrownError', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = true;
-
-        var thrownError = {};
-        context.mole.setup(_ => _.noArgumentsFunction()).throws(thrownError);
-
-        try {
-            // Act
-            context.testObject.noArgumentsFunction();
-        } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the thrown error');
-        }
-    });
-
-    QUnit.test('isStrict - false - no setup should not throw error', 0, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = false;
-
-        try {
-            // Act
-            context.testObject.noArgumentsFunction();
-        } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - false - has callbeck setup should call the callback and not throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = false;
-
-        context.mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-            assert.ok(true, 'should call the setup');
-        });
-
-        try {
-            // Act
-            context.testObject.noArgumentsFunction();
-        } catch (error) {
-            // Assert
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - false - has lazyReturns setup should call the lazyReturns and not throw error', 2, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = false;
-
-        var returnValue = {};
-        context.mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
-            assert.ok(true, 'should call the lazyReturns');
-            return returnValue;
-        });
-
-        try {
-            // Act
-            var result = context.testObject.noArgumentsFunction();
-
-            // Assert
-            assert.strictEqual(result, returnValue, 'should return the return value');
-        } catch (error) {
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - false - has returns setup should return the returnValue and not throw error', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = false;
-
-        var returnValue = {};
-        context.mole.setup(_ => _.noArgumentsFunction()).returns(returnValue);
-
-        try {
-            // Act
-            var result = context.testObject.noArgumentsFunction();
-
-            // Assert
-            assert.strictEqual(result, returnValue, 'should return the return value');
-        } catch (error) {
-            assert.ok(false, 'should not throw error');
-        }
-    });
-
-    QUnit.test('isStrict - false - has throws setup should throw the thrownError', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-        context.mole.isStrict = false;
-
-        var thrownError = {};
-        context.mole.setup(_ => _.noArgumentsFunction()).throws(thrownError);
-
-        try {
-            // Act
-            context.testObject.noArgumentsFunction();
-        } catch (error) {
-            // Assert
-            assert.strictEqual(error, thrownError, 'should throw the thrown error');
-        }
-    });
-
-    QUnit.test('staticFunction - Override static function', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var mole = new Mole<any>(TestObject);
+          })
+          .callback(() => assert.ok(true, 'should call callback'));
 
         // Act
-        mole.setup(_ => { TestObject.staticFunction(); }).callback(() => {
-            // Assert
-            assert.ok(true, 'should call callback');
-        });
+        var result = testObject.callPrivateFunction(1);
 
-        TestObject.staticFunction();
-    });
+        // Assert
+        expect(result).to.be.equal(returnValue);
+      });
 
-    QUnit.test('setup - inheritence - callback on sons function should call callback', 1, function (assert: QUnitAssert) {
+      it('should call all the callbacks and the lazy returns but throw last configured error', () => {
         // Arrange
-        var context: MoleLifecycleObject = this;
+        var returnValue = {};
+        var thrownError = {};
 
-        var testObjectSon = new TestObjectSon();
-        var mole = new Mole<TestObjectSon>(testObjectSon);
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .throws('asdasd')
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 1;
+          })
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 2;
+          })
+          .returns(returnValue)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+            return 3;
+          })
+          .throws(thrownError)
+          .callback(() => assert.ok(true, 'should call callback'));
 
         // Act
-        mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-            // Assert
-            assert.ok(true, 'callbeck was called');
-        });
+        try {
+          testObject.callPrivateFunction(1);
+        } catch (error) {
+          actualError = error;
+        }
+      });
 
-        testObjectSon.noArgumentsFunction();
+      it('should call only the matching set', () => {
+        // Arrange
+        var returnValue = {};
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(0);
+          })
+          .returns('return value')
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(0);
+          });
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 'aaa')
+          .throws('error')
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(0);
+          })
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(0);
+          });
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 'bbb')
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .returns(returnValue);
+
+        // Act
+        var result = testObject.callPrivateFunction('bbb');
+
+        // Assert
+        expect(result).to.be.equal(returnValue);
+      });
+
+      it('if both setups match should call both', () => {
+        // Arrange
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .returns('return value')
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          });
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .returns('return value')
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          });
+
+        // Act
+        testObject.callPrivateFunction(1);
+      });
+
+      it('if both setups match should call both for setter', () => {
+        // Arrange
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, It.isAny(Number))
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .returns('return value')
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          });
+
+        mole.setupPrivate(TestObject.PRIVATE_SETTER_NAME, 1)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .returns('return value')
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          });
+
+        // Act
+        testObject.callPrivateSetter(1);
+      });
+
+      it('if both setups match should call both for setter of getter and setter', () => {
+        // Arrange
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, It.isAny(Number))
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .returns('return value')
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          });
+
+        mole.setupPrivate(TestObject.PRIVATE_GETTER_AND_SETTER_NAME, 1)
+          .lazyReturns(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          })
+          .returns('return value')
+          .callback(() => {
+            expect(numberOfTimesCalled).to.be.equal(1);
+          });
+
+        // Act
+        testObject.callPrivateSetterOfGetterAndSetter(1);
+      });
+
+      it('if both setups match should return from the last', () => {
+        // Arrange
+        var returnValue = {};
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+          .lazyReturns(() => 1)
+          .returns(() => 2);
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .lazyReturns(() => 3)
+          .returns(returnValue);
+
+        // Act
+        var result = testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(result).to.be.equal(returnValue);
+      });
+
+      it('if both setups match should return from the last 2', () => {
+        // Arrange
+        var returnValue = {};
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .lazyReturns(() => 1)
+          .returns(() => 2);
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+          .lazyReturns(() => 3)
+          .returns(returnValue);
+
+        // Act
+        var result = testObject.callPrivateFunction(1);
+
+        // Assert
+        expect(result).to.be.equal(returnValue);
+      });
+
+      it('if both setups match should throw from the last', () => {
+        // Arrange
+        var thrownError = {};
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+          .lazyReturns(() => 1)
+          .throws('error')
+          .returns(() => 2);
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .lazyReturns(() => 3)
+          .throws(thrownError);
+
+        // Act
+        try {
+          testObject.callPrivateFunction(1);
+        } catch (error) {
+          expect(actualError).to.be.equal(thrownError);
+        }
+      });
+
+      it('if both setups match should throw from the last 2', () => {
+        // Arrange
+        var thrownError = {};
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, 1)
+          .lazyReturns(() => 1)
+          .throws('error')
+          .returns(() => 2);
+
+        mole.setupPrivate(TestObject.PRIVATE_FUNCTION_NAME, It.isAny(Number))
+          .lazyReturns(() => 3)
+          .throws(thrownError);
+
+        // Act
+        try {
+          testObject.callPrivateFunction(1);
+        } catch (error) {
+          expect(actualError).to.be.equal(thrownError);
+        }
+      });
+
     });
 
-    QUnit.test('dispose - before dispose should not call the original function', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+  });
 
-        var testObject = new TestObject();
-        var mole = new Mole<TestObject>(testObject);
+  describe('isStrict', () => {
 
-        testObject.onNoArgumentsFunctionCalled = () => {
-            assert.ok(false, 'should not call original function');
-        };
+    describe('true', () => {
+
+      it('isStrict - true - no setup should throw error', () => {
+        // Arrangemole.isStrict = true;
+
+        try {
+          // Act
+          testObject.noArgumentsFunction();
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(1);
+        }
+      });
+
+      it('isStrict - true - no setup for getter should throw error', () => {
+        // Arrangemole.isStrict = true;
+
+        try {
+          // Act
+          testObject.getter;
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(1);
+        }
+      });
+
+      it('isStrict - true - no setup for setter should throw error', () => {
+        // Arrangemole.isStrict = true;
+
+        try {
+          // Act
+          testObject.setter = 1;
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(1);
+        }
+      });
+
+      it('isStrict - true - no setup for getter of getter and setter should throw error', () => {
+        // Arrangemole.isStrict = true;
+
+        try {
+          // Act
+          testObject.getterAndSetter;
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(1);
+        }
+      });
+
+      it('isStrict - true - no setup for setter of getter and setter should throw error', () => {
+        // Arrangemole.isStrict = true;
+
+        try {
+          // Act
+          testObject.getterAndSetter = 1;
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(1);
+        }
+      });
+
+      it('isStrict - true - has callback setup should call the callback and not throw error', () => {
+        // Arrangemole.isStrict = true;
 
         mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-            // Assert
-            assert.ok(true, 'should call the setup');
+          assert.ok(true, 'should call the setup');
         });
 
-        // Act
-        testObject.noArgumentsFunction();
-    });
+        try {
+          // Act
+          testObject.noArgumentsFunction();
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
 
-    QUnit.test('dispose - before dispose should not call the original getter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var testObject = new TestObject();
-        var mole = new Mole<TestObject>(testObject);
-
-        testObject.onGetterCalled = () => {
-            assert.ok(false, 'should not call original function');
-        };
+      it('isStrict - true - getter has callback setup should call the callback and not throw error', () => {
+        // Arrangemole.isStrict = true;
 
         mole.setup(_ => _.getter).callback(() => {
-            // Assert
-            assert.ok(true, 'should call the setup');
+          assert.ok(true, 'should call the setup');
         });
 
-        // Act
-        testObject.getter;
-    });
+        try {
+          // Act
+          testObject.getter;
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
 
-    QUnit.test('dispose - before dispose should not call the original setter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var testObject = new TestObject();
-        var mole = new Mole<TestObject>(testObject);
-
-        testObject.onSetterCalled = () => {
-            assert.ok(false, 'should not call original function');
-        };
+      it('isStrict - true - setter has callback setup should call the callback and not throw error', () => {
+        // Arrangemole.isStrict = true;
 
         mole.setup(_ => _.setter = 1).callback(() => {
-            // Assert
-            assert.ok(true, 'should call the setup');
+          assert.ok(true, 'should call the setup');
         });
 
-        // Act
-        testObject.setter = 1;
-    });
+        try {
+          // Act
+          testObject.setter = 1;
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
 
-    QUnit.test('dispose - before dispose should not call the original getter of getter and setter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var testObject = new TestObject();
-        var mole = new Mole<TestObject>(testObject);
-
-        testObject.onGetterOfGetterAndSetterCalled = () => {
-            assert.ok(false, 'should not call original function');
-        };
+      it('isStrict - true - getter of getter&setter has callback setup should call the callback and not throw error', () => {
+        // Arrangemole.isStrict = true;
 
         mole.setup(_ => _.getterAndSetter).callback(() => {
-            // Assert
-            assert.ok(true, 'should call the setup');
+          assert.ok(true, 'should call the setup');
         });
 
-        // Act
-        testObject.getterAndSetter;
-    });
+        try {
+          // Act
+          testObject.getterAndSetter;
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
 
-    QUnit.test('dispose - before dispose should not call the original setter of getter and setter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
-
-        var testObject = new TestObject();
-        var mole = new Mole<TestObject>(testObject);
-
-        testObject.onSetterOfGetterAndSetterCalled = () => {
-            assert.ok(false, 'should not call original function');
-        };
+      it('isStrict - true - setter of getter&setter has callback setup should call the callback and not throw error', () => {
+        // Arrangemole.isStrict = true;
 
         mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-            // Assert
-            assert.ok(true, 'should call the setup');
+          assert.ok(true, 'should call the setup');
         });
 
-        // Act
-        testObject.getterAndSetter = 1;
+        try {
+          // Act
+          testObject.getterAndSetter = 1;
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
+
+      it('isStrict - true - has callback setup  for other argument should throw error', () => {
+        // Arrangemole.isStrict = true;
+
+        mole.setup(_ => _.oneArgumentsFunction(1)).callback(() => { });
+
+        try {
+          // Act
+          testObject.oneArgumentsFunction(2);
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(1);
+        }
+      });
+
+      it('isStrict - true - setter has callback setup for other argument should throw error', () => {
+        // Arrangemole.isStrict = true;
+
+        mole.setup(_ => _.setter = 1).callback(() => { });
+
+        try {
+          // Act
+          testObject.setter = 2;
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(1);
+        }
+      });
+
+      it('isStrict - true - setter of getter&setter has callback setup for other argument should throw error', () => {
+        // Arrangemole.isStrict = true;
+
+        mole.setup(_ => _.getterAndSetter = 1).callback(() => { });
+
+        try {
+          // Act
+          testObject.getterAndSetter = 2;
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(1);
+        }
+      });
+
+      it('isStrict - true - has lazyReturns setup should call the lazyReturns and not throw error', () => {
+        // Arrangemole.isStrict = true;
+
+        var returnValue = {};
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
+          assert.ok(true, 'should call the lazyReturns');
+          return returnValue;
+        });
+
+        try {
+          // Act
+          var result = testObject.noArgumentsFunction();
+
+          // Assert
+          expect(result).to.be.equal(returnValue);
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
+
+      it('isStrict - true - has returns setup should return the returnValue and not throw error', () => {
+        // Arrangemole.isStrict = true;
+
+        var returnValue = {};
+        mole.setup(_ => _.noArgumentsFunction()).returns(returnValue);
+
+        try {
+          // Act
+          var result = testObject.noArgumentsFunction();
+
+          // Assert
+          expect(result).to.be.equal(returnValue);
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
+
+      it('isStrict - true - has throws setup should throw the thrownError', () => {
+        // Arrangemole.isStrict = true;
+
+        var thrownError = {};
+        mole.setup(_ => _.noArgumentsFunction()).throws(thrownError);
+
+        try {
+          // Act
+          testObject.noArgumentsFunction();
+        } catch (error) {
+          // Assert
+          expect(error, thrownError, 'should throw the thrown error');
+        }
+      });
+
     });
 
-    QUnit.test('dispose - should call the original function', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    describe('false', () => {
 
-        var testObject = new TestObject();
-        var mole = new Mole<TestObject>(testObject);
+      it('isStrict - false - no setup should not throw error', () => {
+        // Arrangemole.isStrict = false;
 
-        testObject.onNoArgumentsFunctionCalled = () => {
-            // Assert
-            assert.ok(true, 'should call original function');
-        };
+        try {
+          // Act
+          testObject.noArgumentsFunction();
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
+
+      it('isStrict - false - has callbeck setup should call the callback and not throw error', () => {
+        // Arrangemole.isStrict = false;
 
         mole.setup(_ => _.noArgumentsFunction()).callback(() => {
-            assert.ok(false, 'should not call the setup');
+          assert.ok(true, 'should call the setup');
         });
 
-        // Act
-        mole.dispose();
-        testObject.noArgumentsFunction();
-    });
+        try {
+          // Act
+          testObject.noArgumentsFunction();
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
 
-    QUnit.test('dispose - should call the original getter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+      it('isStrict - false - has lazyReturns setup should call the lazyReturns and not throw error', () => {
+        // Arrangemole.isStrict = false;
 
-        var testObject = new TestObject();
-        var mole = new Mole<TestObject>(testObject);
-
-        testObject.onGetterCalled = () => {
-            // Assert
-            assert.ok(true, 'should call original function');
-        };
-
-        mole.setup(_ => _.getter).callback(() => {
-            assert.ok(false, 'should not call the setup');
+        var returnValue = {};
+        mole.setup(_ => _.noArgumentsFunction()).lazyReturns(() => {
+          assert.ok(true, 'should call the lazyReturns');
+          return returnValue;
         });
 
-        // Act
-        mole.dispose();
-        testObject.getter;
+        try {
+          // Act
+          var result = testObject.noArgumentsFunction();
+
+          // Assert
+          expect(result).to.be.equal(returnValue);
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
+
+      it('isStrict - false - has returns setup should return the returnValue and not throw error', () => {
+        // Arrangemole.isStrict = false;
+
+        var returnValue = {};
+        mole.setup(_ => _.noArgumentsFunction()).returns(returnValue);
+
+        try {
+          // Act
+          var result = testObject.noArgumentsFunction();
+
+          // Assert
+          expect(result).to.be.equal(returnValue);
+        } catch (error) {
+          expect(numberOfTimesThrown).to.be.equal(0);
+        }
+      });
+
+      it('isStrict - false - has throws setup should throw the thrownError', () => {
+        // Arrangemole.isStrict = false;
+
+        var thrownError = {};
+        mole.setup(_ => _.noArgumentsFunction()).throws(thrownError);
+
+        try {
+          // Act
+          testObject.noArgumentsFunction();
+        } catch (error) {
+          // Assert
+          expect(error, thrownError, 'should throw the thrown error');
+        }
+      });
+
     });
 
-    QUnit.test('dispose - should call the original setter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+  });
 
-        var testObject = new TestObject();
-        var mole = new Mole<TestObject>(testObject);
+  describe('staticFunction', () => {
 
-        testObject.onSetterCalled = () => {
-            // Assert
-            assert.ok(true, 'should call original function');
-        };
+    it('Override static function', () => {
+      // Arrange
+      var mole = new Mole<any>(TestObject);
 
-        mole.setup(_ => _.setter = 1).callback(() => {
-            assert.ok(false, 'should not call the setup');
-        });
+      // Act
+      mole.setup(_ => { TestObject.staticFunction(); }).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      });
 
-        // Act
-        mole.dispose();
-        testObject.setter = 1;
+      TestObject.staticFunction();
     });
 
-    QUnit.test('dispose - should call the original getter of getter and setter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+  });
 
-        var testObject = new TestObject();
-        var mole = new Mole<TestObject>(testObject);
+  describe('setup', () => {
 
-        testObject.onGetterOfGetterAndSetterCalled = () => {
-            // Assert
-            assert.ok(true, 'should call original function');
-        };
+    it('inheritence - callback on sons function should call callback', () => {
+      // Arrange
+      var testObjectSon = new TestObjectSon();
+      var mole = new Mole<TestObjectSon>(testObjectSon);
 
-        mole.setup(_ => _.getterAndSetter).callback(() => {
-            assert.ok(false, 'should not call the setup');
-        });
+      // Act
+      mole.setup(_ => _.noArgumentsFunction()).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      });
 
-        // Act
-        mole.dispose();
-        testObject.getterAndSetter;
+      testObjectSon.noArgumentsFunction();
     });
 
-    QUnit.test('dispose - should call the original setter of getter and setter', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+  });
 
-        var testObject = new TestObject();
-        var mole = new Mole<TestObject>(testObject);
+  describe('dispose', () => {
 
-        testObject.onSetterOfGetterAndSetterCalled = () => {
-            // Assert
-            assert.ok(true, 'should call original function');
-        };
+    it('before dispose should not call the original function', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole<TestObject>(testObject);
 
-        mole.setup(_ => _.getterAndSetter = 1).callback(() => {
-            assert.ok(false, 'should not call the setup');
-        });
+      testObject.onNoArgumentsFunctionCalled = () => {
+        expect(numberOfTimesCalled).to.be.equal(0);
+      };
 
-        // Act
-        mole.dispose();
-        testObject.getterAndSetter = 1;
+      mole.setup(_ => _.noArgumentsFunction()).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      });
+
+      // Act
+      testObject.noArgumentsFunction();
     });
 
-    QUnit.test('findMoleByObject - if null should return null', 1, function (assert: QUnitAssert) {
-        // Act
-        var result = Mole.findMoleByObject(null);
+    it('before dispose should not call the original getter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole<TestObject>(testObject);
 
-        // Assert
-        assert.strictEqual(result, null, 'should return null');
+      testObject.onGetterCalled = () => {
+        expect(numberOfTimesCalled).to.be.equal(0);
+      };
+
+      mole.setup(_ => _.getter).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      });
+
+      // Act
+      testObject.getter;
     });
 
-    QUnit.test('findMoleByObject - if undefined should return null', 1, function (assert: QUnitAssert) {
-        // Act
-        var result = Mole.findMoleByObject(undefined);
+    it('before dispose should not call the original setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole<TestObject>(testObject);
 
-        // Assert
-        assert.strictEqual(result, null, 'should return null');
+      testObject.onSetterCalled = () => {
+        expect(numberOfTimesCalled).to.be.equal(0);
+      };
+
+      mole.setup(_ => _.setter = 1).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      });
+
+      // Act
+      testObject.setter = 1;
     });
 
-    QUnit.test('findMoleByObject - object without mole should return null', 1, function (assert: QUnitAssert) {
-        // Act
-        var result = Mole.findMoleByObject({});
+    it('before dispose should not call the original getter of getter and setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole<TestObject>(testObject);
 
-        // Assert
-        assert.strictEqual(result, null, 'should return null');
+      testObject.onGetterOfGetterAndSetterCalled = () => {
+        expect(numberOfTimesCalled).to.be.equal(0);
+      };
+
+      mole.setup(_ => _.getterAndSetter).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      });
+
+      // Act
+      testObject.getterAndSetter;
     });
 
-    QUnit.test('findMoleByObject - object with mole should return the mole', 1, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    it('before dispose should not call the original setter of getter and setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole<TestObject>(testObject);
 
-        // Act
-        var result = Mole.findMoleByObject(context.testObject);
+      testObject.onSetterOfGetterAndSetterCalled = () => {
+        expect(numberOfTimesCalled).to.be.equal(0);
+      };
 
-        // Assert
-        assert.strictEqual(result, context.mole, 'should return correct mole');
+      mole.setup(_ => _.getterAndSetter = 1).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      });
+
+      // Act
+      testObject.getterAndSetter = 1;
     });
 
-    QUnit.test('findMoleByObject - objects with moles should return correct moles', 3, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    it('should call the original function', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole<TestObject>(testObject);
 
-        var obj1 = {};
-        var obj2 = {};
+      testObject.onNoArgumentsFunctionCalled = () => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      };
 
-        var mole1 = new Mole(obj1);
-        var mole2 = new Mole(obj2);
+      mole.setup(_ => _.noArgumentsFunction()).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(0);
+      });
 
-        // Act
-        var result1 = Mole.findMoleByObject(obj1);
-        var result2 = Mole.findMoleByObject(obj2);
-        var result3 = Mole.findMoleByObject(context.testObject);
-
-        // Assert
-        assert.strictEqual(result1, mole1, 'should return correct mole');
-        assert.strictEqual(result2, mole2, 'should return correct mole');
-        assert.strictEqual(result3, context.mole, 'should return correct mole');
+      // Act
+      mole.dispose();
+      testObject.noArgumentsFunction();
     });
 
-    QUnit.test('findMoleByObject - after dispose on mole should not return the mole for the object', 4, function (assert: QUnitAssert) {
-        // Arrange
-        var context: MoleLifecycleObject = this;
+    it('should call the original getter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole<TestObject>(testObject);
 
-        var obj1 = {};
-        var obj2 = {};
-        var obj3 = {};
+      testObject.onGetterCalled = () => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      };
 
-        var mole1 = new Mole(obj1);
-        var mole2 = new Mole(obj2);
+      mole.setup(_ => _.getter).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(0);
+      });
 
-        // Act
-        mole2.dispose();
-        var mole3 = new Mole(obj3);
-        var result1 = Mole.findMoleByObject(obj1);
-        var result2 = Mole.findMoleByObject(obj2);
-        var result3 = Mole.findMoleByObject(context.testObject);
-        var result4 = Mole.findMoleByObject(obj3);
-
-        // Assert
-        assert.strictEqual(result1, mole1, 'should return correct mole');
-        assert.strictEqual(result2, null, 'should return null after dispose');
-        assert.strictEqual(result3, context.mole, 'should return correct mole');
-        assert.strictEqual(result4, mole3, 'should return correct mole');
+      // Act
+      mole.dispose();
+      testObject.getter;
     });
 
-    QUnit.test('moleReturnValue - should be false', 1, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
+    it('should call the original setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole<TestObject>(testObject);
 
-        // Assert
-        assert.strictEqual(context.mole.moleReturnValue, false, 'moleReturnValue should be false');
+      testObject.onSetterCalled = () => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      };
+
+      mole.setup(_ => _.setter = 1).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(0);
+      });
+
+      // Act
+      mole.dispose();
+      testObject.setter = 1;
     });
 
-    QUnit.test('moleReturnValue - should not create mole of the return value by default', 1, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
+    it('should call the original getter of getter and setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole<TestObject>(testObject);
 
-        // Act
-        var result: TestObject = context.testObject.complexReturnFunction();
-        var mole = Mole.findMoleByObject(result);
+      testObject.onGetterOfGetterAndSetterCalled = () => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      };
 
-        // Assert
-        assert.strictEqual(mole, null, 'should not create mole for return value');
+      mole.setup(_ => _.getterAndSetter).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(0);
+      });
+
+      // Act
+      mole.dispose();
+      testObject.getterAndSetter;
     });
 
-    QUnit.test('moleReturnValue - set to false should not create mole of the return value', 2, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
-        context.mole.moleReturnValue = false;
+    it('should call the original setter of getter and setter', () => {
+      // Arrange
+      var testObject = new TestObject();
+      var mole = new Mole<TestObject>(testObject);
 
-        // Act
-        var result: TestObject = context.testObject.complexReturnFunction();
-        var mole = Mole.findMoleByObject(result);
+      testObject.onSetterOfGetterAndSetterCalled = () => {
+        expect(numberOfTimesCalled).to.be.equal(1);
+      };
 
-        // Assert
-        assert.strictEqual(context.mole.moleReturnValue, false, 'moleReturnValue should be false');
-        assert.strictEqual(mole, null, 'should not create mole for return value');
+      mole.setup(_ => _.getterAndSetter = 1).callback(() => {
+        expect(numberOfTimesCalled).to.be.equal(0);
+      });
+
+      // Act
+      mole.dispose();
+      testObject.getterAndSetter = 1;
     });
 
-    QUnit.test('moleReturnValue - set to true should create mole for the return value', 2, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
-        context.mole.moleReturnValue = true;
+  });
 
-        // Act
-        var result: TestObject = context.testObject.complexReturnFunction();
-        var mole = Mole.findMoleByObject(result);
+  describe('findMoleByObject', () => {
 
-        // Assert
-        assert.strictEqual(context.mole.moleReturnValue, true, 'moleReturnValue should be true');
-        assert.notStrictEqual(mole, null, 'should create mole for return value');
+    it('if null should return null', () => {
+      // Act
+      var result = Mole.findMoleByObject(null);
+
+      // Assert
+      expect(result).to.be.null;
     });
 
-    QUnit.test('moleReturnValue - set to true should create new mole for the return value', 2, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
-        context.mole.moleReturnValue = true;
+    it('if undefined should return null', () => {
+      // Act
+      var result = Mole.findMoleByObject(undefined);
 
-        var returnValue: TestObject = context.testObject.complexReturnFunction();
-        var mole = Mole.findMoleByObject(returnValue);
-        mole.setup(_ => _.returning1Function()).returns(2);
-
-        // Act
-        var result1 = context.testObject.returning1Function();
-        var result2 = returnValue.returning1Function();
-
-        // Assert
-        assert.strictEqual(result1, 1, 'should return the original value');
-        assert.strictEqual(result2, 2, 'should reutrn the setup value');
+      // Assert
+      expect(result).to.be.null;
     });
 
-    QUnit.test('moleReturnValue - set to true should create mole for the return value return value', 2, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
-        context.mole.moleReturnValue = true;
+    it('object without mole should return null', () => {
+      // Act
+      var result = Mole.findMoleByObject({});
 
-        // Act
-        var result: TestObject = context.testObject.complexReturnFunction().complexReturnFunction();
-        var mole = Mole.findMoleByObject(result);
-
-        // Assert
-        assert.strictEqual(context.mole.moleReturnValue, true, 'moleReturnValue should be true');
-        assert.notStrictEqual(mole, null, 'should create mole for return value');
+      // Assert
+      expect(result).to.be.null;
     });
 
-    QUnit.test('moleReturnValue - set to true should create new mole for the return value return value', 2, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
-        context.mole.moleReturnValue = true;
+    it('object with mole should return the mole', () => {
+      // Act
+      var result = Mole.findMoleByObject(testObject);
 
-        var returnValue: TestObject = context.testObject.complexReturnFunction().complexReturnFunction();
-        var mole = Mole.findMoleByObject(returnValue);
-        mole.setup(_ => _.returning1Function()).returns(2);
-
-        // Act
-        var result1 = context.testObject.returning1Function();
-        var result2 = returnValue.returning1Function();
-
-        // Assert
-        assert.strictEqual(result1, 1, 'should return the original value');
-        assert.strictEqual(result2, 2, 'should reutrn the setup value');
+      // Assert
+      expect(result).to.be.equal(mole);
     });
 
-    QUnit.test('moleReturnValue - getter - set to false should not create mole of the return value', 2, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
-        context.mole.moleReturnValue = false;
+    it('objects with moles should return correct moles', () => {
+      // Arrange
+      var obj1 = {};
+      var obj2 = {};
 
-        // Act
-        var result: TestObject = context.testObject.complexGetterFunction;
-        var mole = Mole.findMoleByObject(result);
+      var mole1 = new Mole(obj1);
+      var mole2 = new Mole(obj2);
 
-        // Assert
-        assert.strictEqual(context.mole.moleReturnValue, false, 'moleReturnValue should be false');
-        assert.strictEqual(mole, null, 'should not create mole for return value');
+      // Act
+      var result1 = Mole.findMoleByObject(obj1);
+      var result2 = Mole.findMoleByObject(obj2);
+      var result3 = Mole.findMoleByObject(testObject);
+
+      // Assert
+      expect(result1).to.be.equal(mole1);
+      expect(result2).to.be.equal(mole2);
+      expect(result3).to.be.equal(mole);
     });
 
-    QUnit.test('moleReturnValue - getter - set to true should create mole for the return value', 2, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
-        context.mole.moleReturnValue = true;
+    it('after dispose on mole should not return the mole for the object', () => {
+      // Arrange
+      var obj1 = {};
+      var obj2 = {};
+      var obj3 = {};
 
-        // Act
-        var result: TestObject = context.testObject.complexGetterFunction;
-        var mole = Mole.findMoleByObject(result);
+      var mole1 = new Mole(obj1);
+      var mole2 = new Mole(obj2);
 
-        // Assert
-        assert.strictEqual(context.mole.moleReturnValue, true, 'moleReturnValue should be true');
-        assert.notStrictEqual(mole, null, 'should create mole for return value');
+      // Act
+      mole2.dispose();
+      var mole3 = new Mole(obj3);
+      var result1 = Mole.findMoleByObject(obj1);
+      var result2 = Mole.findMoleByObject(obj2);
+      var result3 = Mole.findMoleByObject(testObject);
+      var result4 = Mole.findMoleByObject(obj3);
+
+      // Assert
+      expect(result1).to.be.equal(mole1);
+      expect(result2).to.be.null;
+      expect(result3).to.be.equal(mole);
+      expect(result4).to.be.equal(mole3);
     });
 
-    QUnit.test('moleReturnValue - getter - set to true should create new mole for the return value', 2, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
-        context.mole.moleReturnValue = true;
+  });
 
-        var returnValue: TestObject = context.testObject.complexGetterFunction;
-        var mole = Mole.findMoleByObject(returnValue);
-        mole.setup(_ => _.returning1Function()).returns(2);
+  describe('moleReturnValue', () => {
 
-        // Act
-        var result1 = context.testObject.returning1Function();
-        var result2 = returnValue.returning1Function();
-
-        // Assert
-        assert.strictEqual(result1, 1, 'should return the original value');
-        assert.strictEqual(result2, 2, 'should reutrn the setup value');
+    it('should be false', () => {
+      // Assert
+      expect(mole.moleReturnValue).to.be.false;
     });
 
-    QUnit.test('moleReturnValue - getter - set to true should create mole for the return value return value', 2, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
-        context.mole.moleReturnValue = true;
+    it('should not create mole of the return value by default', () => {
+      // Act
+      var result: TestObject = testObject.complexReturnFunction();
+      var mole = Mole.findMoleByObject(result);
 
-        // Act
-        var result: TestObject = context.testObject.complexGetterFunction.complexGetterFunction;
-        var mole = Mole.findMoleByObject(result);
-
-        // Assert
-        assert.strictEqual(context.mole.moleReturnValue, true, 'moleReturnValue should be true');
-        assert.notStrictEqual(mole, null, 'should create mole for return value');
+      // Assert
+      expect(mole).to.be.null;
     });
 
-    QUnit.test('moleReturnValue - getter - set to true should create new mole for the return value return value', 2, function (assert: QUnitAssert) {
-        // Attange
-        var context: MoleLifecycleObject = this;
-        context.mole.moleReturnValue = true;
+    it('set to false should not create mole of the return value', () => {
+      // Arrange
+      mole.moleReturnValue = false;
 
-        var returnValue: TestObject = context.testObject.complexGetterFunction.complexGetterFunction;
-        var mole = Mole.findMoleByObject(returnValue);
-        mole.setup(_ => _.returning1Function()).returns(2);
+      // Act
+      var result: TestObject = testObject.complexReturnFunction();
+      var mole = Mole.findMoleByObject(result);
 
-        // Act
-        var result1 = context.testObject.returning1Function();
-        var result2 = returnValue.returning1Function();
-
-        // Assert
-        assert.strictEqual(result1, 1, 'should return the original value');
-        assert.strictEqual(result2, 2, 'should reutrn the setup value');
+      // Assert
+      expect(mole.moleReturnValue).to.be.false;
+      expect(mole).to.be.null;
     });
-}
+
+    it('set to true should create mole for the return value', () => {
+      // Arrange
+      mole.moleReturnValue = true;
+
+      // Act
+      var result: TestObject = testObject.complexReturnFunction();
+      var mole = Mole.findMoleByObject(result);
+
+      // Assert
+      expect(mole.moleReturnValue).to.be.true;
+      expect(mole).to.not.be.null;
+    });
+
+    it('set to true should create new mole for the return value', () => {
+      // Arrange
+      mole.moleReturnValue = true;
+
+      var returnValue: TestObject = testObject.complexReturnFunction();
+      var mole = Mole.findMoleByObject(returnValue);
+      mole.setup(_ => _.returning1Function()).returns(2);
+
+      // Act
+      var result1 = testObject.returning1Function();
+      var result2 = returnValue.returning1Function();
+
+      // Assert
+      expect(result1).to.be.equal(1);
+      expect(result2).to.be.equal(2);
+    });
+
+    it('set to true should create mole for the return value return value', () => {
+      // Arrange
+      mole.moleReturnValue = true;
+
+      // Act
+      var result: TestObject = testObject.complexReturnFunction().complexReturnFunction();
+      var mole = Mole.findMoleByObject(result);
+
+      // Assert
+      expect(mole.moleReturnValue).to.be.true;
+      expect(mole).to.not.be.null;
+    });
+
+    it('set to true should create new mole for the return value return value', () => {
+      // Arrange
+      mole.moleReturnValue = true;
+
+      var returnValue: TestObject = testObject.complexReturnFunction().complexReturnFunction();
+      var mole = Mole.findMoleByObject(returnValue);
+      mole.setup(_ => _.returning1Function()).returns(2);
+
+      // Act
+      var result1 = testObject.returning1Function();
+      var result2 = returnValue.returning1Function();
+
+      // Assert
+      expect(result1).to.be.equal(1);
+      expect(result2).to.be.equal(2);
+    });
+
+    it('set to false should not create mole of the return value', () => {
+      // Arrange
+      mole.moleReturnValue = false;
+
+      // Act
+      var result: TestObject = testObject.complexGetterFunction;
+      var mole = Mole.findMoleByObject(result);
+
+      // Assert
+      expect(mole.moleReturnValue).to.be.false;
+      expect(mole).to.be.null;
+    });
+
+    it('set to true should create mole for the return value', () => {
+      // Arrange
+      mole.moleReturnValue = true;
+
+      // Act
+      var result: TestObject = testObject.complexGetterFunction;
+      var mole = Mole.findMoleByObject(result);
+
+      // Assert
+      expect(mole.moleReturnValue).to.be.true;
+      expect(mole).to.not.be.null;
+    });
+
+    it('set to true should create new mole for the return value', () => {
+      // Arrange
+      mole.moleReturnValue = true;
+
+      var returnValue: TestObject = testObject.complexGetterFunction;
+      var mole = Mole.findMoleByObject(returnValue);
+      mole.setup(_ => _.returning1Function()).returns(2);
+
+      // Act
+      var result1 = testObject.returning1Function();
+      var result2 = returnValue.returning1Function();
+
+      // Assert
+      expect(result1).to.be.equal(1);
+      expect(result2).to.be.equal(2);
+    });
+
+    it('set to true should create mole for the return value return value', () => {
+      // Arrange
+      mole.moleReturnValue = true;
+
+      // Act
+      var result: TestObject = testObject.complexGetterFunction.complexGetterFunction;
+      var mole = Mole.findMoleByObject(result);
+
+      // Assert
+      expect(mole.moleReturnValue).to.be.true;
+      expect(mole).to.not.be.null;
+    });
+
+    it('set to true should create new mole for the return value return value', () => {
+      // Arrange
+      mole.moleReturnValue = true;
+
+      var returnValue: TestObject = testObject.complexGetterFunction.complexGetterFunction;
+      var mole = Mole.findMoleByObject(returnValue);
+      mole.setup(_ => _.returning1Function()).returns(2);
+
+      // Act
+      var result1 = testObject.returning1Function();
+      var result2 = returnValue.returning1Function();
+
+      // Assert
+      expect(result1).to.be.equal(1);
+      expect(result2).to.be.equal(2);
+    });
+
+  });
+
+});
